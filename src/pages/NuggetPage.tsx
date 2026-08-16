@@ -3,7 +3,6 @@ import { NUGGETS, getNugget } from '@/content/nuggets';
 import { useRecordReadingProgress } from '@/hooks/useContinueReading';
 import { LazyMarkdownRenderer } from '@/components/LazyMarkdownRenderer';
 import { getRelatedNuggets } from '@/lib/related';
-import { formatDate } from '@/lib/text';
 
 export function NuggetPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,10 +36,6 @@ export function NuggetPage() {
             ))}
           </div>
         )}
-
-        <p className="text-xs text-text-tertiary">
-          Updated {formatDate(nugget.updatedAt)}
-        </p>
       </header>
 
       <LazyMarkdownRenderer content={nugget.body} />

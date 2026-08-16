@@ -3,9 +3,9 @@ import type { Nugget } from '@/types';
 const DEFAULT_LIMIT = 3;
 
 /**
- * Nuggets sharing the most tags with `nugget`, most-shared first (ties broken
- * by most recently updated). Purely tag-derived — any nugget with tags
- * participates automatically, no manual curation required.
+ * Nuggets sharing the most tags with `nugget`, most-shared first (ties
+ * broken alphabetically by title). Purely tag-derived — any nugget with
+ * tags participates automatically, no manual curation required.
  */
 export function getRelatedNuggets(
   nugget: Nugget,
@@ -23,7 +23,7 @@ export function getRelatedNuggets(
     .filter(({ sharedTags }) => sharedTags > 0)
     .sort((a, b) => {
       if (b.sharedTags !== a.sharedTags) return b.sharedTags - a.sharedTags;
-      return b.candidate.updatedAt.localeCompare(a.candidate.updatedAt);
+      return a.candidate.title.localeCompare(b.candidate.title);
     })
     .slice(0, limit)
     .map(({ candidate }) => candidate);

@@ -52,6 +52,10 @@ lazy-loading behavior rather than an obvious loop in application code.
   ORMs (Django, ActiveRecord, SQLAlchemy) have a query-count assertion or
   a "N+1 detected" warning mode for exactly this reason.
 
+N+1 is about the _number_ of queries; a slow query even after fixing that
+is usually a missing [index](/nuggets/database-indexing) — the other half
+of "why is this page slow."
+
 ## Key insight
 
 The fix is almost always "turn N queries into 1" — via a join, or by

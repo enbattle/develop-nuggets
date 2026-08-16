@@ -16,11 +16,14 @@ later.
 - **Markdown content** — fenced code blocks are syntax-highlighted
   (via [Shiki](https://shiki.style)); ` ```mermaid ` fences render as diagrams
   (via [Mermaid](https://mermaid.js.org)).
-- **Tags & updated dates** — every nugget carries tags (filterable from the
-  home screen) and a last-updated date, so the catalog stays organized as it
-  grows.
+- **Tags** — every nugget carries tags, filterable from the home screen,
+  so the catalog stays organized as it grows.
 - **Related nuggets** — each nugget page links to others that share tags,
   computed automatically (no manual curation needed as the catalog grows).
+- **Sidebar navigation** — every nugget listed alphabetically, always
+  available for quick lookup (collapses to a drawer on mobile).
+- **Paginated home list** — 10 nuggets at a time, with a "Load more" button,
+  so the catalog stays scannable as it grows.
 - **Continue reading** — the home screen resumes at whatever you were last
   reading, scroll position included. This is the only thing stored in the
   browser — the content itself ships with the app.

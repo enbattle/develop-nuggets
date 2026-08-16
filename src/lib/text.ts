@@ -14,14 +14,3 @@ export function excerpt(markdown: string, maxLength = 160): string {
     ? `${plain.slice(0, maxLength).trimEnd()}…`
     : plain;
 }
-
-export function formatDate(iso: string): string {
-  // Date-only ISO strings (e.g. "2026-01-15") parse as UTC midnight — format
-  // in UTC too, or a viewer west of UTC sees the previous day.
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(iso));
-}

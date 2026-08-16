@@ -8,7 +8,6 @@ function nugget(overrides: Partial<Nugget>): Nugget {
     title: 'Title',
     body: 'body',
     tags: [],
-    updatedAt: '2026-01-01',
     ...overrides,
   };
 }

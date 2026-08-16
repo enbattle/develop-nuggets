@@ -5,6 +5,5 @@ export const idempotency: Nugget = {
   id: 'idempotency',
   title: 'Idempotency',
   tags: ['apis', 'reliability'],
-  updatedAt: '2026-01-01',
   body,
 };

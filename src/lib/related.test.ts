@@ -2,16 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { getRelatedNuggets } from './related';
 import type { Nugget } from '@/types';
 
-function nugget(id: string, tags: string[], updatedAt: string): Nugget {
-  return { id, title: id, body: '', tags, updatedAt };
+function nugget(id: string, tags: string[], title = id): Nugget {
+  return { id, title, body: '', tags };
 }
 
 describe('getRelatedNuggets', () => {
   it('ranks by number of shared tags, most first', () => {
-    const target = nugget('a', ['reliability', 'apis'], '2026-01-01');
-    const twoShared = nugget('b', ['reliability', 'apis'], '2026-01-01');
-    const oneShared = nugget('c', ['reliability'], '2026-01-01');
-    const unrelated = nugget('d', ['databases'], '2026-01-01');
+    const target = nugget('a', ['reliability', 'apis']);
+    const twoShared = nugget('b', ['reliability', 'apis']);
+    const oneShared = nugget('c', ['reliability']);
+    const unrelated = nugget('d', ['databases']);
 
     const result = getRelatedNuggets(target, [
       target,
@@ -24,26 +24,24 @@ describe('getRelatedNuggets', () => {
   });
 
   it('excludes the nugget itself', () => {
-    const target = nugget('a', ['patterns'], '2026-01-01');
+    const target = nugget('a', ['patterns']);
     const result = getRelatedNuggets(target, [target]);
     expect(result).toEqual([]);
   });
 
-  it('breaks ties by most recently updated', () => {
-    const target = nugget('a', ['patterns'], '2026-01-01');
-    const older = nugget('b', ['patterns'], '2025-01-01');
-    const newer = nugget('c', ['patterns'], '2026-06-01');
+  it('breaks ties alphabetically by title', () => {
+    const target = nugget('a', ['patterns'], 'Target');
+    const zebra = nugget('b', ['patterns'], 'Zebra');
+    const apple = nugget('c', ['patterns'], 'Apple');
 
-    const result = getRelatedNuggets(target, [target, older, newer]);
+    const result = getRelatedNuggets(target, [target, zebra, apple]);
 
     expect(result.map((n) => n.id)).toEqual(['c', 'b']);
   });
 
   it('respects the limit', () => {
-    const target = nugget('a', ['patterns'], '2026-01-01');
-    const others = ['b', 'c', 'd', 'e'].map((id) =>
-      nugget(id, ['patterns'], '2026-01-01'),
-    );
+    const target = nugget('a', ['patterns']);
+    const others = ['b', 'c', 'd', 'e'].map((id) => nugget(id, ['patterns']));
 
     const result = getRelatedNuggets(target, [target, ...others], 2);
 

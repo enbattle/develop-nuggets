@@ -5,6 +5,5 @@ export const expandContract: Nugget = {
   id: 'expand-contract',
   title: 'Expand-Contract Pattern',
   tags: ['patterns', 'migrations'],
-  updatedAt: '2026-01-01',
   body,
 };

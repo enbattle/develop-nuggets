@@ -5,6 +5,5 @@ export const outboxPattern: Nugget = {
   id: 'outbox-pattern',
   title: 'Outbox Pattern',
   tags: ['reliability', 'patterns', 'messaging'],
-  updatedAt: '2026-01-15',
   body,
 };

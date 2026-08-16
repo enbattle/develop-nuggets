@@ -119,30 +119,29 @@ One entity, deliberately minimal (`src/types.ts`):
 interface Nugget {
   id: string;
   title: string;
-  body: string;       // markdown — fenced ```lang blocks and ```mermaid diagrams render inline
+  body: string;  // markdown — fenced ```lang blocks and ```mermaid diagrams render inline
   tags: string[];
-  updatedAt: string;  // ISO date, set by whoever authors/updates the file
 }
 ```
+
+No dates — no `createdAt`/`updatedAt`. There's no reader-facing use for them
+(the app has no notion of "new since you last visited"), and they'd be
+authored by hand anyway with no way to guarantee they're accurate, so they'd
+just be a maintenance cost with no real payoff. If a genuine need for
+ordering-by-recency shows up later, reconsider then — don't re-add "just in
+case."
 
 Nuggets live in `src/content/nuggets/`, one markdown file + one metadata
 file per nugget:
 
 ```
 src/content/nuggets/
-  expand-contract.md      # prose, fenced code, mermaid — pure markdown
-  expand-contract.ts       # metadata, body imported from the .md via `?raw`
+  expand-contract.md   # prose, fenced code, mermaid — pure markdown
+  expand-contract.ts    # metadata, body imported from the .md via `?raw`
   idempotency.md
   idempotency.ts
-  exponential-backoff.md
-  exponential-backoff.ts
-  outbox-pattern.md
-  outbox-pattern.ts
-  n-plus-one-queries.md
-  n-plus-one-queries.ts
-  circuit-breaker.md
-  circuit-breaker.ts
-  index.ts                  # NUGGETS: Nugget[] — the registry every page reads from
+  ...                     # one .md + .ts pair per nugget, same shape
+  index.ts               # NUGGETS: Nugget[] — the registry every page reads from
 ```
 
 **Adding a nugget:**
@@ -162,15 +161,14 @@ src/content/nuggets/
      id: '<slug>',
      title: 'My Title',
      tags: ['some', 'tags'],
-     updatedAt: '2026-01-01',
      body,
    };
    ```
    Reuse existing tags where they genuinely fit (`reliability`, `patterns`,
-   `apis`, `migrations`, `databases`, `performance`, `messaging`) rather
-   than inventing near-duplicates — the tag vocabulary is what drives both
-   the home page's filter chips and the "Related" section (see below), so
-   a fragmented vocabulary weakens both.
+   `apis`, `migrations`, `databases`, `performance`, `messaging`, `security`,
+   `testing`, `git`) rather than inventing near-duplicates — the tag
+   vocabulary is what drives both the home page's filter chips and the
+   "Related" section (see below), so a fragmented vocabulary weakens both.
 3. Import it and add it to the `NUGGETS` array in
    `src/content/nuggets/index.ts`.
 
@@ -183,8 +181,8 @@ avoids that entirely.
 ### Related nuggets
 
 `getRelatedNuggets` (`src/lib/related.ts`) ranks every other nugget by
-number of shared tags with the current one (ties broken by most recently
-updated) and returns the top 3. `NuggetPage` renders those as a "Related"
+number of shared tags with the current one (ties broken alphabetically by
+title) and returns the top 3. `NuggetPage` renders those as a "Related"
 section below the content. This is entirely tag-derived — there's no
 per-nugget `related: [...]` field to maintain, so any new nugget
 participates automatically as long as its tags overlap with something
@@ -238,11 +236,38 @@ from `AppShell` in `App.tsx`.
 Two routes (`src/App.tsx`):
 
 - `/` — `HomePage`: continue-reading banner, tag filter chips, nugget list
-  (sorted by `updatedAt`)
+  (sorted alphabetically by title)
 - `/nuggets/:id` — `NuggetPage`: rendered nugget content
 
 `Header` (search, theme toggle) is rendered once in `AppShell`, above the
 routed content, so it's present on every page.
+
+### Sidebar
+
+`Sidebar` (`src/components/Sidebar.tsx`) lists every nugget alphabetically
+by title — not grouped by tag. Tags are multi-valued (a nugget can be both
+`reliability` and `patterns`), so a tag-grouped sidebar would mean either
+duplicating entries across sections or inventing an unspecified "primary
+tag." Topic-based browsing is already the home page's job (tag chips +
+related nuggets); the sidebar's job is fast, unambiguous lookup by name
+from any page.
+
+`AppShell` renders two copies of it: a static one in a `hidden md:block`
+`<aside>` for desktop, and a second one inside a fixed-overlay drawer
+(`role="dialog"`) toggled by the hamburger button in `Header`, for
+viewports below `md`. Both read the same `NUGGETS` constant — there's no
+prop threading data into either. The drawer closes on backdrop click,
+`Escape`, or clicking a link (`Sidebar`'s `onNavigate` prop).
+
+### Pagination
+
+`HomePage` renders the tag-filtered, alphabetically-sorted list in pages of
+`PAGE_SIZE` (10), with a "Load N more" button appending another page to
+`visibleCount`. Selecting a different tag resets `visibleCount` back to
+`PAGE_SIZE` — otherwise a filter that matches only a few nuggets could
+leave a stale, unreachable "Load more" state. Since `NUGGETS` is a
+plain in-memory array (no backend), "loading more" is just revealing more
+of it — no fetch, no loading state to handle.
 
 ### Path alias
 

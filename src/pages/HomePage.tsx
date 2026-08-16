@@ -2,11 +2,14 @@ import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { NUGGETS } from '@/content/nuggets';
 import { useLastViewedNugget } from '@/hooks/useContinueReading';
-import { excerpt, formatDate } from '@/lib/text';
+import { excerpt } from '@/lib/text';
+
+const PAGE_SIZE = 10;
 
 export function HomePage() {
   const lastViewed = useLastViewedNugget(NUGGETS);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const tags = useMemo(() => {
     const set = new Set<string>();
@@ -14,12 +17,20 @@ export function HomePage() {
     return Array.from(set).sort();
   }, []);
 
-  const visible = useMemo(() => {
-    const filtered = selectedTag
+  const filtered = useMemo(() => {
+    const matches = selectedTag
       ? NUGGETS.filter((nugget) => nugget.tags.includes(selectedTag))
       : NUGGETS;
-    return [...filtered].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return [...matches].sort((a, b) => a.title.localeCompare(b.title));
   }, [selectedTag]);
+
+  const visible = filtered.slice(0, visibleCount);
+  const remaining = filtered.length - visible.length;
+
+  const selectTag = (tag: string | null) => {
+    setSelectedTag(tag);
+    setVisibleCount(PAGE_SIZE);
+  };
 
   if (NUGGETS.length === 0) {
     return (
@@ -57,7 +68,7 @@ export function HomePage() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setSelectedTag(null)}
+            onClick={() => selectTag(null)}
             className={tagChipClass(selectedTag === null)}
           >
             All
@@ -66,7 +77,7 @@ export function HomePage() {
             <button
               key={tag}
               type="button"
-              onClick={() => setSelectedTag(tag)}
+              onClick={() => selectTag(tag)}
               className={tagChipClass(selectedTag === tag)}
             >
               {tag}
@@ -91,9 +102,6 @@ export function HomePage() {
                 </p>
               )}
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
-                <time dateTime={nugget.updatedAt}>
-                  {formatDate(nugget.updatedAt)}
-                </time>
                 {nugget.tags.map((tag) => (
                   <span
                     key={tag}
@@ -107,6 +115,16 @@ export function HomePage() {
           </li>
         ))}
       </ul>
+
+      {remaining > 0 && (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+          className="self-center rounded-md border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-tertiary"
+        >
+          Load {Math.min(PAGE_SIZE, remaining)} more
+        </button>
+      )}
     </div>
   );
 }

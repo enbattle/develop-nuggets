@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { excerpt, formatDate } from './text';
+import { excerpt } from './text';
 
 describe('excerpt', () => {
   it('strips fenced code blocks entirely', () => {
@@ -22,11 +22,5 @@ describe('excerpt', () => {
 
   it('leaves short text untouched', () => {
     expect(excerpt('Short and sweet.')).toBe('Short and sweet.');
-  });
-});
-
-describe('formatDate', () => {
-  it('formats an ISO date as a short human-readable date', () => {
-    expect(formatDate('2026-01-15')).toBe('Jan 15, 2026');
   });
 });
