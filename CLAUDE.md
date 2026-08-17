@@ -166,8 +166,8 @@ src/content/nuggets/
    ```
    Reuse existing tags where they genuinely fit (`reliability`, `patterns`,
    `apis`, `migrations`, `databases`, `performance`, `messaging`, `security`,
-   `testing`, `git`) rather than inventing near-duplicates — the tag
-   vocabulary is what drives both the home page's filter chips and the
+   `testing`, `git`, `ai`, `process`) rather than inventing near-duplicates —
+   the tag vocabulary is what drives both the home page's filter chips and the
    "Related" section (see below), so a fragmented vocabulary weakens both.
 3. Import it and add it to the `NUGGETS` array in
    `src/content/nuggets/index.ts`.

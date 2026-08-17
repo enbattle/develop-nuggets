@@ -4,7 +4,10 @@ Techniques for keeping a cache from serving stale data once the
 underlying data changes. The three common strategies are **TTL**
 (time-based expiry), **cache-aside** (the app reads through the cache and
 explicitly invalidates on write), and **write-through** (writes go to the
-cache and the database together).
+cache and the database together). For the question of _whether_ and _how
+stale_ a given piece of data is allowed to be in the first place, see
+[Cache vs. Freshness](/nuggets/cache-vs-freshness) — this nugget is about
+the mechanics of keeping a cache correct once you've decided to use one.
 
 ## Why it matters
 

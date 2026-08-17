@@ -40,22 +40,27 @@ describe('HomePage', () => {
     expect(screen.getByText(/continue reading/i)).toBeInTheDocument();
   });
 
-  it('caps the initial list at 10 and loads the rest on demand', async () => {
+  it('caps the initial list at 10 and loads 10 more per click', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
     expect(screen.getAllByRole('listitem')).toHaveLength(PAGE_SIZE);
-    const remaining = NUGGETS.length - PAGE_SIZE;
-    const loadMoreButton = screen.getByRole('button', {
-      name: new RegExp(`load ${remaining} more`, 'i'),
-    });
 
-    await user.click(loadMoreButton);
+    // Each click reveals at most PAGE_SIZE more, however many pages that takes.
+    let loadMoreButton = screen.queryByRole('button', {
+      name: /load .* more/i,
+    });
+    while (loadMoreButton) {
+      const before = screen.getAllByRole('listitem').length;
+      await user.click(loadMoreButton);
+      const after = screen.getAllByRole('listitem').length;
+      expect(after - before).toBeLessThanOrEqual(PAGE_SIZE);
+      loadMoreButton = screen.queryByRole('button', {
+        name: /load .* more/i,
+      });
+    }
 
     expect(screen.getAllByRole('listitem')).toHaveLength(NUGGETS.length);
-    expect(
-      screen.queryByRole('button', { name: /load .* more/i }),
-    ).not.toBeInTheDocument();
   });
 
   it('resets pagination when the tag filter changes', async () => {
@@ -63,11 +68,11 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: /load .* more/i }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(NUGGETS.length);
+    expect(screen.getAllByRole('listitem')).toHaveLength(PAGE_SIZE * 2);
 
     await user.click(screen.getByRole('button', { name: 'apis' }));
 
-    // 'apis' matches 4 nuggets — comfortably under PAGE_SIZE, so no leftover "Load more".
+    // 'apis' matches far fewer than PAGE_SIZE nuggets, so no leftover "Load more".
     expect(
       screen.queryByRole('button', { name: /load .* more/i }),
     ).not.toBeInTheDocument();

@@ -9,7 +9,8 @@ const alphabetical = [...NUGGETS].sort((a, b) =>
   a.title.localeCompare(b.title),
 );
 const firstPageTitle = alphabetical[0].title;
-// 16 nuggets > PAGE_SIZE (10), so the last alphabetically is guaranteed off the home page's first page.
+// The catalog is bigger than PAGE_SIZE (10), so the last nugget alphabetically
+// is guaranteed off the home page's first page.
 const laterPageTitle = alphabetical[alphabetical.length - 1].title;
 
 describe('App', () => {

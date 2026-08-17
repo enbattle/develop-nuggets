@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { NuggetPage } from './NuggetPage';
 
@@ -20,10 +20,15 @@ describe('NuggetPage', () => {
   it('renders a known nugget with its tags', () => {
     renderAt('/nuggets/expand-contract');
 
+    const heading = screen.getByRole('heading', {
+      name: 'Expand-Contract Pattern',
+    });
+    expect(heading).toBeInTheDocument();
+    // Scoped to the header — the related-nuggets footer can also mention
+    // "patterns" as part of another nugget's tag list.
     expect(
-      screen.getByRole('heading', { name: 'Expand-Contract Pattern' }),
+      within(heading.closest('header')!).getByText('patterns'),
     ).toBeInTheDocument();
-    expect(screen.getByText('patterns')).toBeInTheDocument();
   });
 
   it('shows a not-found message for an unknown id', () => {
