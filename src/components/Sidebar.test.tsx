@@ -64,4 +64,29 @@ describe('Sidebar', () => {
 
     expect(onNavigate).toHaveBeenCalled();
   });
+
+  it('collapses and re-expands a group when its heading is clicked', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Sidebar />
+      </MemoryRouter>,
+    );
+
+    const guidesToggle = screen.getByRole('button', { name: 'Guides' });
+    expect(guidesToggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('link', { name: 'Idempotency' })).toBeInTheDocument();
+
+    await user.click(guidesToggle);
+
+    expect(guidesToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('link', { name: 'Redis' })).not.toBeInTheDocument();
+    // Collapsing Guides doesn't touch the independent Nuggets group.
+    expect(screen.getByRole('link', { name: 'Idempotency' })).toBeInTheDocument();
+
+    await user.click(guidesToggle);
+
+    expect(guidesToggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('link', { name: 'Redis' })).toBeInTheDocument();
+  });
 });
