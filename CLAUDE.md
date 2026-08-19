@@ -348,8 +348,8 @@ within). `top-16`/`4rem` matches `Header`'s rendered height — if `Header`'s
 height ever changes, update both to match, or the sidebar will either gap
 below the header or tuck under it. The effect: the sidebar stays pinned
 in the viewport while the article scrolls, and only scrolls internally
-once its own content (now 35+ nuggets and 15 guides) exceeds the viewport
-height.
+once its own content (dozens of nuggets plus 15 guides, and growing)
+exceeds the viewport height.
 
 ### Home page: tabs + pagination
 

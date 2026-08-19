@@ -14,20 +14,22 @@ later.
 ## Features
 
 - **Search** — `Ctrl`/`Cmd` + `K` fuzzy-searches title, tags, and body
-  ([Fuse.js](https://www.fusejs.io)).
+  ([Fuse.js](https://www.fusejs.io)) across nuggets and guides together,
+  each result tagged with its format.
 - **Markdown content** — fenced code blocks are syntax-highlighted
   (via [Shiki](https://shiki.style)); ` ```mermaid ` fences render as diagrams
   (via [Mermaid](https://mermaid.js.org)).
-- **Tags** — every nugget carries tags, filterable from the home screen,
-  so the catalog stays organized as it grows.
+- **Tags** — every nugget and guide carries tags, filterable per tab from
+  the home screen, so the catalog stays organized as it grows.
 - **Related content** — each page links to others that share tags,
   computed automatically (no manual curation needed as the catalog grows).
+- **Home screen tabs** — Nuggets and Guides each get their own tab, tag
+  filter chips, and pagination (10 at a time, with "Load more"); switching
+  tabs starts that tab fresh (no filter carried over from the other one).
 - **Sidebar navigation** — guides, then every nugget, each listed
-  alphabetically, always available for quick lookup (stays in view while
-  you scroll; collapses to a drawer on mobile).
-- **Paginated nugget list** — 10 at a time, with a "Load more" button, so
-  the catalog stays scannable as it grows. Guides are a smaller, always-
-  fully-visible set shown above it.
+  alphabetically within a collapsible section (collapse the ones you're
+  not using), always available for quick lookup (stays in view while you
+  scroll; collapses to a drawer on mobile).
 - **Continue reading** — the home screen resumes at whatever you were last
   reading, scroll position included. This is the only thing stored in the
   browser — the content itself ships with the app.
