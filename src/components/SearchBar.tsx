@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Nugget } from '@/types';
 import { CONTENT, contentPath } from '@/content';
 import { searchNuggets } from '@/lib/search';
+import { FORMAT_LABELS } from '@/lib/format';
 
 export const SearchBar = forwardRef<HTMLInputElement>(
   function SearchBar(_props, ref) {
@@ -63,11 +64,9 @@ export const SearchBar = forwardRef<HTMLInputElement>(
                     <span className="font-medium text-text-primary">
                       {item.title}
                     </span>
-                    {item.format === 'guide' && (
-                      <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-accent">
-                        Guide
-                      </span>
-                    )}
+                    <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-accent">
+                      {FORMAT_LABELS[item.format]}
+                    </span>
                   </span>
                   {item.tags.length > 0 && (
                     <span className="text-xs text-text-tertiary">
