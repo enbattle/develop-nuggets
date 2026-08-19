@@ -3,7 +3,7 @@ import type { Nugget } from '@/types';
 
 export const apiBestPractices: Nugget = {
   id: 'api-best-practices',
-  title: 'API Best Practices',
+  title: 'APIs: Best Practices',
   tags: ['apis', 'security', 'reliability'],
   body,
   format: 'guide',

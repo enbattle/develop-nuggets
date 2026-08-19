@@ -22,6 +22,19 @@ import { sqlVsNosql } from './sql-vs-nosql';
 import { cacheVsFreshness } from './cache-vs-freshness';
 import { abstractionVsCoupling } from './abstraction-vs-coupling';
 import { technicalDebtVsTimeToMarket } from './technical-debt-vs-time-to-market';
+import { shardingStrategies } from './sharding-strategies';
+import { numbersEveryEngineerShouldKnow } from './numbers-every-engineer-should-know';
+import { scalingReadsVsScalingWrites } from './scaling-reads-vs-scaling-writes';
+import { optimisticVsPessimisticLocking } from './optimistic-vs-pessimistic-locking';
+import { sagaPattern } from './saga-pattern';
+import { largeFileUploads } from './large-file-uploads';
+import { longRunningTasks } from './long-running-tasks';
+import { geospatialIndexing } from './geospatial-indexing';
+import { distributedLocks } from './distributed-locks';
+import { changeDataCapture } from './change-data-capture';
+import { timeSeriesDatabases } from './time-series-databases';
+import { vectorDatabases } from './vector-databases';
+import { partitioningVsSharding } from './partitioning-vs-sharding';
 
 /** Add a new nugget's import here — see CLAUDE.md "Adding a nugget". */
 export const NUGGETS: Nugget[] = [
@@ -48,4 +61,17 @@ export const NUGGETS: Nugget[] = [
   cacheVsFreshness,
   abstractionVsCoupling,
   technicalDebtVsTimeToMarket,
+  shardingStrategies,
+  numbersEveryEngineerShouldKnow,
+  scalingReadsVsScalingWrites,
+  optimisticVsPessimisticLocking,
+  sagaPattern,
+  largeFileUploads,
+  longRunningTasks,
+  geospatialIndexing,
+  distributedLocks,
+  changeDataCapture,
+  timeSeriesDatabases,
+  vectorDatabases,
+  partitioningVsSharding,
 ];
