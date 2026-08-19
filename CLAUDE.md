@@ -180,6 +180,30 @@ src/content/
                             # reads through this file, not the per-format ones.
 ```
 
+**Guide titles: the `Topic: Subtopic` convention.** Some guides share a
+title prefix (`Networking: Protocols`, `Networking: Load Balancing`,
+`Networking: Real-Time Communication`, `Networking: CDN`; `APIs: Best
+Practices`, `APIs: REST vs. GraphQL vs. gRPC`, `APIs: Gateway`) — that
+prefix means "this guide is one chapter of a single subject too big for
+one page," not "this guide is loosely related to other things tagged
+the same way." Use it when a new guide is genuinely another chapter of
+an *existing* multi-guide family. Don't use it for a technology
+primer — `Redis`, `Kafka`, `Elasticsearch`, `Relational Databases`,
+`DynamoDB & Cassandra`, `Serverless & AWS Lambda` are each "here's what
+this specific product is," and prefixing them with their domain
+(`Databases: Redis`) wouldn't disambiguate anything the name doesn't
+already say — the prefix has to be doing real disambiguation work to
+earn its place, not just restating the tag. This is a **guides-only**
+convention; don't apply it to nuggets — a nugget's whole value is being
+atomic and instantly recognizable by its own name (`Circuit Breaker`,
+not `Resilience Patterns: Circuit Breaker`), and `tags` (see "Reuse
+existing tags" below) already do that grouping work for nuggets without
+sacrificing standalone recall. It's a separate convention from `X vs.
+Y` (`SQL vs. NoSQL`, `Partitioning vs. Sharding`), which is for
+disambiguating two commonly-confused terms as equals, not splitting one
+topic into parts — both conventions coexist and shouldn't be mixed
+(don't write `Networking: X vs. Y`).
+
 **Adding a nugget:**
 
 1. Write `src/content/nuggets/<slug>.md` — pure markdown, no frontmatter.
@@ -348,7 +372,7 @@ within). `top-16`/`4rem` matches `Header`'s rendered height — if `Header`'s
 height ever changes, update both to match, or the sidebar will either gap
 below the header or tuck under it. The effect: the sidebar stays pinned
 in the viewport while the article scrolls, and only scrolls internally
-once its own content (dozens of nuggets plus 15 guides, and growing)
+once its own content (dozens of nuggets plus a growing set of guides)
 exceeds the viewport height.
 
 ### Home page: tabs + pagination
@@ -358,8 +382,8 @@ exceeds the viewport height.
 sections. That stacking was the original design (see git history) but
 stopped working once the catalog passed ~50 items combined; `CLAUDE.md`
 had explicitly called out guides being unpaginated as a decision to
-*reconsider* once there were "many guides" — there are now 15, so this
-is that reconsideration.
+*reconsider* once there were "many guides" — there are now more than a
+dozen, so this is that reconsideration.
 
 Both tabs are the same `PaginatedContentList` component
 (`src/components/PaginatedContentList.tsx`), given a different `items`

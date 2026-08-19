@@ -57,7 +57,10 @@ Any system with multiple backend services behind one public surface —
 almost every microservices architecture uses one, both for the reasons
 above and because it's the natural place to enforce a consistent API
 contract across services that might otherwise each drift toward
-inconsistent conventions.
+inconsistent conventions. Pairing an API gateway with
+[serverless functions](/guides/serverless-aws-lambda) as the backend —
+API Gateway routing directly to Lambda, with no server running between
+requests — is one of the most common shapes a small API takes.
 
 ## Key insight
 

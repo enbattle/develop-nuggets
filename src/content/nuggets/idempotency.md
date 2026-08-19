@@ -53,6 +53,10 @@ generating a new key per retry defeats the purpose entirely.
   header on charge creation for exactly this reason.
 - **Message queues** — consumers should be idempotent, since most queues
   guarantee _at-least-once_ delivery, not _exactly-once_.
+- **Serverless functions** — asynchronous invocations (see
+  [Serverless & AWS Lambda](/guides/serverless-aws-lambda)) retry
+  automatically on failure by default, with no code requesting it —
+  making idempotency non-optional, not just good practice.
 - **Database writes** — `UPSERT`/`INSERT ... ON CONFLICT` are idempotent by
   construction; a naive `INSERT` retried after a timeout can create
   duplicates.

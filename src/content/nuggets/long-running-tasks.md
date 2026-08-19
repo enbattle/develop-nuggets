@@ -54,8 +54,11 @@ done or in progress" before redoing the work.
 
 Any operation whose natural duration exceeds a reasonable request
 timeout: exports and reports, media processing, batch imports, ML
-inference on large inputs. The underlying mechanics (a durable job
-queue, idempotent workers) are shared with
+inference on large inputs. It's also the required pattern for anything
+running behind [API Gateway](/guides/api-gateway) into
+[Lambda](/guides/serverless-aws-lambda), since API Gateway's own
+29-second timeout is often tighter than the actual work. The underlying
+mechanics (a durable job queue, idempotent workers) are shared with
 [the Outbox Pattern](/nuggets/outbox-pattern) and
 [the Saga Pattern](/nuggets/saga-pattern) — all three are variations on
 "do work reliably, outside the request/response cycle."
