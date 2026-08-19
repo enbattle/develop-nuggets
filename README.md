@@ -1,9 +1,11 @@
 # Dev Nuggets
 
 A personal, no-backend reference site for programming concepts worth
-remembering — patterns, gotchas, short write-ups with code and diagrams.
-It's a catalog to search and read, not a note-taking app: nuggets are
-written into the codebase (like a small wiki), not created from the UI.
+remembering — patterns, gotchas, short write-ups with code and
+diagrams, plus longer-form guides for topics that need more room
+(technology primers, walkthroughs, best-practices checklists). It's a
+catalog to search and read, not a note-taking app: content is written
+into the codebase (like a small wiki), not created from the UI.
 
 Built after learning the [expand-contract pattern](src/content/nuggets/expand-contract.md)
 and wanting a well-designed place to write that kind of thing down for
@@ -18,12 +20,14 @@ later.
   (via [Mermaid](https://mermaid.js.org)).
 - **Tags** — every nugget carries tags, filterable from the home screen,
   so the catalog stays organized as it grows.
-- **Related nuggets** — each nugget page links to others that share tags,
+- **Related content** — each page links to others that share tags,
   computed automatically (no manual curation needed as the catalog grows).
-- **Sidebar navigation** — every nugget listed alphabetically, always
-  available for quick lookup (collapses to a drawer on mobile).
-- **Paginated home list** — 10 nuggets at a time, with a "Load more" button,
-  so the catalog stays scannable as it grows.
+- **Sidebar navigation** — guides, then every nugget, each listed
+  alphabetically, always available for quick lookup (stays in view while
+  you scroll; collapses to a drawer on mobile).
+- **Paginated nugget list** — 10 at a time, with a "Load more" button, so
+  the catalog stays scannable as it grows. Guides are a smaller, always-
+  fully-visible set shown above it.
 - **Continue reading** — the home screen resumes at whatever you were last
   reading, scroll position included. This is the only thing stored in the
   browser — the content itself ships with the app.
@@ -53,8 +57,9 @@ npm run test:run         # Run tests once (CI mode)
 npm run test:coverage    # Run tests with a coverage report
 ```
 
-## Adding a nugget
+## Adding a nugget or guide
 
-There's no in-app editor — nuggets are added as source files and shipped
+There's no in-app editor — content is added as source files and shipped
 with the next `npm run build`. See [CLAUDE.md](CLAUDE.md) for the exact
-steps and the content architecture.
+steps, the content architecture, and when a topic should be a nugget vs.
+a guide.

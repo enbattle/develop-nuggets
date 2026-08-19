@@ -147,6 +147,16 @@ what `tags` is for):
   nugget; reach for `guide` only when the topic is genuinely a multi-section
   reference, not just "a nugget I want to write more words in."
 
+Anywhere the UI needs to show a format as a label (the badge in
+`SearchBar`'s results dropdown) or route to it (`contentPath()` in
+`src/content/index.ts`), it goes through a `Record` keyed by the
+`format` union — `FORMAT_LABELS` in `src/lib/format.ts` for display
+labels — not a per-format `if`/ternary scattered at each call site.
+TypeScript then forces every one of those `Record`s to be updated the
+moment a new format is added to the union, instead of a new format
+silently missing a label somewhere. Add a new mapping here, don't
+inline another format check next to an existing one.
+
 Nuggets and guides each live in their own content directory, same
 `.md` + `.ts` pair shape:
 
@@ -193,7 +203,8 @@ src/content/
    ```
    Reuse existing tags where they genuinely fit (`reliability`, `patterns`,
    `apis`, `migrations`, `databases`, `performance`, `messaging`, `security`,
-   `testing`, `git`, `ai`, `process`, `tooling`) rather than inventing near-duplicates —
+   `testing`, `git`, `ai`, `process`, `tooling`, `networking`) rather than
+   inventing near-duplicates —
    the tag vocabulary is what drives both the home page's filter chips and the
    "Related" section (see below), so a fragmented vocabulary weakens both.
 3. Import it and add it to the `NUGGETS` array in
@@ -308,6 +319,16 @@ unchanged from before guides existed.
 viewports below `md`. Both read the same `NUGGETS`/`GUIDES` constants —
 there's no prop threading data into either. The drawer closes on backdrop
 click, `Escape`, or clicking a link (`Sidebar`'s `onNavigate` prop).
+
+The desktop `<aside>` is `sticky top-16` with its own `max-h-[calc(100vh-4rem)]`
+and `overflow-y-auto`, plus `self-start` so it doesn't stretch to match
+`<main>`'s height (which would leave nothing for `sticky` to stick
+within). `top-16`/`4rem` matches `Header`'s rendered height — if `Header`'s
+height ever changes, update both to match, or the sidebar will either gap
+below the header or tuck under it. The effect: the sidebar stays pinned
+in the viewport while the article scrolls, and only scrolls internally
+once its own content (now 35+ nuggets and 15 guides) exceeds the viewport
+height.
 
 ### Pagination
 
