@@ -285,9 +285,9 @@ from `AppShell` in `App.tsx`.
 Three routes (`src/App.tsx`), two of them pointing at the same page
 component:
 
-- `/` — `HomePage`: continue-reading banner, an unpaginated "Guides"
-  section (only rendered when `GUIDES` is non-empty), tag filter chips, and
-  the paginated nugget list (sorted alphabetically by title)
+- `/` — `HomePage`: continue-reading banner, then a `role="tablist"` for
+  "Nuggets" / "Guides" — each tab renders its own tag-filtered, paginated
+  list (see "Pagination" below)
 - `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, which
   resolves the `:id` param through `getContent()` (the merged registry) and
   renders identically either way. There's no separate `GuidePage` — a guide
@@ -302,16 +302,37 @@ routed content, so it's present on every page.
 
 ### Sidebar
 
-`Sidebar` (`src/components/Sidebar.tsx`) lists guides (if any exist), then
-every nugget, each group alphabetically by title — not grouped by tag.
-Tags are multi-valued (an item can be both `reliability` and `patterns`),
-so a tag-grouped sidebar would mean either duplicating entries across
-sections or inventing an unspecified "primary tag." Topic-based browsing is
+`Sidebar` (`src/components/Sidebar.tsx`) lists guides, then every nugget,
+each group alphabetically by title — not grouped by tag. Tags are
+multi-valued (an item can be both `reliability` and `patterns`), so a
+tag-grouped sidebar would mean either duplicating entries across sections
+or inventing an unspecified "primary tag." Topic-based browsing is
 already the home page's job (tag chips + related content); the sidebar's
-job is fast, unambiguous lookup by name from any page. The "Guides" /
-"Nuggets" group headings only render once there's more than one group —
-while `GUIDES` is empty the sidebar looks exactly like a single flat list,
-unchanged from before guides existed.
+job is fast, unambiguous lookup by name from any page.
+
+Each group is a `SidebarGroup` (a local component inside `Sidebar.tsx`,
+not its own file — it isn't reused anywhere else yet) with its own
+collapsed/expanded `useState`, defaulting to expanded. The heading is a
+`<button aria-expanded>` wrapped in an `<h2>` (the WAI-ARIA accordion
+pattern — a screen reader still gets heading navigation via the `h2`,
+while the `button` carries the actual disclosure semantics), so
+`getByRole('heading', ...)` and `getByRole('button', ...)` both resolve
+to it in tests. The heading only renders — and is therefore only
+collapsible — once there's more than one *non-empty* group; `Sidebar`
+computes this by counting non-empty arrays
+(`[SORTED_GUIDES, SORTED_NUGGETS].filter(...).length > 1`), not by
+hardcoding the check around guides specifically, so a third group (see
+`CASE_STUDIES_PLAN.md`) just needs adding to that same array — no
+conditional logic to rewrite.
+
+Topic links are indented further than their group heading (`pl-6` vs.
+the heading's `px-3`) so they read as nested under it, not flush with
+it — the link element itself still spans the full row width, so the
+hover/active background isn't affected, only the text's start position.
+
+Desktop and the mobile drawer are two separate `Sidebar` instances (see
+below), so their collapsed states are independent — collapsing "Guides"
+on desktop doesn't collapse it in the drawer.
 
 `AppShell` renders two copies of it: a static one in a `hidden md:block`
 `<aside>` for desktop, and a second one inside a fixed-overlay drawer
@@ -330,19 +351,38 @@ in the viewport while the article scrolls, and only scrolls internally
 once its own content (now 35+ nuggets and 15 guides) exceeds the viewport
 height.
 
-### Pagination
+### Home page: tabs + pagination
 
-`HomePage` renders the tag-filtered, alphabetically-sorted **nugget** list
-in pages of `PAGE_SIZE` (10), with a "Load N more" button appending another
-page to `visibleCount`. Selecting a different tag resets `visibleCount`
-back to `PAGE_SIZE` — otherwise a filter that matches only a few nuggets
-could leave a stale, unreachable "Load more" state. Since `NUGGETS` is a
-plain in-memory array (no backend), "loading more" is just revealing more
-of it — no fetch, no loading state to handle. The "Guides" section above it
-is deliberately **not** paginated or tag-filtered — guides are meant to be
-a small, always-visible set of references, not a growing feed; if that
-stops being true (many guides), reconsider then rather than building
-pagination for it now.
+`HomePage` shows one content type at a time behind a `role="tablist"` —
+"Nuggets" and "Guides" — rather than stacking both as always-visible
+sections. That stacking was the original design (see git history) but
+stopped working once the catalog passed ~50 items combined; `CLAUDE.md`
+had explicitly called out guides being unpaginated as a decision to
+*reconsider* once there were "many guides" — there are now 15, so this
+is that reconsideration.
+
+Both tabs are the same `PaginatedContentList` component
+(`src/components/PaginatedContentList.tsx`), given a different `items`
+array (`NUGGETS` or `GUIDES`) and `label`. It owns its own tag-filter
+chips and pagination (`PAGE_SIZE` = 10, a "Load N more" button appending
+another page to `visibleCount`, reset to `PAGE_SIZE` whenever the tag
+filter changes — otherwise a filter matching only a few items could
+leave a stale, unreachable "Load more" state). Since every content array
+is a plain in-memory list (no backend), "loading more" is just revealing
+more of it — no fetch, no loading state to handle.
+
+`HomePage` renders each tab's `PaginatedContentList` with `key="nuggets"`
+/`key="guides"` — that's what resets filter/pagination state on tab
+switch. Do **not** replace this with a `useEffect` inside
+`PaginatedContentList` that syncs state to the `items` prop instead;
+`key` is the React-recommended way to reset a component's state when
+swapping what it's showing, and it avoids the extra render an effect-based
+reset would cost.
+
+Adding a third content format (see `CASE_STUDIES_PLAN.md`) means adding
+a third entry to `TABS` in `HomePage.tsx` and a third
+`PaginatedContentList` branch — the component itself needs no changes,
+since it already takes `items`/`label` generically.
 
 ### Path alias
 

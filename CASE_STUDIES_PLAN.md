@@ -184,27 +184,26 @@ build this speculatively in the same PR that adds the format.
 Every place that currently branches on "guide vs. nugget" needs a third
 branch. Concretely:
 
-- **`src/components/Sidebar.tsx`** — currently two groups
-  (`SORTED_GUIDES`, `SORTED_NUGGETS`), each rendered only when
-  `GUIDES.length > 0`. Add `SORTED_CASE_STUDIES` the same way. The
-  existing "only show a group heading once there's more than one
-  group" logic needs to become "show a heading once there's more than
-  one *non-empty* group," not just "once guides exist" — check this
-  carefully, since the current condition (`SORTED_GUIDES.length > 0`)
-  hardcodes guides as the group that triggers headings; with three
-  possible groups it should probably be based on how many of the three
-  arrays are non-empty, not specifically on guides.
-- **`src/pages/HomePage.tsx`** — currently a "Guides" section (small,
-  unpaginated, always fully visible) above the paginated "Nuggets"
-  section. **Decide before building:** will case studies stay a small,
-  curated set (→ unpaginated, like guides) or grow toward Hello
-  Interview's ~30 (→ paginated, like nuggets)? Recommend paginated —
-  a "Case Studies" section behaves and reads much more like the
-  nugget list (a growing catalog you browse) than the guide list (a
-  small, always-visible reference set). If paginated, it needs its own
-  `visibleCount`/`PAGE_SIZE` state, structurally identical to the
-  existing nugget pagination — don't try to share state between two
-  independently-paginated sections.
+- **`src/components/Sidebar.tsx`** — now a `SidebarGroup` per format
+  (`Guides`, `Nuggets`), each collapsible (its own `useState`, defaults
+  expanded) via a `<button aria-expanded>` heading. The "only show
+  headings once there's more than one non-empty group" check already
+  counts non-empty arrays generically
+  (`[SORTED_GUIDES, SORTED_NUGGETS].filter(...).length > 1`) rather than
+  hardcoding around guides — adding case studies is just adding
+  `SORTED_CASE_STUDIES` to that same array and rendering a third
+  `SidebarGroup`. No conditional logic to rewrite.
+- **`src/pages/HomePage.tsx`** — now a `role="tablist"` ("Nuggets" /
+  "Guides"), each tab rendering the shared `PaginatedContentList`
+  (`src/components/PaginatedContentList.tsx`) with its own tag-filter
+  chips and pagination. This makes the third format easy: add a
+  `{ id: 'case-studies', label: 'Case Studies' }` entry to `TABS` and a
+  third `PaginatedContentList` branch keyed `key="case-studies"` — the
+  component itself is already generic over `items`/`label` and needs no
+  changes. This also resolves what used to be an open question here
+  (paginate case studies, or keep them always-visible?) — moot now,
+  since every tab gets identical tag-filtered pagination automatically,
+  no per-format pagination decision to make.
 - **`src/components/SearchBar.tsx`** — no changes needed beyond what
   landed in this session; it already renders `FORMAT_LABELS[item.format]`
   generically over whatever's in `CONTENT`.
@@ -217,13 +216,12 @@ Same rule as guides: don't add a `case-study` tag. `format` already
 carries that distinction; a tag would conflate content-shape with
 topic, which is exactly what `format` was introduced to avoid. Tag
 each case study with the real topics it touches (`apis`, `databases`,
-`reliability`, …) so the existing tag-driven mechanisms (home page
-filter chips, Related section) work on it the same as everything else.
-Home page tag chips currently filter only the nugget list
-(`NUGGETS`, not `CONTENT`) — decide whether case studies should
-participate in that filter once they're paginated like nuggets (§6);
-if so, the chip computation and `filtered` logic in `HomePage.tsx`
-needs to run over nuggets **and** case studies, not `NUGGETS` alone.
+`reliability`, …) so the existing tag-driven mechanisms work on it the
+same as everything else — home page tag chips are per-tab (§6, each
+`PaginatedContentList` computes its own tag set from whatever `items`
+it's given), so a case-study tab's chips populate automatically from
+whatever tags real case-study content actually uses. No `HomePage.tsx`
+filter logic to touch.
 
 ## 8. Content authoring rule: link, don't re-teach
 
@@ -272,8 +270,8 @@ feature from §5.
     changes.
   - "Sidebar": document the third group and the corrected
     non-empty-group-count condition (§6).
-  - "Pagination": document whichever decision is made in §6 for case
-    studies (paginated vs. always-visible), and why.
+  - "Home page: tabs + pagination": document the third `TABS` entry and
+    that `PaginatedContentList` needs no changes (§6).
 - **`README.md`** — add case studies to the intro paragraph and feature
   list, same treatment guides got when they were introduced.
 
@@ -286,12 +284,11 @@ feature from §5.
   from §6 with a case that has, say, guides + case studies but zero
   nuggets (unlikely in practice, but the *logic* should be correct for
   it, not just for the two groups that happen to be non-empty today).
-- **`src/pages/HomePage.test.tsx`** — if case studies are paginated
-  (§6 recommendation), this needs the same shape of tests the nugget
-  list already has (caps at `PAGE_SIZE`, "Load more" appends another
-  page, resets on tag-filter change) applied to the case-study section
-  too — likely by generalizing the existing `nuggetListItems()` helper
-  pattern rather than copy-pasting a parallel set of tests.
+- **`src/pages/HomePage.test.tsx`** — add a "Case Studies" tab case
+  mirroring the existing "switches to the Nuggets tab..." and "paginates
+  the Nuggets tab independently..." tests — same shape, third tab. The
+  default active tab is "Guides"; adding a third tab doesn't change that
+  unless explicitly decided otherwise.
 - **`src/lib/format.test.ts`** — add the `'case-study'` entries to both
   `FORMAT_LABELS` and `FORMAT_ROUTE_SEGMENTS` assertions.
 - **`src/content/index.test.ts`** — `CONTENT` merge test
@@ -313,14 +310,15 @@ feature from §5.
 
 ## 12. Open decisions this doc deliberately leaves open
 
-1. Paginate case studies like nuggets, or keep them always-visible like
-   guides? (§6 — recommendation given, not decided.)
-2. Build the TOC now or after 2-3 real case studies exist? (§5 —
+1. Build the TOC now or after 2-3 real case studies exist? (§5 —
    recommendation: after.)
-3. Should home page tag chips filter case studies too, once they exist
-   in volume? (§7.)
-4. Pilot scope: which 2-3 systems to write first? (§9.)
+2. Pilot scope: which 2-3 systems to write first? (§9.)
 
-None of these block starting on §2-§4 (type/registry/routing
-plumbing) — they only need answers before §6 (UI) and content
-authoring begin in earnest.
+(The pagination and per-format tag-filtering questions this section
+used to list are resolved by the `HomePage` tabs redesign — see §6.
+Every tab, including a future Case Studies one, gets identical
+tag-filtered pagination for free.)
+
+Neither open item blocks starting on §2-§4 (type/registry/routing
+plumbing) — they only need answers before content authoring begins in
+earnest.
