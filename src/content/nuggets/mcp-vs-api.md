@@ -94,3 +94,10 @@ MCP and APIs solve different layers of the same problem: an API defines
 what a service can do; MCP defines a common way for an AI agent to
 discover and call _any_ service's capabilities without one-off integration
 work per client, per tool.
+
+MCP itself is a young, fast-moving spec — the discover/call shape above
+is stable, but transport and session details have already changed more
+than once (a 2026-07-28 revision moved the protocol to a stateless
+transport, for one). Treat the mental model here as durable and check
+the current spec at [modelcontextprotocol.io](https://modelcontextprotocol.io)
+before relying on wire-level specifics.

@@ -132,7 +132,7 @@ see why.
 ## Writing a Dockerfile
 
 ```dockerfile
-FROM node:20-slim
+FROM node:24-slim
 WORKDIR /app
 
 # Copy just the dependency manifest first — this layer only rebuilds
@@ -170,7 +170,7 @@ services:
       - db
 
   db:
-    image: postgres:16
+    image: postgres:18
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -219,8 +219,8 @@ A few habits worth having well before "at scale" matters:
   USER appuser
   ```
 
-- **Start from a minimal base image.** `node:20-slim` is already smaller
-  than the full `node:20`; `-alpine` variants (or distroless images,
+- **Start from a minimal base image.** `node:24-slim` is already smaller
+  than the full `node:24`; `-alpine` variants (or distroless images,
   which contain nothing but the app and its runtime — no shell, no
   package manager) go further. Less in the image means fewer known
   vulnerabilities shipped along with it, and less an attacker can do with
