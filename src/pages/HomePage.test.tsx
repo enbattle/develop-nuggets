@@ -3,41 +3,59 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '@/test/utils';
 import { HomePage } from './HomePage';
 import { NUGGETS } from '@/content/nuggets';
+import { GUIDES } from '@/content/guides';
 import { readingProgress } from '@/lib/readingProgress';
 
-// Nugget list items live in the "Nuggets" region — scoping queries there
-// excludes the separate, unpaginated "Guides" section's list items.
-function nuggetListItems() {
-  return within(screen.getByRole('region', { name: 'Nuggets' })).getAllByRole(
-    'listitem',
-  );
+// Guides is the default active tab — scoping queries to its tabpanel
+// excludes the Nuggets tab's content, which isn't mounted until selected.
+function guideListItems() {
+  return within(
+    screen.getByRole('tabpanel', { name: 'Guides' }),
+  ).getAllByRole('listitem');
 }
 
-// Must match HomePage's own PAGE_SIZE constant.
+function nuggetListItems() {
+  return within(
+    screen.getByRole('tabpanel', { name: 'Nuggets' }),
+  ).getAllByRole('listitem');
+}
+
+// Must match PaginatedContentList's own PAGE_SIZE constant.
 const PAGE_SIZE = 10;
 
 describe('HomePage', () => {
-  it('lists nuggets with their tags, alphabetically by title', () => {
+  it('defaults to the Guides tab, selected and marked in the tablist', () => {
     render(<HomePage />);
 
-    const alphabeticallyFirst = [...NUGGETS].sort((a, b) =>
+    expect(screen.getByRole('tab', { name: 'Guides' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByRole('tab', { name: 'Nuggets' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
+  });
+
+  it('lists guides with their tags, alphabetically by title', () => {
+    render(<HomePage />);
+
+    const alphabeticallyFirst = [...GUIDES].sort((a, b) =>
       a.title.localeCompare(b.title),
     )[0];
 
     expect(screen.getByText(alphabeticallyFirst.title)).toBeInTheDocument();
-    expect(screen.getAllByText('patterns').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('databases').length).toBeGreaterThan(0);
   });
 
-  it('filters the list when a tag chip is clicked', async () => {
+  it('filters the guide list when a tag chip is clicked', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
-    await user.click(screen.getByRole('button', { name: 'apis' }));
+    await user.click(screen.getByRole('button', { name: 'databases' }));
 
-    expect(screen.getByText('Idempotency')).toBeInTheDocument();
-    expect(
-      screen.queryByText('Expand-Contract Pattern'),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText('Redis')).toBeInTheDocument();
+    expect(screen.queryByText('CDN')).not.toBeInTheDocument();
   });
 
   it('shows a continue-reading banner for the last-viewed nugget', () => {
@@ -48,13 +66,82 @@ describe('HomePage', () => {
     expect(screen.getByText(/continue reading/i)).toBeInTheDocument();
   });
 
-  it('caps the initial list at 10 and loads 10 more per click', async () => {
+  it('caps the initial guide list at 10 and loads more per click', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
+    expect(guideListItems()).toHaveLength(Math.min(PAGE_SIZE, GUIDES.length));
+
+    let loadMoreButton = screen.queryByRole('button', {
+      name: /load .* more/i,
+    });
+    while (loadMoreButton) {
+      const before = guideListItems().length;
+      await user.click(loadMoreButton);
+      const after = guideListItems().length;
+      expect(after - before).toBeLessThanOrEqual(PAGE_SIZE);
+      loadMoreButton = screen.queryByRole('button', {
+        name: /load .* more/i,
+      });
+    }
+
+    expect(guideListItems()).toHaveLength(GUIDES.length);
+  });
+
+  it('resets pagination when the guide tag filter changes', async () => {
+    const user = userEvent.setup();
+    render(<HomePage />);
+
+    const loadMoreButton = screen.queryByRole('button', {
+      name: /load .* more/i,
+    });
+    if (loadMoreButton) {
+      await user.click(loadMoreButton);
+    }
+    expect(guideListItems()).toHaveLength(GUIDES.length);
+
+    // 'messaging' matches far fewer guides than are currently shown, so a
+    // stale "Load more" would be unreachable if pagination didn't reset.
+    await user.click(screen.getByRole('button', { name: 'messaging' }));
+
+    expect(
+      screen.queryByRole('button', { name: /load .* more/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('switches to the Nuggets tab, independently tag-filterable', async () => {
+    const user = userEvent.setup();
+    render(<HomePage />);
+
+    await user.click(screen.getByRole('tab', { name: 'Nuggets' }));
+
+    expect(screen.getByRole('tab', { name: 'Nuggets' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    const nuggetsPanel = screen.getByRole('tabpanel', { name: 'Nuggets' });
+    expect(
+      within(nuggetsPanel).getAllByRole('listitem').length,
+    ).toBeGreaterThan(0);
+
+    await user.click(
+      within(nuggetsPanel).getByRole('button', { name: 'apis' }),
+    );
+
+    expect(screen.getByText('Idempotency')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Expand-Contract Pattern'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('paginates the Nuggets tab independently of Guides', async () => {
+    const user = userEvent.setup();
+    render(<HomePage />);
+
+    await user.click(screen.getByRole('tab', { name: 'Nuggets' }));
+
     expect(nuggetListItems()).toHaveLength(PAGE_SIZE);
 
-    // Each click reveals at most PAGE_SIZE more, however many pages that takes.
     let loadMoreButton = screen.queryByRole('button', {
       name: /load .* more/i,
     });
@@ -69,20 +156,5 @@ describe('HomePage', () => {
     }
 
     expect(nuggetListItems()).toHaveLength(NUGGETS.length);
-  });
-
-  it('resets pagination when the tag filter changes', async () => {
-    const user = userEvent.setup();
-    render(<HomePage />);
-
-    await user.click(screen.getByRole('button', { name: /load .* more/i }));
-    expect(nuggetListItems()).toHaveLength(PAGE_SIZE * 2);
-
-    await user.click(screen.getByRole('button', { name: 'apis' }));
-
-    // 'apis' matches far fewer than PAGE_SIZE nuggets, so no leftover "Load more".
-    expect(
-      screen.queryByRole('button', { name: /load .* more/i }),
-    ).not.toBeInTheDocument();
   });
 });
