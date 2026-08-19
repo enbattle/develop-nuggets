@@ -55,7 +55,7 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: 'databases' }));
 
     expect(screen.getByText('Redis')).toBeInTheDocument();
-    expect(screen.queryByText('CDN')).not.toBeInTheDocument();
+    expect(screen.queryByText('Networking: CDN')).not.toBeInTheDocument();
   });
 
   it('shows a continue-reading banner for the last-viewed nugget', () => {

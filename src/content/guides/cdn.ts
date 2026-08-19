@@ -3,7 +3,7 @@ import type { Nugget } from '@/types';
 
 export const cdn: Nugget = {
   id: 'cdn',
-  title: 'CDN',
+  title: 'Networking: CDN',
   tags: ['networking', 'performance'],
   body,
   format: 'guide',

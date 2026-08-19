@@ -3,7 +3,7 @@ import type { Nugget } from '@/types';
 
 export const apiGateway: Nugget = {
   id: 'api-gateway',
-  title: 'API Gateway',
+  title: 'APIs: Gateway',
   tags: ['apis', 'networking', 'tooling'],
   body,
   format: 'guide',
