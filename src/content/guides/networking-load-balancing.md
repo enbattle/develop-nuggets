@@ -51,7 +51,9 @@ requests time out forever."
   hardware appliance, or software like NGINX/HAProxy/a cloud LB) that
   every request passes through. Simple mental model, but it's a single
   additional hop, and can itself become a bottleneck or single point of
-  failure if not made highly available.
+  failure if not made highly available. This is a specific case of the
+  broader [reverse proxy](/nuggets/proxy-vs-reverse-proxy) shape —
+  load balancing is one of several jobs a reverse proxy can do.
 - **Client-side load balancing** — the calling service itself holds a
   list of healthy backend instances (via a **service registry** it
   queries or subscribes to) and picks one directly, no intermediary hop.

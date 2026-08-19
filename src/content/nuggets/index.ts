@@ -35,6 +35,7 @@ import { changeDataCapture } from './change-data-capture';
 import { timeSeriesDatabases } from './time-series-databases';
 import { vectorDatabases } from './vector-databases';
 import { partitioningVsSharding } from './partitioning-vs-sharding';
+import { proxyVsReverseProxy } from './proxy-vs-reverse-proxy';
 
 /** Add a new nugget's import here — see CLAUDE.md "Adding a nugget". */
 export const NUGGETS: Nugget[] = [
@@ -74,4 +75,5 @@ export const NUGGETS: Nugget[] = [
   timeSeriesDatabases,
   vectorDatabases,
   partitioningVsSharding,
+  proxyVsReverseProxy,
 ];
