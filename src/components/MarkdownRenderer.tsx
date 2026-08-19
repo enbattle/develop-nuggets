@@ -5,6 +5,17 @@ import { CodeBlock } from './CodeBlock';
 import { MermaidDiagram } from './MermaidDiagram';
 
 const components: Components = {
+  // CodeBlock and MermaidDiagram each render their own complete markup
+  // (Shiki emits its own themed <pre>; Mermaid needs no <pre> at all) —
+  // without this override, react-markdown's default `pre` wraps them in
+  // an extra <pre>, which picks up Tailwind Typography's dark "terminal"
+  // background from the surrounding `.prose` scope. In light mode that
+  // put Shiki's light-theme (dark-on-white) text on top of that dark
+  // background — illegible. Rendering only the children here removes the
+  // unwanted wrapper.
+  pre({ children }) {
+    return <>{children}</>;
+  },
   a({ href, children, ...props }) {
     // Internal cross-references (e.g. to another nugget) navigate client-side;
     // everything else is a real external link.
