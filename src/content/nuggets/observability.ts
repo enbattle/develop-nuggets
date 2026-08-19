@@ -6,4 +6,5 @@ export const observability: Nugget = {
   title: 'Observability: Metrics, Logs, and Traces',
   tags: ['reliability'],
   body,
+  format: 'nugget',
 };

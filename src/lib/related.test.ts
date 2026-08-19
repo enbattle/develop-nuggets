@@ -3,7 +3,7 @@ import { getRelatedNuggets } from './related';
 import type { Nugget } from '@/types';
 
 function nugget(id: string, tags: string[], title = id): Nugget {
-  return { id, title, body: '', tags };
+  return { id, title, body: '', tags, format: 'nugget' };
 }
 
 describe('getRelatedNuggets', () => {

@@ -6,4 +6,5 @@ export const monolithVsMicroservices: Nugget = {
   title: 'Monolith vs. Microservices',
   tags: ['patterns', 'reliability'],
   body,
+  format: 'nugget',
 };

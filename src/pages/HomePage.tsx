@@ -1,13 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { NUGGETS } from '@/content/nuggets';
+import { GUIDES } from '@/content/guides';
+import { CONTENT, contentPath } from '@/content';
 import { useLastViewedNugget } from '@/hooks/useContinueReading';
-import { excerpt } from '@/lib/text';
+import { ContentListItem } from '@/components/ContentListItem';
 
 const PAGE_SIZE = 10;
 
+const SORTED_GUIDES = [...GUIDES].sort((a, b) =>
+  a.title.localeCompare(b.title),
+);
+
 export function HomePage() {
-  const lastViewed = useLastViewedNugget(NUGGETS);
+  const lastViewed = useLastViewedNugget(CONTENT);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -32,7 +38,7 @@ export function HomePage() {
     setVisibleCount(PAGE_SIZE);
   };
 
-  if (NUGGETS.length === 0) {
+  if (NUGGETS.length === 0 && GUIDES.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border p-10 text-center">
         <h1 className="text-lg font-semibold text-text-primary">
@@ -49,7 +55,7 @@ export function HomePage() {
     <div className="flex flex-col gap-6">
       {lastViewed && (
         <Link
-          to={`/nuggets/${lastViewed.id}`}
+          to={contentPath(lastViewed)}
           className="flex items-center justify-between rounded-lg border border-border bg-bg-secondary px-4 py-3 text-sm transition-colors hover:border-accent"
         >
           <span className="text-text-secondary">
@@ -64,67 +70,66 @@ export function HomePage() {
         </Link>
       )}
 
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+      {SORTED_GUIDES.length > 0 && (
+        <section className="flex flex-col gap-3" aria-label="Guides">
+          <h2 className="text-sm font-semibold text-text-primary">Guides</h2>
+          <ul className="flex flex-col gap-3">
+            {SORTED_GUIDES.map((guide) => (
+              <li key={guide.id}>
+                <ContentListItem item={guide} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="flex flex-col gap-6" aria-label="Nuggets">
+        {SORTED_GUIDES.length > 0 && (
+          <h2 className="text-sm font-semibold text-text-primary">
+            Nuggets
+          </h2>
+        )}
+
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => selectTag(null)}
+              className={tagChipClass(selectedTag === null)}
+            >
+              All
+            </button>
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => selectTag(tag)}
+                className={tagChipClass(selectedTag === tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <ul className="flex flex-col gap-3">
+          {visible.map((nugget) => (
+            <li key={nugget.id}>
+              <ContentListItem item={nugget} />
+            </li>
+          ))}
+        </ul>
+
+        {remaining > 0 && (
           <button
             type="button"
-            onClick={() => selectTag(null)}
-            className={tagChipClass(selectedTag === null)}
+            onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+            className="self-center rounded-md border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-tertiary"
           >
-            All
+            Load {Math.min(PAGE_SIZE, remaining)} more
           </button>
-          {tags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => selectTag(tag)}
-              className={tagChipClass(selectedTag === tag)}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <ul className="flex flex-col gap-3">
-        {visible.map((nugget) => (
-          <li key={nugget.id}>
-            <Link
-              to={`/nuggets/${nugget.id}`}
-              className="block rounded-lg border border-border bg-bg-primary p-4 transition-colors hover:border-accent"
-            >
-              <h2 className="text-base font-semibold text-text-primary">
-                {nugget.title}
-              </h2>
-              {nugget.body.trim() && (
-                <p className="mt-1 line-clamp-2 text-sm text-text-secondary">
-                  {excerpt(nugget.body)}
-                </p>
-              )}
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
-                {nugget.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-bg-tertiary px-2 py-0.5"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-
-      {remaining > 0 && (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-          className="self-center rounded-md border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-tertiary"
-        >
-          Load {Math.min(PAGE_SIZE, remaining)} more
-        </button>
-      )}
+        )}
+      </section>
     </div>
   );
 }

@@ -6,4 +6,5 @@ export const semanticVersioning: Nugget = {
   title: 'Semantic Versioning',
   tags: ['apis', 'patterns'],
   body,
+  format: 'nugget',
 };

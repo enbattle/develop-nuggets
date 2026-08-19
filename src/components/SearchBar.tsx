@@ -1,6 +1,7 @@
 import { forwardRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NUGGETS } from '@/content/nuggets';
+import type { Nugget } from '@/types';
+import { CONTENT, contentPath } from '@/content';
 import { searchNuggets } from '@/lib/search';
 
 export const SearchBar = forwardRef<HTMLInputElement>(
@@ -10,12 +11,12 @@ export const SearchBar = forwardRef<HTMLInputElement>(
     const navigate = useNavigate();
 
     const results = useMemo(
-      () => (query.trim() ? searchNuggets(NUGGETS, query).slice(0, 8) : []),
+      () => (query.trim() ? searchNuggets(CONTENT, query).slice(0, 8) : []),
       [query],
     );
 
-    const goTo = (id: string) => {
-      navigate(`/nuggets/${id}`);
+    const goTo = (item: Nugget) => {
+      navigate(contentPath(item));
       setQuery('');
       setOpen(false);
     };
@@ -33,7 +34,7 @@ export const SearchBar = forwardRef<HTMLInputElement>(
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 100)}
           onKeyDown={(event) => {
-            if (event.key === 'Enter' && results[0]) goTo(results[0].id);
+            if (event.key === 'Enter' && results[0]) goTo(results[0]);
             if (event.key === 'Escape') {
               setQuery('');
               setOpen(false);
@@ -51,19 +52,26 @@ export const SearchBar = forwardRef<HTMLInputElement>(
                 No matches.
               </p>
             ) : (
-              results.map((nugget) => (
+              results.map((item) => (
                 <button
-                  key={nugget.id}
+                  key={item.id}
                   type="button"
-                  onMouseDown={() => goTo(nugget.id)}
+                  onMouseDown={() => goTo(item)}
                   className="block w-full px-3 py-2 text-left text-sm hover:bg-bg-tertiary"
                 >
-                  <span className="block font-medium text-text-primary">
-                    {nugget.title}
+                  <span className="flex items-center gap-2">
+                    <span className="font-medium text-text-primary">
+                      {item.title}
+                    </span>
+                    {item.format === 'guide' && (
+                      <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-accent">
+                        Guide
+                      </span>
+                    )}
                   </span>
-                  {nugget.tags.length > 0 && (
+                  {item.tags.length > 0 && (
                     <span className="text-xs text-text-tertiary">
-                      {nugget.tags.join(', ')}
+                      {item.tags.join(', ')}
                     </span>
                   )}
                 </button>

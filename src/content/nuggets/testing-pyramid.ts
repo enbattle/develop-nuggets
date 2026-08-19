@@ -6,4 +6,5 @@ export const testingPyramid: Nugget = {
   title: 'The Testing Pyramid',
   tags: ['testing'],
   body,
+  format: 'nugget',
 };

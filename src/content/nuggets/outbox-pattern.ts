@@ -6,4 +6,5 @@ export const outboxPattern: Nugget = {
   title: 'Outbox Pattern',
   tags: ['reliability', 'patterns', 'messaging'],
   body,
+  format: 'nugget',
 };

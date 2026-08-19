@@ -6,4 +6,5 @@ export const cacheInvalidation: Nugget = {
   title: 'Cache Invalidation',
   tags: ['performance', 'patterns'],
   body,
+  format: 'nugget',
 };

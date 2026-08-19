@@ -6,4 +6,5 @@ export const mcpVsApi: Nugget = {
   title: 'MCP vs. API',
   tags: ['ai', 'apis'],
   body,
+  format: 'nugget',
 };

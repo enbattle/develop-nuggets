@@ -6,4 +6,5 @@ export const capTheorem: Nugget = {
   title: 'CAP Theorem',
   tags: ['patterns', 'reliability'],
   body,
+  format: 'nugget',
 };

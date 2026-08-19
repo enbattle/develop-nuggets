@@ -49,7 +49,3 @@ export const NUGGETS: Nugget[] = [
   abstractionVsCoupling,
   technicalDebtVsTimeToMarket,
 ];
-
-export function getNugget(id: string): Nugget | undefined {
-  return NUGGETS.find((nugget) => nugget.id === id);
-}

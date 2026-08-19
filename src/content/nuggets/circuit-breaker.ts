@@ -6,4 +6,5 @@ export const circuitBreaker: Nugget = {
   title: 'Circuit Breaker',
   tags: ['reliability', 'patterns'],
   body,
+  format: 'nugget',
 };

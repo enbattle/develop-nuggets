@@ -6,4 +6,5 @@ export const technicalDebtVsTimeToMarket: Nugget = {
   title: 'Technical Debt vs. Time to Market',
   tags: ['process'],
   body,
+  format: 'nugget',
 };

@@ -1,24 +1,38 @@
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar } from './Sidebar';
 import { NUGGETS } from '@/content/nuggets';
+import { GUIDES } from '@/content/guides';
+
+function titlesOf(links: HTMLElement[]) {
+  return links.map((link) => link.textContent);
+}
+
+function sortedTitles(items: { title: string }[]) {
+  return items.map((item) => item.title).sort((a, b) => a.localeCompare(b));
+}
 
 describe('Sidebar', () => {
-  it('lists every nugget alphabetically by title', () => {
+  it('lists guides, then nuggets, each alphabetically by title', () => {
     render(
       <MemoryRouter>
         <Sidebar />
       </MemoryRouter>,
     );
 
-    const links = screen.getAllByRole('link').map((link) => link.textContent);
-    const expected = [...NUGGETS]
-      .map((n) => n.title)
-      .sort((a, b) => a.localeCompare(b));
+    const guidesGroup = screen.getByRole('heading', { name: 'Guides' })
+      .closest('div')!;
+    expect(titlesOf(within(guidesGroup).getAllByRole('link'))).toEqual(
+      sortedTitles(GUIDES),
+    );
 
-    expect(links).toEqual(expected);
+    const nuggetsGroup = screen.getByRole('heading', { name: 'Nuggets' })
+      .closest('div')!;
+    expect(titlesOf(within(nuggetsGroup).getAllByRole('link'))).toEqual(
+      sortedTitles(NUGGETS),
+    );
   });
 
   it('marks the current nugget as active', () => {

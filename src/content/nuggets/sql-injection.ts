@@ -6,4 +6,5 @@ export const sqlInjection: Nugget = {
   title: 'SQL Injection & Parameterized Queries',
   tags: ['security', 'databases'],
   body,
+  format: 'nugget',
 };

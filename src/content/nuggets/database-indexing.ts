@@ -6,4 +6,5 @@ export const databaseIndexing: Nugget = {
   title: 'Database Indexing',
   tags: ['databases', 'performance'],
   body,
+  format: 'nugget',
 };

@@ -6,4 +6,5 @@ export const gitRebaseVsMerge: Nugget = {
   title: 'Git Rebase vs. Merge',
   tags: ['git'],
   body,
+  format: 'nugget',
 };

@@ -8,6 +8,7 @@ function nugget(overrides: Partial<Nugget>): Nugget {
     title: 'Title',
     body: 'body',
     tags: [],
+    format: 'nugget',
     ...overrides,
   };
 }

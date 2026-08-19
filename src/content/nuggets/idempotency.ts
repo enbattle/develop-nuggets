@@ -6,4 +6,5 @@ export const idempotency: Nugget = {
   title: 'Idempotency',
   tags: ['apis', 'reliability'],
   body,
+  format: 'nugget',
 };

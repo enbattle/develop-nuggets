@@ -6,4 +6,5 @@ export const nPlusOneQueries: Nugget = {
   title: 'The N+1 Query Problem',
   tags: ['databases', 'performance'],
   body,
+  format: 'nugget',
 };

@@ -1,9 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@/test/utils';
+import { render, screen, within } from '@/test/utils';
 import { HomePage } from './HomePage';
 import { NUGGETS } from '@/content/nuggets';
 import { readingProgress } from '@/lib/readingProgress';
+
+// Nugget list items live in the "Nuggets" region — scoping queries there
+// excludes the separate, unpaginated "Guides" section's list items.
+function nuggetListItems() {
+  return within(screen.getByRole('region', { name: 'Nuggets' })).getAllByRole(
+    'listitem',
+  );
+}
 
 // Must match HomePage's own PAGE_SIZE constant.
 const PAGE_SIZE = 10;
@@ -44,23 +52,23 @@ describe('HomePage', () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(PAGE_SIZE);
+    expect(nuggetListItems()).toHaveLength(PAGE_SIZE);
 
     // Each click reveals at most PAGE_SIZE more, however many pages that takes.
     let loadMoreButton = screen.queryByRole('button', {
       name: /load .* more/i,
     });
     while (loadMoreButton) {
-      const before = screen.getAllByRole('listitem').length;
+      const before = nuggetListItems().length;
       await user.click(loadMoreButton);
-      const after = screen.getAllByRole('listitem').length;
+      const after = nuggetListItems().length;
       expect(after - before).toBeLessThanOrEqual(PAGE_SIZE);
       loadMoreButton = screen.queryByRole('button', {
         name: /load .* more/i,
       });
     }
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(NUGGETS.length);
+    expect(nuggetListItems()).toHaveLength(NUGGETS.length);
   });
 
   it('resets pagination when the tag filter changes', async () => {
@@ -68,7 +76,7 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: /load .* more/i }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(PAGE_SIZE * 2);
+    expect(nuggetListItems()).toHaveLength(PAGE_SIZE * 2);
 
     await user.click(screen.getByRole('button', { name: 'apis' }));
 

@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { HomePage } from '@/pages/HomePage';
-import { NuggetPage } from '@/pages/NuggetPage';
+import { ContentPage } from '@/pages/ContentPage';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
 
 function AppShell() {
@@ -40,7 +40,8 @@ function AppShell() {
           <div className="mx-auto max-w-3xl">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/nuggets/:id" element={<NuggetPage />} />
+              <Route path="/nuggets/:id" element={<ContentPage />} />
+              <Route path="/guides/:id" element={<ContentPage />} />
             </Routes>
           </div>
         </main>

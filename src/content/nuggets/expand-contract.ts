@@ -6,4 +6,5 @@ export const expandContract: Nugget = {
   title: 'Expand-Contract Pattern',
   tags: ['patterns', 'migrations'],
   body,
+  format: 'nugget',
 };

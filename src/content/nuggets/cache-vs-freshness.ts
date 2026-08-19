@@ -6,4 +6,5 @@ export const cacheVsFreshness: Nugget = {
   title: 'Cache vs. Freshness',
   tags: ['performance', 'patterns'],
   body,
+  format: 'nugget',
 };

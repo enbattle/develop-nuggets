@@ -21,13 +21,15 @@ Always run `npm run build`, `npm run lint`, and `npm run test:run` before finali
 ## What this app is
 
 A read-only, no-backend catalog of short programming write-ups
-("nuggets") — patterns, gotchas, concepts — searchable and taggable. It is
+("nuggets") — patterns, gotchas, concepts — searchable and taggable, plus a
+small set of longer-form "guides" (walkthroughs, best-practices
+references) for topics that don't compress into a single idea. It is
 **not** a note-taking app: there is no in-browser create/edit/delete flow.
 Content is authored as source files and ships with the build, the same way
 `ai-cauldron`'s lesson modules work. See [README.md](README.md) for the
 user-facing feature list.
 
-The only thing persisted in the browser is *reading state* — which nugget
+The only thing persisted in the browser is *reading state* — which item
 you last opened and how far you scrolled — not the content itself.
 
 ## Coding Standards
@@ -102,18 +104,19 @@ Vitest + React Testing Library, jsdom environment.
 - **Setup**: `src/test/setup.ts` adds jest-dom matchers, clears
   `localStorage` after each test (reading-progress/theme state, not
   content), and mocks `matchMedia` / `IntersectionObserver` / `scrollTo`.
-- **Content is real, not fixtures**: since `NUGGETS` is a static import,
-  tests exercise the actual shipped content (`Expand-Contract Pattern`,
-  `Idempotency`) rather than seeding fake data into storage. If you rename
-  or remove a nugget referenced in a test (`HomePage.test.tsx`,
-  `NuggetPage.test.tsx`, `App.test.tsx`), update the test alongside it.
+- **Content is real, not fixtures**: since `NUGGETS`/`GUIDES` are static
+  imports, tests exercise the actual shipped content (`Expand-Contract
+  Pattern`, `Idempotency`) rather than seeding fake data into storage. If
+  you rename or remove a nugget or guide referenced in a test
+  (`HomePage.test.tsx`, `ContentPage.test.tsx`, `App.test.tsx`), update the
+  test alongside it.
 - Prefer `screen.getByRole()` over test IDs. Test user-visible behavior.
 
 ## Architecture
 
 ### Data model & content
 
-One entity, deliberately minimal (`src/types.ts`):
+One shape, deliberately minimal (`src/types.ts`):
 
 ```ts
 interface Nugget {
@@ -121,6 +124,7 @@ interface Nugget {
   title: string;
   body: string;  // markdown — fenced ```lang blocks and ```mermaid diagrams render inline
   tags: string[];
+  format: 'nugget' | 'guide';
 }
 ```
 
@@ -131,27 +135,49 @@ just be a maintenance cost with no real payoff. If a genuine need for
 ordering-by-recency shows up later, reconsider then — don't re-add "just in
 case."
 
-Nuggets live in `src/content/nuggets/`, one markdown file + one metadata
-file per nugget:
+**`format` distinguishes two shapes of content, not two topics** (that's
+what `tags` is for):
+
+- `'nugget'` — a short, single-concept write-up: a pattern, gotcha, or
+  tradeoff, meant to be read in a couple of minutes and remembered. Most of
+  the catalog is this.
+- `'guide'` — a longer walkthrough or best-practices reference (getting set
+  up with a tool, a checklist for a whole subsystem) that doesn't compress
+  into one idea. Use this sparingly — most new content should still be a
+  nugget; reach for `guide` only when the topic is genuinely a multi-section
+  reference, not just "a nugget I want to write more words in."
+
+Nuggets and guides each live in their own content directory, same
+`.md` + `.ts` pair shape:
 
 ```
-src/content/nuggets/
-  expand-contract.md   # prose, fenced code, mermaid — pure markdown
-  expand-contract.ts    # metadata, body imported from the .md via `?raw`
-  idempotency.md
-  idempotency.ts
-  ...                     # one .md + .ts pair per nugget, same shape
-  index.ts               # NUGGETS: Nugget[] — the registry every page reads from
+src/content/
+  nuggets/
+    expand-contract.md   # prose, fenced code, mermaid — pure markdown
+    expand-contract.ts    # metadata (format: 'nugget'), body imported via `?raw`
+    idempotency.md
+    idempotency.ts
+    ...                     # one .md + .ts pair per nugget, same shape
+    index.ts               # NUGGETS: Nugget[]
+  guides/
+    <slug>.md
+    <slug>.ts                # metadata (format: 'guide'), same shape as a nugget's
+    index.ts               # GUIDES: Nugget[]
+  index.ts                 # CONTENT: Nugget[] = [...NUGGETS, ...GUIDES]
+                            # getContent(id), contentPath(item) — everything
+                            # that needs to look up or link to *either* format
+                            # (search, sidebar, related, reading progress)
+                            # reads through this file, not the per-format ones.
 ```
 
 **Adding a nugget:**
 
 1. Write `src/content/nuggets/<slug>.md` — pure markdown, no frontmatter.
-   Cross-reference other nuggets inline with a normal markdown link to
-   their route, e.g. `[idempotent](/nuggets/idempotency)` —
-   `MarkdownRenderer` routes any `href` starting with `/` through
-   `react-router`'s `Link` so it navigates client-side instead of doing a
-   full page reload.
+   Cross-reference other nuggets or guides inline with a normal markdown
+   link to their route, e.g. `[idempotent](/nuggets/idempotency)` or
+   `[the API guide](/guides/api-best-practices)` — `MarkdownRenderer` routes
+   any `href` starting with `/` through `react-router`'s `Link` so it
+   navigates client-side instead of doing a full page reload.
 2. Create `src/content/nuggets/<slug>.ts`:
    ```ts
    import body from './<slug>.md?raw';
@@ -162,15 +188,22 @@ src/content/nuggets/
      title: 'My Title',
      tags: ['some', 'tags'],
      body,
+     format: 'nugget',
    };
    ```
    Reuse existing tags where they genuinely fit (`reliability`, `patterns`,
    `apis`, `migrations`, `databases`, `performance`, `messaging`, `security`,
-   `testing`, `git`, `ai`, `process`) rather than inventing near-duplicates —
+   `testing`, `git`, `ai`, `process`, `tooling`) rather than inventing near-duplicates —
    the tag vocabulary is what drives both the home page's filter chips and the
    "Related" section (see below), so a fragmented vocabulary weakens both.
 3. Import it and add it to the `NUGGETS` array in
    `src/content/nuggets/index.ts`.
+
+**Adding a guide:** same three steps, but in `src/content/guides/`, with
+`format: 'guide'`, added to the `GUIDES` array in
+`src/content/guides/index.ts`. No other wiring is needed — the merged
+`CONTENT` registry, routing, search, sidebar, and related-content lookup are
+all format-aware already.
 
 Body content is kept in a separate `.md` file (imported via Vite's `?raw`
 suffix) rather than a JS template literal — a markdown body containing
@@ -178,15 +211,17 @@ fenced code blocks has literal backtick characters in it, which would
 prematurely terminate a template literal string unless escaped. `?raw`
 avoids that entirely.
 
-### Related nuggets
+### Related content
 
-`getRelatedNuggets` (`src/lib/related.ts`) ranks every other nugget by
-number of shared tags with the current one (ties broken alphabetically by
-title) and returns the top 3. `NuggetPage` renders those as a "Related"
-section below the content. This is entirely tag-derived — there's no
-per-nugget `related: [...]` field to maintain, so any new nugget
+`getRelatedNuggets` (`src/lib/related.ts`) ranks every other item —
+nuggets and guides both, it's format-agnostic — by number of shared tags
+with the current one (ties broken alphabetically by title) and returns the
+top 3. `ContentPage` renders those as a "Related" section below the
+content, called with the merged `CONTENT` array so a nugget can surface a
+related guide and vice versa. This is entirely tag-derived — there's no
+per-item `related: [...]` field to maintain, so any new nugget or guide
 participates automatically as long as its tags overlap with something
-else's. If a nugget's related section looks wrong or empty, the fix is
+else's. If an item's related section looks wrong or empty, the fix is
 almost always to its `tags`, not to `related.ts`.
 
 ### Reading state
@@ -196,15 +231,18 @@ a fallback instead of throwing (private browsing, quota-exceeded, storage
 disabled). It backs two independent, unrelated concerns:
 
 - `ThemeContext.tsx` — the dark/light preference
-- `src/lib/readingProgress.ts` — last-viewed nugget id + a per-nugget
+- `src/lib/readingProgress.ts` — last-viewed item id + a per-item
   scroll offset, consumed by `useRecordReadingProgress` (restores/persists
-  scroll from `NuggetPage`) and `useLastViewedNugget` (feeds the "Continue
+  scroll from `ContentPage`) and `useLastViewedNugget` (feeds the "Continue
   reading" banner on `HomePage`), both in
   `src/hooks/useContinueReading.ts`.
 
-Neither of these stores nugget content — only reading state. There is no
-repository/CRUD layer for nuggets; components read `NUGGETS`/`getNugget()`
-directly from `src/content/nuggets/index.ts`.
+Neither of these stores content — only reading state. There is no
+repository/CRUD layer for nuggets or guides; components read
+`CONTENT`/`getContent()`/`contentPath()` from `src/content/index.ts` for
+anything that spans both formats, or the per-format `NUGGETS`/`GUIDES`
+constants directly when a view is deliberately scoped to just one (e.g.
+the home page's tag-filtered nugget list).
 
 ### Markdown & diagram rendering
 
@@ -220,7 +258,7 @@ else opens in a new tab) and a custom `code` renderer that routes to:
 
 Both pull in real weight (Shiki grammars, Mermaid's diagram engines), so
 `MarkdownRenderer` is only ever consumed through `LazyMarkdownRenderer`
-(`React.lazy` + `Suspense`), used by `NuggetPage`. Import
+(`React.lazy` + `Suspense`), used by `ContentPage`. Import
 `LazyMarkdownRenderer`, not `MarkdownRenderer` directly, from any new call
 site.
 
@@ -233,41 +271,57 @@ from `AppShell` in `App.tsx`.
 
 ### Routing
 
-Two routes (`src/App.tsx`):
+Three routes (`src/App.tsx`), two of them pointing at the same page
+component:
 
-- `/` — `HomePage`: continue-reading banner, tag filter chips, nugget list
-  (sorted alphabetically by title)
-- `/nuggets/:id` — `NuggetPage`: rendered nugget content
+- `/` — `HomePage`: continue-reading banner, an unpaginated "Guides"
+  section (only rendered when `GUIDES` is non-empty), tag filter chips, and
+  the paginated nugget list (sorted alphabetically by title)
+- `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, which
+  resolves the `:id` param through `getContent()` (the merged registry) and
+  renders identically either way. There's no separate `GuidePage` — a guide
+  is still just markdown; the only thing distinguishing routes is which URL
+  segment reads naturally for a link. Use `contentPath(item)` (from
+  `@/content`) rather than hand-building `/nuggets/${id}` or
+  `/guides/${id}` — it picks the right prefix from `item.format` so call
+  sites never need an `if` on format just to build a link.
 
 `Header` (search, theme toggle) is rendered once in `AppShell`, above the
 routed content, so it's present on every page.
 
 ### Sidebar
 
-`Sidebar` (`src/components/Sidebar.tsx`) lists every nugget alphabetically
-by title — not grouped by tag. Tags are multi-valued (a nugget can be both
-`reliability` and `patterns`), so a tag-grouped sidebar would mean either
-duplicating entries across sections or inventing an unspecified "primary
-tag." Topic-based browsing is already the home page's job (tag chips +
-related nuggets); the sidebar's job is fast, unambiguous lookup by name
-from any page.
+`Sidebar` (`src/components/Sidebar.tsx`) lists guides (if any exist), then
+every nugget, each group alphabetically by title — not grouped by tag.
+Tags are multi-valued (an item can be both `reliability` and `patterns`),
+so a tag-grouped sidebar would mean either duplicating entries across
+sections or inventing an unspecified "primary tag." Topic-based browsing is
+already the home page's job (tag chips + related content); the sidebar's
+job is fast, unambiguous lookup by name from any page. The "Guides" /
+"Nuggets" group headings only render once there's more than one group —
+while `GUIDES` is empty the sidebar looks exactly like a single flat list,
+unchanged from before guides existed.
 
 `AppShell` renders two copies of it: a static one in a `hidden md:block`
 `<aside>` for desktop, and a second one inside a fixed-overlay drawer
 (`role="dialog"`) toggled by the hamburger button in `Header`, for
-viewports below `md`. Both read the same `NUGGETS` constant — there's no
-prop threading data into either. The drawer closes on backdrop click,
-`Escape`, or clicking a link (`Sidebar`'s `onNavigate` prop).
+viewports below `md`. Both read the same `NUGGETS`/`GUIDES` constants —
+there's no prop threading data into either. The drawer closes on backdrop
+click, `Escape`, or clicking a link (`Sidebar`'s `onNavigate` prop).
 
 ### Pagination
 
-`HomePage` renders the tag-filtered, alphabetically-sorted list in pages of
-`PAGE_SIZE` (10), with a "Load N more" button appending another page to
-`visibleCount`. Selecting a different tag resets `visibleCount` back to
-`PAGE_SIZE` — otherwise a filter that matches only a few nuggets could
-leave a stale, unreachable "Load more" state. Since `NUGGETS` is a
+`HomePage` renders the tag-filtered, alphabetically-sorted **nugget** list
+in pages of `PAGE_SIZE` (10), with a "Load N more" button appending another
+page to `visibleCount`. Selecting a different tag resets `visibleCount`
+back to `PAGE_SIZE` — otherwise a filter that matches only a few nuggets
+could leave a stale, unreachable "Load more" state. Since `NUGGETS` is a
 plain in-memory array (no backend), "loading more" is just revealing more
-of it — no fetch, no loading state to handle.
+of it — no fetch, no loading state to handle. The "Guides" section above it
+is deliberately **not** paginated or tag-filtered — guides are meant to be
+a small, always-visible set of references, not a growing feed; if that
+stops being true (many guides), reconsider then rather than building
+pagination for it now.
 
 ### Path alias
 

@@ -6,4 +6,5 @@ export const abstractionVsCoupling: Nugget = {
   title: 'Abstraction vs. Coupling',
   tags: ['patterns'],
   body,
+  format: 'nugget',
 };

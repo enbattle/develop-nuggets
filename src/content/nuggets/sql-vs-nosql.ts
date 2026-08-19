@@ -6,4 +6,5 @@ export const sqlVsNosql: Nugget = {
   title: 'SQL vs. NoSQL',
   tags: ['databases'],
   body,
+  format: 'nugget',
 };

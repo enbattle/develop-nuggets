@@ -6,4 +6,5 @@ export const consistentHashing: Nugget = {
   title: 'Consistent Hashing',
   tags: ['databases', 'performance'],
   body,
+  format: 'nugget',
 };

@@ -6,4 +6,5 @@ export const rateLimiting: Nugget = {
   title: 'Rate Limiting',
   tags: ['apis', 'reliability'],
   body,
+  format: 'nugget',
 };

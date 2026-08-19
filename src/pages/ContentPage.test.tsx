@@ -2,21 +2,22 @@ import { describe, it, expect } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { NuggetPage } from './NuggetPage';
+import { ContentPage } from './ContentPage';
 
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <ThemeProvider>
         <Routes>
-          <Route path="/nuggets/:id" element={<NuggetPage />} />
+          <Route path="/nuggets/:id" element={<ContentPage />} />
+          <Route path="/guides/:id" element={<ContentPage />} />
         </Routes>
       </ThemeProvider>
     </MemoryRouter>,
   );
 }
 
-describe('NuggetPage', () => {
+describe('ContentPage', () => {
   it('renders a known nugget with its tags', () => {
     renderAt('/nuggets/expand-contract');
 
@@ -34,7 +35,7 @@ describe('NuggetPage', () => {
   it('shows a not-found message for an unknown id', () => {
     renderAt('/nuggets/does-not-exist');
 
-    expect(screen.getByText('Nugget not found.')).toBeInTheDocument();
+    expect(screen.getByText('Content not found.')).toBeInTheDocument();
   });
 
   it('lists related nuggets by shared tags', () => {

@@ -6,4 +6,5 @@ export const exponentialBackoff: Nugget = {
   title: 'Exponential Backoff & Jitter',
   tags: ['reliability', 'apis'],
   body,
+  format: 'nugget',
 };

@@ -6,4 +6,5 @@ export const latencyVsThroughput: Nugget = {
   title: 'Latency vs. Throughput',
   tags: ['performance'],
   body,
+  format: 'nugget',
 };
