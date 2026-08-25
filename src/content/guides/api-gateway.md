@@ -33,7 +33,7 @@ flowchart LR
 ## Why centralize this instead of per-service
 
 Without a gateway, every backend service needs its own auth
-verification, rate limiting, and logging — duplicated logic, and
+verification, rate limiting, and logging: duplicated logic, and
 duplicated risk of one service implementing it slightly wrong. A gateway
 also means backend services can be genuinely internal (not
 individually exposed to the internet, not individually needing TLS
@@ -53,19 +53,20 @@ internal service-to-service calls than for public API traffic.
 
 ## Where it applies
 
-Any system with multiple backend services behind one public surface —
-almost every microservices architecture uses one, both for the reasons
+Any system with multiple backend services behind one public surface.
+Almost every microservices architecture uses one, both for the reasons
 above and because it's the natural place to enforce a consistent API
 contract across services that might otherwise each drift toward
 inconsistent conventions. Pairing an API gateway with
-[serverless functions](/guides/serverless-aws-lambda) as the backend —
-API Gateway routing directly to Lambda, with no server running between
-requests — is one of the most common shapes a small API takes.
+[serverless functions](/guides/serverless-aws-lambda) as the backend
+(API Gateway routing directly to Lambda, with no server running between
+requests) is one of the most common shapes a small API takes.
 
-## Key insight
+## What it buys you
 
-An API gateway doesn't add new capability that couldn't exist per
-service — it centralizes cross-cutting concerns (auth, rate limiting,
-routing, logging) that are correctness-critical and easy to get subtly
-wrong if reimplemented independently by every team owning a different
-backend service.
+Nothing here is capability a single service couldn't implement on its
+own — auth, rate limiting, routing, and logging can all be built into
+each backend individually. What a gateway actually buys is centralizing
+those correctness-critical concerns in one place, instead of trusting
+every team owning a different backend service to reimplement them
+identically and get all of them right.

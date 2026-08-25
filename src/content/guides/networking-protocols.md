@@ -1,7 +1,7 @@
 The protocol layers underneath every API call, from the transport
 guarantees TCP provides up through the HTTP version actually carrying
 the request. This is the "what is actually happening on the wire"
-layer — for choosing an API *style* on top of it, see
+layer. For choosing an API *style* on top of it, see
 [APIs: REST vs. GraphQL vs. gRPC](/guides/apis-rest-vs-graphql-vs-grpc).
 
 ## The layers, briefly
@@ -27,13 +27,13 @@ layer defines the actual message format two programs agree to speak.
 - **UDP** — connectionless: packets are fired off with no handshake, no
   ordering guarantee, and no automatic retransmission. Lower latency and
   overhead, at the cost of the application having to handle loss and
-  reordering itself if it cares — the right tradeoff for things where a
+  reordering itself if it cares: the right tradeoff for things where a
   late or missing packet is worse than a dropped one (live video, DNS
   lookups, real-time gaming).
 - **QUIC** — built on UDP, but adds TCP-like reliability *and* built-in
   TLS encryption, negotiated in a single round trip instead of TCP's
   handshake followed by a separate TLS handshake. It also solves a
-  specific TCP problem: **head-of-line blocking** — in TCP, one lost
+  specific TCP problem, **head-of-line blocking**: in TCP, one lost
   packet stalls every stream sharing that connection until it's
   retransmitted, even for data unrelated to the lost packet; QUIC
   multiplexes independent streams so one stream's loss doesn't stall the
@@ -43,14 +43,14 @@ layer defines the actual message format two programs agree to speak.
 
 - **HTTP/1.1** — one request per connection at a time (browsers work
   around this by opening several connections in parallel, which has its
-  own overhead — each one pays a fresh TCP+TLS handshake).
+  own overhead, since each one pays a fresh TCP+TLS handshake).
   Human-readable text format.
   
 - **HTTP/2** — multiplexes many requests over a *single* TCP connection
   (no more opening six connections to load six assets), plus header
   compression and server push. Because it's still built on TCP, though,
   a single lost packet stalls every multiplexed stream on that
-  connection — TCP-level head-of-line blocking, one layer up from where
+  connection: TCP-level head-of-line blocking, one layer up from where
   HTTP/2 tried to solve it.
 
 - **HTTP/3** — the same multiplexing model as HTTP/2, but running over

@@ -30,12 +30,12 @@ Back-of-envelope math in an interview usually chains a few of these:
 
 - A single modern server can typically handle on the order of
   **thousands to tens of thousands of requests/second** for simple,
-  cacheable reads — far less (hundreds to low thousands) for anything
+  cacheable reads; far less (hundreds to low thousands) for anything
   hitting a database with real work per query.
 - A single database connection or query is usually the bottleneck well
-  before the network is — this is why connection pooling and read
+  before the network is. This is why connection pooling and read
   replicas show up so often in scaling discussions.
-- **1 million requests/day ≈ ~12 requests/second average** — but design
+- **1 million requests/day ≈ ~12 requests/second average**. But design
   for peak, not average: a 10x peak-to-average ratio is a common,
   reasonable assumption absent better data.
 
@@ -44,8 +44,8 @@ Back-of-envelope math in an interview usually chains a few of these:
 - A short text row (a tweet, a comment) is roughly **100 bytes – 1 KB**.
 - A typical compressed photo is roughly **200 KB – 2 MB**; a minute of
   video, tens of MB.
-- 1 million users × 1 KB of profile data ≈ **1 GB** — small. The same 1
-  million users' photos at 1 MB each ≈ **1 TB** — this is usually where
+- 1 million users × 1 KB of profile data ≈ **1 GB**: small. The same 1
+  million users' photos at 1 MB each ≈ **1 TB**, which is usually where
   "do we need blob storage, not a database row" becomes obvious.
 
 ## Where it applies
@@ -56,9 +56,10 @@ request's stated latency requirement is 50ms and the design routes it
 through three sequential cross-region calls, the numbers alone say it
 can't work before any other analysis does.
 
-## Key insight
+## Why memorize them
 
-The value isn't precision — it's having a fast, rough gut-check
-available without a calculator, so an implausible design gets caught by
-"wait, that's off by 1000x" instead of surviving an entire interview
-unchallenged.
+Skip the calculator and these numbers still catch the obvious break: a
+design that's off by 1000x gets flagged with "wait, that can't be right"
+instead of surviving an entire interview unchallenged. That's the actual
+payoff of having them memorized — not precision, just a fast gut-check
+that's always available.

@@ -12,14 +12,14 @@ multiple services).
 Each signal answers a different question, and none of them alone is
 enough:
 
-- **Metrics** tell you _something_ is wrong — the error rate just spiked.
+- **Metrics** tell you _something_ is wrong: the error rate just spiked.
   Cheap to store, great for dashboards and alerts, but low detail: they
   can't tell you which specific request failed or why.
-- **Logs** tell you _what happened_ for one event, in detail — but at
+- **Logs** tell you _what happened_ for one event, in detail. But at
   scale, grepping through logs across dozens of service instances to
   reconstruct a single request's path is slow and painful.
 - **Traces** tell you _where_ it went wrong across a distributed call
-  graph — which of six services a slow request spent four of its five
+  graph: which of six services a slow request spent four of its five
   seconds inside.
 
 ## How they fit together
@@ -32,8 +32,8 @@ flowchart LR
 
 A typical flow: a dashboard's error-rate metric spikes, an alert fires,
 traces for slow or failed requests in that window narrow down which
-service is the bottleneck, and that service's logs — found via the trace
-ID — give the full detail of what actually happened.
+service is the bottleneck, and that service's logs (found via the trace
+ID) give the full detail of what actually happened.
 
 ## Where it applies
 
@@ -44,10 +44,10 @@ everywhere. It's also exactly the toolkit for finding out why a
 [circuit breaker](/nuggets/circuit-breaker) tripped, or why
 [retries](/nuggets/exponential-backoff) aren't succeeding.
 
-## Key insight
+## Debugging order
 
-Observability isn't "add more logging" — it's having the right signal at
-the right granularity for the question being asked. Metrics for "is
-something wrong," traces for "where," logs for "why." Reaching for the
-wrong one first is a big part of why debugging production incidents so
+Start with metrics to confirm something's wrong, traces to find where, and
+logs to learn why, in that order. Jumping straight to logs, the most
+common instinct, means combing through detail before knowing where to
+even look, which is a big part of why debugging production incidents so
 often takes longer than it should.

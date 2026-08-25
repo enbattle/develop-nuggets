@@ -48,8 +48,9 @@ MCP is explicitly modeled on that idea.
 
 ## Example: what a tool call actually looks like
 
-Calling a REST API directly means knowing its specific shape in advance —
-its base URL, its auth scheme, this particular endpoint's parameters:
+Calling a REST API directly means knowing its specific shape in advance,
+including its base URL, its auth scheme, and this particular endpoint's
+parameters:
 
 ```
 GET /repos/octocat/hello-world/issues?state=open
@@ -57,9 +58,9 @@ Authorization: Bearer <token>
 ```
 
 An MCP client never needs to know that shape ahead of time. It asks the
-server what tools it offers, then calls one by name with arguments — the
+server what tools it offers, then calls one by name with arguments: the
 same two-step shape for any MCP server, whether it's wrapping GitHub's
-API, a local database, or a file system (simplified here — the real
+API, a local database, or a file system (this is simplified — the real
 protocol is JSON-RPC 2.0 with additional envelope fields):
 
 ```json
@@ -84,11 +85,11 @@ code written specifically for that one service.
 ## Where it applies
 
 Building or connecting tools for an LLM agent (file access, database
-queries, third-party services) — MCP is the layer between "the model wants
+queries, third-party services): MCP is the layer between "the model wants
 to take an action" and "the actual system that performs it," regardless of
 what that system's own native API looks like.
 
-## Key insight
+## Different layers, not rivals
 
 MCP and APIs solve different layers of the same problem: an API defines
 what a service can do; MCP defines a common way for an AI agent to

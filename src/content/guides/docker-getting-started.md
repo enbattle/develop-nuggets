@@ -5,8 +5,8 @@ cover almost everything you'll do day to day.
 
 ## Why Docker
 
-Docker packages an application together with everything it needs to run —
-runtime, libraries, system dependencies — into a single unit that behaves
+Docker packages an application together with everything it needs to run
+(runtime, libraries, system dependencies) into a single unit that behaves
 the same on your laptop, a teammate's laptop, and a production server. It
 solves "works on my machine": if it runs in the container, it runs the
 same way everywhere the container runs, because the container *is* the
@@ -39,20 +39,20 @@ flowchart LR
 
 ## Under the hood: namespaces and cgroups
 
-A container isn't a lightweight VM — there's no separate kernel or
-virtualized hardware involved. It's an ordinary Linux process, made to
-*look* isolated by two kernel features:
+Underneath, a container is just an ordinary Linux process, not a
+lightweight VM: there's no separate kernel or virtualized hardware
+involved. Two kernel features make it merely *look* isolated:
 
 - **Namespaces** give a process its own view of something that's normally
   global on the machine. The **PID namespace** makes a container's first
   process look like PID 1, unaware anything outside it exists. The
   **network namespace** gives it its own network interfaces, IP address,
   and routing table. The **mount namespace** gives it its own filesystem
-  view — the image's filesystem, not the host's. A few others (UTS for
-  hostname, IPC, user namespaces for UID remapping) round it out —
-  together, this is what "isolated" actually means.
-- **cgroups** (control groups) *limit* what a process can use — CPU
-  shares, memory, I/O bandwidth — rather than hiding things from it. This
+  view: the image's filesystem, not the host's. A few others (UTS for
+  hostname, IPC, user namespaces for UID remapping) round it out.
+  Together, this is what "isolated" actually means.
+- **cgroups** (control groups) *limit* what a process can use (CPU
+  shares, memory, I/O bandwidth) rather than hiding things from it. This
   is what stops one container from starving every other process on the
   host of CPU or memory.
 
@@ -67,18 +67,18 @@ flowchart LR
 ```
 
 This is also why a container starts in milliseconds while a VM takes
-seconds — a container is just `fork`/`exec` plus these two kernel
+seconds: a container is just `fork`/`exec` plus these two kernel
 features applied to the new process; there's no separate kernel or
 hardware to boot. It's also why every container on a host shares that
-host's kernel — a Linux container image can't run natively on a non-Linux
+host's kernel. A Linux container image can't run natively on a non-Linux
 kernel, which is exactly why Docker Desktop on macOS/Windows runs a small
 Linux VM under the hood: something has to actually provide that kernel.
 
 ## Installing Docker
 
 - **macOS / Windows**: install **Docker Desktop**. It bundles the Docker
-  engine (which actually runs containers), the `docker` CLI, and a GUI —
-  on both platforms the engine runs inside a lightweight Linux VM Docker
+  engine (which actually runs containers), the `docker` CLI, and a GUI.
+  On both platforms the engine runs inside a lightweight Linux VM Docker
   Desktop manages for you, since containers are a Linux kernel feature.
 - **Linux**: install **Docker Engine** directly (no VM needed — the kernel
   containers rely on is already there) via your distro's package manager.
@@ -105,7 +105,7 @@ The GUI mirrors the CLI concepts directly:
   (macOS/Windows) is allowed to use — worth raising if builds feel starved
   on a machine that clearly has the headroom.
 
-Everything the GUI shows is also queryable from the terminal — the GUI is
+Everything the GUI shows is also queryable from the terminal: the GUI is
 a view onto the same engine, not a separate thing.
 
 ## The CLI: essential commands
@@ -208,7 +208,7 @@ been a bind mount, or you forgot to rebuild).
 A few habits worth having well before "at scale" matters:
 
 - **Don't run as root inside the container.** By default a container's
-  process runs as root (uid 0) unless told otherwise — harmless for quick
+  process runs as root (uid 0) unless told otherwise: harmless for quick
   local use, but a real gap if that process is ever compromised, since a
   container-to-host escape as root is far more dangerous than one as an
   unprivileged user. Add a non-root user in the Dockerfile and switch to
@@ -227,7 +227,7 @@ A few habits worth having well before "at scale" matters:
   a shell if they ever get one.
 - **Never bake secrets into an image.** A value set with `ENV` or `ARG` in
   a Dockerfile is visible to anyone who can run `docker history` or pull
-  the image — including from intermediate build-cache layers, even if a
+  the image, including from intermediate build-cache layers, even if a
   later instruction overwrites it. Pass secrets at runtime instead
   (`docker run -e`, Compose's `environment`/`env_file`, or a real secrets
   manager in production), never as a value committed into the Dockerfile.
@@ -261,9 +261,9 @@ A few habits worth having well before "at scale" matters:
 
 ## Where to go from here
 
-Everything above covers a single host running a handful of containers —
+Everything above covers a single host running a handful of containers:
 enough for local development, and enough to understand how a lot of real
 infrastructure works under the hood. Running many containers reliably
-across many machines — scheduling, self-healing, rolling deploys — is a
-separate, much bigger topic (Kubernetes and friends), deliberately out of
-scope for a getting-started guide.
+across many machines, with scheduling, self-healing, and rolling
+deploys, is a separate, much bigger topic (Kubernetes and friends),
+deliberately out of scope for a getting-started guide.

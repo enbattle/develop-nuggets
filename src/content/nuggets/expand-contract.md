@@ -1,8 +1,8 @@
 ## What it is
 
 **Expand-Contract** (aka _parallel change_) is a technique for making a
-backwards-incompatible change — to a database schema, an API, a function
-signature — without one risky, all-at-once cutover. Instead of changing
+backwards-incompatible change (to a database schema, an API, a function
+signature) without one risky, all-at-once cutover. Instead of changing
 something in place, you move through three phases:
 
 1. **Expand** — add the new thing alongside the old thing. Both work at once.
@@ -20,7 +20,7 @@ flowchart LR
 
 Changing the shape of something in one atomic step forces every caller to
 update in lockstep. That's fine for a single codebase deployed all at once,
-but falls apart the moment more than one thing depends on the old shape —
+but falls apart the moment more than one thing depends on the old shape:
 multiple services, a live database with in-flight rows, mobile clients on
 old app versions. Expand-contract decouples "ship the new capability" from
 "finish the migration," so each step is small, reversible, and
@@ -66,10 +66,10 @@ ALTER TABLE users DROP COLUMN name;
 - **Feature flags** — often used to control which phase of the migration is
   active for a given deployment.
 
-## Key insight
+## What makes it safe
 
 The pattern trades one risky change for three small, reversible ones. At
 any point before "contract," you can pause or roll back without breaking
-anything — the old path still works. Safety comes from _never being in a
+anything: the old path still works. Safety comes from _never being in a
 state where only the new thing works_, until it's been proven under real
 usage.

@@ -45,7 +45,7 @@ client's mobile summary, a different query gets the web client's full
 detail, from the same schema. The tradeoff moves the complexity
 server-side: a naive resolver implementation that fetches each nested
 field with its own lookup is precisely
-[the N+1 query problem](/nuggets/n-plus-one-queries) at the API layer —
+[the N+1 query problem](/nuggets/n-plus-one-queries) at the API layer:
 resolving `order.customer` once per order in a list, instead of batching
 it. Tools like DataLoader exist specifically to batch and cache resolver
 calls within a single request to avoid this. HTTP caching also mostly
@@ -91,7 +91,7 @@ most).
 
 ## Where to go from here
 
-None of these replace the other API-design concerns — rate limiting,
-auth, versioning, and consistent error handling apply to a REST,
-GraphQL, or gRPC API alike. See
+Rate limiting, auth, versioning, and consistent error handling apply to
+a REST, GraphQL, or gRPC API alike; none of these three choices replaces
+that other layer of API design. See
 [APIs: Best Practices](/guides/api-best-practices) for those.

@@ -1,8 +1,8 @@
 ## What it is
 
 Routing a large file (a video, a big export, a multi-GB backup) through
-your own application server — reading the whole upload into memory or
-disk before forwarding it to storage — ties up a server thread or
+your own application server (reading the whole upload into memory or
+disk before forwarding it to storage) ties up a server thread or
 process for the entire transfer and caps throughput at whatever one
 server can handle. The standard fix is letting the client upload
 **directly** to blob storage, with the app server only involved in
@@ -35,7 +35,7 @@ sequenceDiagram
     Client->>App: "upload done" (object key)
 ```
 
-The app server's job shrinks to authorization and bookkeeping — it
+The app server's job shrinks to authorization and bookkeeping: it
 never touches the file's bytes, so its resource usage doesn't scale
 with upload size or volume at all.
 
@@ -45,7 +45,7 @@ For very large files, uploading as one request risks the whole thing
 failing on any network hiccup, with no way to resume. Multipart upload
 splits the file into independently-uploaded chunks (each with its own
 presigned URL), retried individually on failure, and assembled
-server-side (by the storage service) once every chunk has arrived — the
+server-side (by the storage service) once every chunk has arrived, the
 same idea as resumable downloads, applied to writes.
 
 ## Where it applies
@@ -56,9 +56,9 @@ same problem: serving a large file back out is the same "don't proxy
 bytes through the app server" idea, usually via a signed download URL
 or a CDN in front of storage.
 
-## Key insight
+## The app server's actual job
 
-The app server's role in a large-transfer flow should be authorization,
-not data-plane transit — every byte that flows through it instead of
-directly between client and storage is throughput the app server didn't
-need to spend.
+In a large-transfer flow, the app server's job is authorization, not
+data-plane transit. Every byte that flows through it instead of
+directly between client and storage is throughput it didn't need to
+spend.

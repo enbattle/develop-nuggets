@@ -1,5 +1,5 @@
-Serverless compute — AWS Lambda is the flagship example, and what most
-people mean when they say "serverless" — runs your code in response to
+Serverless compute (AWS Lambda is the flagship example, and what most
+people mean when they say "serverless") runs your code in response to
 an event and bills only for the time it actually executes, with no
 server to provision, patch, or keep running between invocations.
 
@@ -33,8 +33,8 @@ around waiting for X.
 ## Cold starts, and how they're actually mitigated in 2026
 
 A **cold start** is the latency penalty of provisioning a fresh
-execution environment — downloading the code, starting the runtime,
-running any module-level initialization — before your handler code
+execution environment (downloading the code, starting the runtime,
+running any module-level initialization) before your handler code
 even begins. A **warm** invocation skips all of that and just runs the
 handler directly, which is why identical requests can have wildly
 different latency depending on whether an existing environment was
@@ -57,8 +57,8 @@ Current mitigations, in order of how commonly they're reached for:
   for the runtimes it supports.
 
 One easy-to-miss cost detail: **as of August 2025, AWS bills for the
-initialization phase of a cold start**, not just handler execution time
-— a change worth knowing if you're estimating cost from an older
+initialization phase of a cold start**, not just handler execution time.
+That's worth knowing if you're estimating cost from an older
 understanding of Lambda's pricing model, especially for
 initialization-heavy runtimes like Java or C#.
 
@@ -74,7 +74,7 @@ initialization-heavy runtimes like Java or C#.
 The timeout being a hard limit matters more than it looks: a Lambda
 invoked directly can run the full 15 minutes, but one invoked *through*
 [API Gateway](/guides/api-gateway) inherits API Gateway's own separate
-29-second hard timeout — a request that would otherwise finish in 3
+29-second hard timeout. A request that would otherwise finish in 3
 minutes gets cut off at 29 seconds regardless of Lambda's own limit.
 Anything that can genuinely run long needs the same pattern as
 [Managing Long-Running Tasks](/nuggets/long-running-tasks): return
@@ -85,7 +85,7 @@ client poll or get notified.
 ## Retries make idempotency non-optional
 
 Asynchronous Lambda invocations (triggered by S3, SNS, EventBridge)
-**retry automatically on failure** by default — a transient error in
+**retry automatically on failure** by default: a transient error in
 your function can mean AWS invokes it again with the same event, with
 no code on your part requesting that retry. This makes
 [idempotency](/nuggets/idempotency) a hard requirement for serverless
@@ -94,7 +94,7 @@ on the same input will eventually run twice on the same input.
 
 ## The database connection problem
 
-A traditional relational database has a fixed, small connection limit —
+A traditional relational database has a fixed, small connection limit.
 Lambda can scale from zero to hundreds of concurrent execution
 environments in seconds, and if each one opens its own database
 connection, a burst in traffic can exhaust the database's connection
@@ -107,7 +107,7 @@ than fighting a traditional one.
 
 ## Serverless vs. containers
 
-- **Serverless (Lambda)** fits bursty or unpredictable traffic well —
+- **Serverless (Lambda)** fits bursty or unpredictable traffic well:
   you pay per invocation, and scale-to-zero means no cost when nothing's
   happening. It fits poorly for steady, high-throughput workloads,
   where per-invocation overhead and cold starts add up to worse
@@ -119,8 +119,8 @@ than fighting a traditional one.
   minutes — at the cost of paying for capacity whether or not it's
   currently in use.
 
-AWS Fargate sits in between — containers, but billed and scaled more
-like serverless (no server to manage) — worth knowing as the answer to
+AWS Fargate sits in between: containers, but billed and scaled more
+like serverless (no server to manage). Worth knowing as the answer to
 "I want container flexibility without giving up the scale-to-zero
 economics."
 
@@ -133,10 +133,10 @@ solved. Less of a fit for steady high-throughput services, anything
 needing a long-lived connection or in-memory state across requests, or
 executions that routinely approach the 15-minute ceiling.
 
-## Key insight
+## The real tradeoff
 
-Serverless doesn't remove operational complexity — it relocates it.
-You stop managing servers and start managing cold starts, retry
+Serverless relocates operational complexity rather than eliminating
+it: you stop managing servers and start managing cold starts, retry
 semantics, connection exhaustion, and a hard timeout ceiling instead.
 It's a genuinely good trade for the right workload shape (bursty,
 event-driven, stateless), and a source of surprising failure modes for

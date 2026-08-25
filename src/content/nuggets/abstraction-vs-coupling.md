@@ -80,10 +80,11 @@ implementation's internals directly (a "leaky" import, a cast, a
 documented-as-private field used anyway), which is a sign the abstraction
 isn't actually where the real boundary needs to be.
 
-## Key insight
+## Where to draw the line
 
-The goal isn't "more abstraction" or "less coupling" as numbers to
-maximize — it's placing the boundary where change actually happens. A good
-abstraction sits at a genuine seam and earns its indirection; a bad one is
-just extra ceremony wrapped around the same underlying coupling, which
-still shows up the moment something on the other side changes.
+Place the boundary where change actually happens, not wherever adds the
+most layers or removes the most direct calls — abstraction and coupling
+are means, not scores to optimize for their own sake. A good abstraction
+sits at a genuine seam and earns its indirection; a bad one is just extra
+ceremony wrapped around the same underlying coupling, which still shows up
+the moment something on the other side changes.

@@ -1,6 +1,6 @@
 ## What it is
 
-An index is an auxiliary data structure — usually a B-tree — that lets a
+An index is an auxiliary data structure (usually a B-tree) that lets a
 database find matching rows without scanning the whole table. It trades
 extra storage and slower writes for much faster reads on the indexed
 columns.
@@ -8,7 +8,7 @@ columns.
 ## Why it matters
 
 Without an index, `WHERE email = ?` has to check every row (a "sequential
-scan" / "table scan") — fine with a few hundred rows, catastrophic with a
+scan" / "table scan"): fine with a few hundred rows, catastrophic with a
 few million. This is the other half of "why is this query slow" alongside
 [the N+1 query problem](/nuggets/n-plus-one-queries): N+1 is about issuing
 too many queries, indexing is about making each individual query fast.
@@ -16,9 +16,9 @@ too many queries, indexing is about making each individual query fast.
 ## How it works, briefly
 
 A B-tree keeps keys sorted in a shallow, wide tree structure, so a lookup
-is `O(log n)` — a handful of comparisons — instead of `O(n)`, checking every
+is `O(log n)` (a handful of comparisons) instead of `O(n)`, checking every
 row one at a time. A composite index (built on multiple columns) is sorted
-by the first column, then the second within ties, and so on — which is why
+by the first column, then the second within ties, and so on. That's why
 it only helps a query that filters on a matching left-to-right prefix of
 those columns.
 
@@ -37,7 +37,7 @@ B-tree is the default and handles equality and range queries
 
 - **Hash index** — O(1) lookup for exact-match equality, but can't serve a
   range query or an `ORDER BY` at all, since a hash has no notion of
-  "near" — two adjacent keys can hash to completely unrelated buckets.
+  "near": two adjacent keys can hash to completely unrelated buckets.
 - **GIN / GiST** (Postgres) — built for values that aren't a single
   scalar: full-text search, JSONB containment queries (`@>`), array
   membership, geospatial data. A B-tree can't index "does this JSONB
@@ -50,13 +50,13 @@ B-tree is the default and handles equality and range queries
 ## Clustered vs. non-clustered
 
 A **clustered** index determines the actual physical order rows are
-stored in on disk — there can only be one per table (rows can only be
+stored in on disk: there can only be one per table (rows can only be
 sorted one way at once), and it's usually the primary key by default. A
 **non-clustered** index is a separate structure: sorted keys that each
 point back to the row's location, rather than containing the row itself.
 
 That extra pointer-chase is why a non-clustered index lookup is often two
-steps, not one — find the key in the index, then jump to the row it
+steps, not one: find the key in the index, then jump to the row it
 points at (a "bookmark lookup"). A **covering index** avoids the second
 step entirely by including every column the query needs directly in the
 index itself, so the database can answer the query from the index alone
@@ -85,7 +85,7 @@ Any relational database, and the same idea shows up conceptually in search
 backends like Elasticsearch (an inverted index) and in NoSQL stores with
 secondary indexes.
 
-## Key insight
+## Rule of thumb
 
 Index the columns your queries actually filter, sort, or join on — no
 more, no less — and use `EXPLAIN` (or your database's equivalent) to

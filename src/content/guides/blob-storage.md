@@ -1,12 +1,12 @@
 Blob storage (S3 and similar) stores arbitrary binary objects at
 massive scale, and its object model is deliberately simpler than a
-filesystem's — that simplicity is exactly what lets it scale the way it
+filesystem's: that simplicity is exactly what lets it scale the way it
 does.
 
 ## The object model
 
 Everything is a **bucket** (a top-level namespace) containing
-**objects**, each addressed by a flat **key** — there's no real
+**objects**, each addressed by a flat **key**. There's no real
 directory structure underneath, even though keys with `/` in them
 (`photos/2024/summer.jpg`) are commonly displayed *as if* there were
 one:
@@ -18,7 +18,8 @@ bucket: user-uploads
   key: user-88/avatar.jpg
 ```
 
-`documents/` isn't a real folder — it's just part of the key string.
+That `documents/` segment is just characters inside the key string, not
+a reference to any real folder object.
 This flat model is what makes blob storage horizontally scalable in a
 way a traditional hierarchical filesystem isn't: there's no directory
 inode that every write inside it has to update, so writes to unrelated
@@ -27,7 +28,7 @@ keys look.
 
 ## What it's for (and not for)
 
-Blob storage is built for storing and retrieving whole objects by key —
+Blob storage is built for storing and retrieving whole objects by key,
 not for partial in-place updates (changing a byte range inside an
 existing object generally means rewriting the whole object), not for
 low-latency small reads (it trades some latency for durability and
@@ -42,7 +43,7 @@ archives, ML model files.
 
 Routing large files through an application server wastes exactly the
 resource a stateless app server should be scaling independently of file
-size — see
+size. See
 [Handling Large File Uploads](/nuggets/large-file-uploads) for the
 presigned-URL pattern that lets a client upload directly to blob
 storage, with the app server only issuing short-lived permission. The

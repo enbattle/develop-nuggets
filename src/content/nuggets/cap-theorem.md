@@ -24,7 +24,7 @@ design time than to discover it during an incident.
 
 CAP is often summarized as "pick 2 of C, A, P," as if **CA** (consistent
 and available, but not partition-tolerant) were a real option. In practice
-it isn't — any system distributed across more than one node will
+it isn't. Any system distributed across more than one node will
 eventually experience a partition, so partition tolerance isn't optional.
 The real choice is what happens _during_ a partition: stay consistent and
 refuse some requests (**CP**), or stay available and risk serving stale or
@@ -39,14 +39,14 @@ conflicting data (**AP**).
 
 ## PACELC: the tradeoff CAP leaves out
 
-CAP only describes behavior _during_ a partition — it says nothing about
+CAP only describes behavior _during_ a partition: it says nothing about
 the rest of the time, when the network is perfectly healthy. **PACELC**
 extends it: **if Partition, choose Availability or Consistency (that's
 CAP) — Else, choose Latency or Consistency.**
 
 Even with a healthy network, a system that wants every read to see the
 latest write has to synchronously confirm that write against enough
-replicas before acknowledging it — which costs latency. A system that
+replicas before acknowledging it, which costs latency. A system that
 acknowledges a write as soon as it hits one node, replicating to the
 others asynchronously, is faster but a read against a different replica
 immediately afterward can return stale data. That's a real tradeoff even
@@ -75,7 +75,7 @@ Choosing a database (a strongly consistent relational store vs. an
 eventually consistent NoSQL store), and designing any service replicated
 across multiple regions or availability zones.
 
-## Key insight
+## Choose it deliberately
 
 CAP is specifically about behavior _during_ a partition — the rest of the
 time, a well-designed system can be both consistent and available in the

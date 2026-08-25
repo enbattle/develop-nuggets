@@ -8,8 +8,8 @@ exhibits.
 ## Rate limiting
 
 Every public (and most internal) endpoints should cap how often a single
-client can call them. The mechanics — token bucket, leaky bucket, what to
-do when the bucket is empty — are covered in full in
+client can call them. The mechanics (token bucket, leaky bucket, what to
+do when the bucket is empty) are covered in full in
 [Rate Limiting](/nuggets/rate-limiting). At the API-design level, the part
 that's easy to skip is telling the client what happened, via response
 headers:
@@ -27,7 +27,7 @@ long to back off; a client that gets `Retry-After: 30` doesn't.
 Concrete limits vary a lot by traffic pattern, but real APIs anchor on
 numbers like these: GitHub's REST API allows 5,000 requests/hour for an
 authenticated user; Stripe's default is 100 requests/second in live mode.
-Neither is a universal default to copy — the point is picking a number
+Neither is a universal default to copy: the point is picking a number
 deliberately from expected legitimate traffic, not leaving it unset.
 
 ## Authentication & authorization
@@ -41,14 +41,14 @@ privilege-escalation bugs.
 
 - **API keys** are simplest and fine for server-to-server calls, but they
   don't expire on their own and are easy to leak into logs or client-side
-  code — never ship one in a mobile app or SPA bundle expecting it to stay
+  code. Never ship one in a mobile app or SPA bundle expecting it to stay
   secret.
 - **OAuth 2.0** is the right tool when a *user* needs to grant a *third
-  party* limited access to their account — it exists specifically to avoid
+  party* limited access to their account. It exists specifically to avoid
   handing out the user's actual password.
 - **JWTs** are a good transport for short-lived, self-contained claims
   (user id, roles, expiry) but are not a session-revocation mechanism by
-  default — a stolen JWT is valid until it expires, full stop, unless you
+  default: a stolen JWT is valid until it expires, full stop, unless you
   add an explicit revocation list.
 
 Whatever the mechanism, grant the narrowest scope that does the job. A key
@@ -59,11 +59,11 @@ than one with blanket access.
 
 Not every OAuth flow is the right tool for the same job:
 
-- **Authorization code** (+ PKCE) — the flow for anything with a user and
-  a browser: the user authenticates on the provider's own page, the
+- **Authorization code** (+ PKCE): the flow for anything with a user and
+  a browser. The user authenticates on the provider's own page, the
   provider redirects back with a short-lived code, and the app exchanges
-  that code — plus a PKCE verifier, which stops the code from being
-  replayed by whatever might have intercepted the redirect — for tokens
+  that code (plus a PKCE verifier, which stops the code from being
+  replayed by whatever might have intercepted the redirect) for tokens
   server-side. This is the only flow that belongs in a user-facing login.
 - **Client credentials** — no user at all: one service authenticating as
   *itself* to call another. The client authenticates directly with its
@@ -78,7 +78,7 @@ Not every OAuth flow is the right tool for the same job:
 A JWT is three base64url segments — `header.payload.signature`.
 *Verifying* one means recomputing the signature over the header and
 payload with the expected key and comparing it, not just decoding the
-payload and trusting what it says — decoding requires no key at all;
+payload and trusting what it says. Decoding requires no key at all;
 verifying is the part that actually proves the token wasn't tampered
 with.
 
@@ -94,21 +94,21 @@ with.
   alongside the old one for an overlap period, so tokens signed just
   before rotation still verify until they naturally expire.
 
-A JWT's `exp` claim is enforced by whoever verifies it — nothing stops a
+A JWT's `exp` claim is enforced by whoever verifies it. Nothing stops a
 captured, still-unexpired token from being replayed until that expiry
 hits. That's why short-lived access tokens (minutes, not days) paired
-with a separate, revocable **refresh token** — exchanged for a new access
-token, checked against a server-side revocation list — is the standard
+with a separate, revocable **refresh token** (exchanged for a new access
+token, checked against a server-side revocation list) is the standard
 pattern for anything that needs to support logging a user out on demand.
 
 ## Input validation
 
 Validate at the boundary, before untrusted data touches business logic or
-a query — and prefer an allow-list ("must be one of these values, this
+a query. Prefer an allow-list ("must be one of these values, this
 shape") over a deny-list ("reject anything that looks like an attack"),
 since a deny-list only blocks the attacks you thought of. The single most
-damaging validation failure — building a database query out of unvalidated
-input directly — is its own nugget:
+damaging validation failure (building a database query out of unvalidated
+input directly) is its own nugget:
 [SQL Injection & Parameterized Queries](/nuggets/sql-injection). The same
 "never let input be interpreted as code" principle extends to shell
 commands, template rendering, and deserialization of untrusted payloads.
@@ -127,9 +127,9 @@ double-charge in production.
 ## Versioning
 
 Decide how you'll evolve the API *before* the first breaking change is
-forced on you, not during the incident. The two common approaches — a
-version segment in the URL (`/v2/users`) vs. a header
-(`Accept: application/vnd.myapi.v2+json`) — trade discoverability
+forced on you, not during the incident. There are two common approaches:
+a version segment in the URL (`/v2/users`) or a header
+(`Accept: application/vnd.myapi.v2+json`). They trade discoverability
 (URL versions are visible in every log line and browser tab) for purity
 (a resource's identity shouldn't change with its representation). Either
 is defensible; picking neither and instead making silent breaking changes
@@ -140,7 +140,7 @@ the severity of a given change once you have a scheme.
 ## Pagination
 
 Offset-based pagination (`?page=3&limit=20`) is simple but unstable under
-concurrent writes — if a row is inserted before page 3 while a client is
+concurrent writes: if a row is inserted before page 3 while a client is
 paging through, they'll see one row twice and skip another. Cursor-based
 pagination (`?after=<opaque-cursor>`) avoids that by anchoring to a
 specific row rather than a numeric position, at the cost of not supporting
@@ -165,7 +165,7 @@ their own nuggets:
 - **Nested or related resources** — an endpoint that returns a list, then
   triggers a separate lookup per item for related data (an order's line
   items, a post's author), is the API-layer shape of
-  [the N+1 query problem](/nuggets/n-plus-one-queries) — whether that
+  [the N+1 query problem](/nuggets/n-plus-one-queries). Whether that
   per-item lookup is a database query or a call to another internal
   service, the fix is identical: batch it, or fetch it once alongside the
   list instead of once per item in the response.
@@ -203,17 +203,17 @@ string: query strings routinely end up in server access logs, browser
 history, and `Referer` headers sent to third parties. Put credentials in
 headers or the request body instead.
 
-TLS itself isn't free — a full handshake costs an extra round trip or two
+TLS itself isn't free: a full handshake costs an extra round trip or two
 before the first byte of real data moves (TLS 1.2 needs two round trips;
 TLS 1.3 gets a full handshake down to one, and can resume a previous
 session in zero). That cost is why connection reuse (keep-alive, HTTP/2
 multiplexing many requests over one connection) matters as much for
-latency as it does for throughput — paying the handshake cost once per
+latency as it does for throughput: paying the handshake cost once per
 connection instead of once per request.
 
 ## Observability
 
-Every response — success or failure — should carry a request id the caller
+Every response (success or failure) should carry a request id the caller
 can hand back to you when reporting a problem, and every log line and
 trace span on your side should carry that same id. Without it, "the API
 returned an error at 3:47pm" is nearly unactionable; with it, it's a direct
@@ -227,13 +227,12 @@ Write the API contract down somewhere machine-readable (OpenAPI/Swagger is
 the default choice) rather than only in prose or, worse, only in the
 implementation. A machine-readable spec can generate client SDKs, drive
 contract tests, and be diffed in code review to catch accidental breaking
-changes — a paragraph in a wiki can't do any of that, and it drifts out of
+changes. A paragraph in a wiki can't do any of that, and it drifts out of
 sync with the code silently.
 
 ## Where to go from here
 
-None of this is exotic — it's the same handful of concerns showing up on
-every API that survives contact with real traffic. Treat this guide as a
-checklist to run through when starting a new API or reviewing someone
-else's, and follow the links above when you need the full depth on any one
-topic.
+The same handful of concerns shows up on every API that survives contact
+with real traffic; none of it is exotic. Treat this guide as a checklist
+to run through when starting a new API or reviewing someone else's, and
+follow the links above when you need the full depth on any one topic.

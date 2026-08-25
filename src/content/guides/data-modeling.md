@@ -83,5 +83,5 @@ principle this guide starts from.
 ## Where to go from here
 
 A schema decision made early tends to be the most expensive one to
-reverse — see [Expand-Contract Pattern](/nuggets/expand-contract) for
+reverse. See [Expand-Contract Pattern](/nuggets/expand-contract) for
 how to actually migrate a schema safely once it needs to change.

@@ -1,7 +1,7 @@
 ## What it is
 
 A **saga** coordinates a business operation that spans multiple
-services — each with its own database — as a sequence of local
+services (each with its own database) as a sequence of local
 transactions, each with a defined **compensating transaction** that
 undoes it if a later step fails. There's no distributed transaction
 wrapping the whole thing; instead, correctness comes from being able to
@@ -30,8 +30,8 @@ flowchart LR
 ```
 
 If charging the card fails after the flight and hotel are already
-reserved, the saga runs compensating actions in reverse — cancel the
-hotel, cancel the flight — rather than leaving two paid-for reservations
+reserved, the saga runs compensating actions in reverse: cancel the
+hotel, cancel the flight, rather than leaving two paid-for reservations
 behind with no successful booking to show for them.
 
 ## Orchestration vs. choreography
@@ -43,23 +43,22 @@ behind with no successful booking to show for them.
 - **Choreography** — each service reacts to events from the previous
   one (via a broker) and emits its own event when done, with no central
   coordinator. No single point of control, but the overall flow is
-  implicit — reconstructing "what happens when payment fails" means
+  implicit: reconstructing "what happens when payment fails" means
   tracing event handlers across every service.
 
 ## Where it applies
 
-Any multi-service operation with no shared database — order fulfillment
+Any multi-service operation with no shared database: order fulfillment
 (reserve inventory → charge payment → schedule shipping), travel
 booking, account provisioning across multiple systems. Publishing each
 step's outcome reliably, so the next step (or a compensation) actually
 fires, is exactly the problem the
-[Outbox Pattern](/nuggets/outbox-pattern) solves — sagas are usually
+[Outbox Pattern](/nuggets/outbox-pattern) solves. Sagas are usually
 built on top of it, not instead of it.
 
-## Key insight
+## Living with partial state
 
-A saga doesn't prevent an operation from being seen mid-flight (someone
-can see a flight reserved with no hotel yet) — it accepts that as
-unavoidable once state is split across services, and its whole design
-is about *always* having a way back out if a later step fails, rather
-than trying to hide the intermediate state.
+The whole design commitment behind a saga is always having a way back
+out if a later step fails, accepting that intermediate states are
+genuinely visible along the way (someone really can see a flight
+reserved with no hotel booked yet) rather than trying to hide them.

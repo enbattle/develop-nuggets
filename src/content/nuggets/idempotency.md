@@ -10,7 +10,7 @@ card three times.
 
 Networks fail in the middle of requests. A client that times out waiting for
 a response has no way to know whether the server actually processed the
-request or not — so the only safe move is to retry. Idempotency is what
+request or not. So the only safe move is to retry. Idempotency is what
 makes that retry safe: if the first attempt _did_ go through, the retry is a
 no-op instead of a duplicate side effect.
 
@@ -44,8 +44,8 @@ def charge_card(idempotency_key, amount):
 ```
 
 The key is usually generated once per logical user action (e.g. once per
-"place order" click) and reused across all retries of that same action —
-generating a new key per retry defeats the purpose entirely.
+"place order" click) and reused across all retries of that same action.
+Generating a new key per retry defeats the purpose entirely.
 
 ## Where it applies
 
@@ -55,15 +55,14 @@ generating a new key per retry defeats the purpose entirely.
   guarantee _at-least-once_ delivery, not _exactly-once_.
 - **Serverless functions** — asynchronous invocations (see
   [Serverless & AWS Lambda](/guides/serverless-aws-lambda)) retry
-  automatically on failure by default, with no code requesting it —
-  making idempotency non-optional, not just good practice.
+  automatically on failure by default, with no code requesting it. That
+  makes idempotency non-optional, not just good practice.
 - **Database writes** — `UPSERT`/`INSERT ... ON CONFLICT` are idempotent by
   construction; a naive `INSERT` retried after a timeout can create
   duplicates.
 
-## Key insight
-
-Idempotency doesn't prevent failures — it makes retrying after a failure
-safe. Anywhere a client might retry a request it's not sure succeeded (which
-is almost everywhere, over a real network), the operation either needs to be
-naturally idempotent or needs an idempotency key to fake it.
+Practically every client on a real network will eventually retry a request
+it isn't sure succeeded — a timeout doesn't tell you whether the server got
+the message. Idempotency, or an idempotency key standing in for it, is the
+mechanism that makes that retry harmless: a duplicate charge, order, or
+email doesn't happen just because the network hiccuped.

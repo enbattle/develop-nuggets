@@ -26,8 +26,8 @@ stateDiagram-v2
 ## Why it matters
 
 Without a circuit breaker, a struggling dependency gets hit by every
-caller retrying — possibly with [backoff](/nuggets/exponential-backoff),
-but still hit — which can be exactly what prevents it from ever recovering.
+caller retrying (possibly with [backoff](/nuggets/exponential-backoff),
+but still hit), which can be exactly what prevents it from ever recovering.
 Every caller also pays the cost of waiting out a full timeout on each
 failed call, tying up threads/connections for something that was never
 going to succeed.
@@ -68,13 +68,13 @@ class CircuitBreaker:
             return result
 ```
 
-## Where it applies
+## Common uses
 
 Service-to-service calls in a microservice architecture (Netflix's Hystrix
 popularized the pattern), database connection pools, and any call to an
 external dependency that can degrade under load.
 
-## Key insight
+## Backoff vs. circuit breakers
 
 Backoff and circuit breakers solve complementary problems: backoff helps a
 _caller_ survive a transient failure by spacing out its own retries; a

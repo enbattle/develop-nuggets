@@ -22,7 +22,7 @@ sequenceDiagram
 ```
 
 The initial request returns immediately with a job id and a
-`202 Accepted` (not `200`, since nothing is actually done yet) — the
+`202 Accepted` (not `200`, since nothing is actually done yet): the
 real work happens asynchronously in a worker process, decoupled from
 the request/response cycle entirely.
 
@@ -60,10 +60,10 @@ running behind [API Gateway](/guides/api-gateway) into
 29-second timeout is often tighter than the actual work. The underlying
 mechanics (a durable job queue, idempotent workers) are shared with
 [the Outbox Pattern](/nuggets/outbox-pattern) and
-[the Saga Pattern](/nuggets/saga-pattern) — all three are variations on
+[the Saga Pattern](/nuggets/saga-pattern): all three are variations on
 "do work reliably, outside the request/response cycle."
 
-## Key insight
+## Two events, two timescales
 
 The request that kicks off long-running work and the moment it finishes
 are two different events on two different timescales — trying to force

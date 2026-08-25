@@ -2,7 +2,7 @@
 
 Two strategies for handling concurrent writes to the same data without
 corrupting it. **Pessimistic locking** assumes conflicts are likely and
-prevents them up front — acquire a lock before touching the data, so no
+prevents them up front: acquire a lock before touching the data, so no
 one else can write to it until you're done. **Optimistic locking**
 assumes conflicts are rare — let everyone proceed without locking, but
 detect a conflict at write time and reject (or retry) whichever write
@@ -17,8 +17,8 @@ UPDATE inventory SET quantity = quantity - 1 WHERE product_id = 42;
 COMMIT;
 ```
 
-`SELECT ... FOR UPDATE` holds a row lock until the transaction commits —
-any other transaction trying to update (or lock) the same row blocks
+`SELECT ... FOR UPDATE` holds a row lock until the transaction commits.
+Any other transaction trying to update (or lock) the same row blocks
 until this one finishes. Safe by construction, but a slow or stuck
 transaction holds up everyone waiting behind it, and it doesn't work at
 all across services that don't share a database.
@@ -36,7 +36,7 @@ WHERE product_id = 42 AND version = 7; -- the version we read
 ```
 
 No lock is ever held, so throughput under low contention is much
-better — but under high contention, many writers can retry repeatedly
+better. But under high contention, many writers can retry repeatedly
 (each one's write invalidated by the next), which can be worse than
 just queuing behind a lock in the first place.
 
@@ -58,7 +58,7 @@ addresses from a different angle — idempotency makes a *retried*
 request safe, while locking strategy determines what happens when two
 *different, concurrent* requests touch the same data at once.
 
-## Key insight
+## The tradeoff
 
 Locking is a bet about how often conflicts actually happen: pessimistic
 pays a cost on every write to guarantee safety, optimistic pays no cost

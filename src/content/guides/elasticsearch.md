@@ -5,7 +5,7 @@ what a database index answers.
 ## The inverted index
 
 A normal [database index](/nuggets/database-indexing) (a B-tree) maps a
-value to the rows containing it — fast for "find the row where
+value to the rows containing it: fast for "find the row where
 `email = 'x'`," bad at "find every row whose `description` *contains*
 the word 'waterproof' anywhere in a paragraph of text." An inverted
 index flips the relationship: it maps each individual **term** to the
@@ -16,8 +16,8 @@ list of documents containing it.
 "jacket"     → [doc_12, doc_88, doc_203, ...]
 ```
 
-A search for "waterproof jacket" intersects both lists — documents
-containing both terms — which is fast regardless of how long the
+A search for "waterproof jacket" intersects both lists (documents
+containing both terms), which is fast regardless of how long the
 underlying text field is, unlike a `LIKE '%waterproof%'` scan against a
 relational column, which can't use a B-tree at all and falls back to
 checking every row.
@@ -26,17 +26,17 @@ checking every row.
 
 Elasticsearch stores schema-flexible JSON **documents**, grouped into an
 **index** (roughly analogous to a database table, though the analogy
-breaks down quickly). A **mapping** defines how each field is analyzed —
-whether a text field gets tokenized and lowercased for full-text search,
-or stored as an exact-match keyword (useful for filtering/aggregating,
-not full-text search) — getting this wrong (e.g. mapping a field as
-`keyword` when you needed full-text search on it) is a common source of
-"my search isn't finding an obvious match" bugs.
+breaks down quickly). A **mapping** defines how each field is analyzed: whether a text field
+gets tokenized and lowercased for full-text search, or stored as an
+exact-match keyword (useful for filtering/aggregating, not full-text
+search). Getting this wrong (e.g. mapping a field as `keyword` when you
+needed full-text search on it) is a common source of "my search isn't
+finding an obvious match" bugs.
 
 ## Relevance ranking
 
 Unlike an exact-match database query, a text search returns *ranked*
-results — Elasticsearch scores each match (commonly via **BM25**, which
+results: Elasticsearch scores each match (commonly via **BM25**, which
 weighs terms higher if they're rare across the corpus but frequent in a
 specific document) so "best match first" is a first-class concept, not
 something the application has to compute itself.
@@ -59,9 +59,9 @@ Product search, log search/analysis (the "ELK stack" — Elasticsearch,
 Logstash, Kibana — is a common [observability](/nuggets/observability)
 logs backend), and full-text search over any large document collection.
 
-## Key insight
+## What actually makes it faster
 
-Elasticsearch isn't a faster database — it's a different index
-structure (inverted, not B-tree) built to answer "which documents match
-these terms, ranked by relevance," a question a B-tree was never
+The index structure is doing all the work here, not raw horsepower:
+inverted instead of B-tree, purpose-built to answer "which documents
+match these terms, ranked by relevance" — a question a B-tree was never
 designed to answer efficiently at all.

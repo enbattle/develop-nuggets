@@ -6,7 +6,7 @@ server on every request.
 ## Why it matters
 
 [Numbers Every Engineer Should Know](/nuggets/numbers-every-engineer-should-know)
-puts a cross-continent round trip around 150ms — before any actual
+puts a cross-continent round trip around 150ms, before any actual
 work happens on the response. A CDN turns that into a much shorter trip
 to a nearby edge location instead, for anything the edge already has
 cached. At scale, it also simply absorbs traffic: a viral asset served
@@ -46,7 +46,7 @@ re-checking the origin, and `ETag`/conditional requests let it
 revalidate cheaply instead of re-downloading. Getting this wrong in
 either direction is a real cost: too short a TTL means the CDN barely
 helps (constant origin re-fetches); too long means stale content serves
-long after the origin changed — the exact tradeoff
+long after the origin changed. It's the exact tradeoff
 [Cache vs. Freshness](/nuggets/cache-vs-freshness) describes generally,
 just now with a globally-distributed cache instead of a single one.
 
@@ -56,7 +56,7 @@ CDNs are the obvious fit for genuinely static assets (images, JS/CSS
 bundles, video) that are identical for every viewer. Modern CDNs also
 accelerate *dynamic*, per-user content by running compute at the edge
 (edge functions) or simply optimizing the network path to origin even
-when the response itself can't be cached — the connection setup and
+when the response itself can't be cached. The connection setup and
 routing improvements still help even for a response that's never
 cacheable.
 
@@ -69,6 +69,6 @@ defense absorbing traffic spikes before they ever reach the origin.
 
 ## Where to go from here
 
-A CDN only helps requests that can be served from a cache — it doesn't
-change how the origin itself scales. For that, see
+A CDN's help is limited to requests a cache can actually serve; how the
+origin itself scales is a separate problem. For that, see
 [Scaling Reads vs. Scaling Writes](/nuggets/scaling-reads-vs-scaling-writes).

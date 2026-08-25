@@ -1,6 +1,6 @@
 Plain request/response HTTP assumes the client always speaks first.
 Anything that needs the *server* to push data the instant it's
-available — a chat message, a live score, a notification — needs a
+available (a chat message, a live score, a notification) needs a
 different mechanism. This guide covers the options and how they scale;
 for the underlying transport differences (TCP vs. QUIC) they build on,
 see [Networking: Protocols](/guides/networking-protocols).
@@ -37,7 +37,7 @@ HTTP/2 multiplexing for free.
 ## WebSockets
 
 A protocol upgrade from an initial HTTP request into a persistent,
-**bidirectional** connection — either side can send a message at any
+**bidirectional** connection: either side can send a message at any
 time, not just in response to the other. The right choice when the
 client genuinely needs to send data back over the same live connection,
 not just receive it (a chat app, collaborative editing, multiplayer
@@ -63,7 +63,7 @@ requests.
 
 ## WebRTC
 
-Peer-to-peer — once a connection is established (via a signaling
+Peer-to-peer: once a connection is established (via a signaling
 server that helps two peers find and negotiate with each other, and
 usually a STUN/TURN server to work around NAT), data flows **directly**
 between clients, not through the application server at all. Built for
@@ -76,10 +76,11 @@ or audit what was sent.
 ## Fan-out at scale
 
 A single server can hold a bounded number of concurrent long-lived
-connections (SSE or WebSocket) — the real scaling challenge isn't the
-protocol, it's **fan-out**: when an event happens, how does it reach
-every connected client that cares, when those clients' connections are
-spread across many server instances?
+connections (SSE or WebSocket), and protocol choice has surprisingly
+little to do with how far this scales. The actual constraint is
+**fan-out**: when an event happens, how does it reach every connected
+client that cares, when those clients' connections are spread across
+many server instances?
 
 ```mermaid
 flowchart LR
@@ -92,7 +93,7 @@ flowchart LR
 
 Each server instance subscribes to a shared pub/sub layer (Redis
 Pub/Sub, Kafka) rather than trying to track every other server's
-connections directly — when an event occurs, it's published once, and
+connections directly: when an event occurs, it's published once, and
 every server instance forwards it only to the clients actually
 connected to *that* instance. This is also why sticky sessions or a
 connection registry (which server holds which client) matter here in a
@@ -109,7 +110,7 @@ way they don't for stateless HTTP requests.
 
 ## Where to go from here
 
-Holding open connections is only half the problem — reliably getting an
+Holding open connections is only half the problem: reliably getting an
 event to the right server instance to push in the first place is a
 messaging problem; see [Kafka](/guides/kafka) or [Redis](/guides/redis)
 for the pub/sub layer this fan-out typically runs on.

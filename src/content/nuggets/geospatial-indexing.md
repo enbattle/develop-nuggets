@@ -9,7 +9,7 @@ standard index can search quickly.
 ## Geohashing
 
 Geohashing encodes a (latitude, longitude) pair into a single string,
-where **nearby locations tend to share a prefix** — the longer the
+where **nearby locations tend to share a prefix**: the longer the
 shared prefix, the closer the two points (with an important caveat
 below). This turns "find things near me" into "find rows whose geohash
 starts with this prefix," which a normal string index (or even a
@@ -22,7 +22,7 @@ geohash("34.0522, -118.2437") → "9q5ctr..."   (Los Angeles — no shared prefi
 ```
 
 The caveat: geohash cells are rectangular, and two points can be
-geographically close while falling just across a cell boundary —
+geographically close while falling just across a cell boundary,
 sharing almost no prefix despite being near each other. Real
 implementations search several neighboring prefixes, not just an exact
 match, to compensate.
@@ -30,7 +30,7 @@ match, to compensate.
 ## Quadtrees
 
 A quadtree recursively divides space into four quadrants, subdividing
-further wherever data is dense — a sparse rural area stays one large
+further wherever data is dense: a sparse rural area stays one large
 cell, a dense city block subdivides many times over. This adapts cell
 size to actual data density, which flat geohashing (a fixed cell size
 at a given precision) doesn't do on its own.
@@ -50,10 +50,10 @@ built-in geospatial indexing using these ideas; Uber's own H3 is a
 newer hexagonal-grid alternative to geohashing's rectangles, avoiding
 some of the boundary distortion.
 
-## Key insight
+## The common trick
 
-The whole trick is turning a 2D "nearness" problem into a 1D indexable
-value (a geohash string) or a space that's already partitioned by
-density (a quadtree) — either way, avoiding a full scan-and-compute-
-distance over every row is what makes proximity search at scale
-possible at all.
+Both approaches do the same underlying thing: turn a 2D "nearness"
+problem into something a normal index can search directly, either a 1D
+value (geohash) or a space already partitioned by density (a quadtree),
+instead of scanning every row and computing its distance one at a time.
+That's what makes proximity search possible at real scale.

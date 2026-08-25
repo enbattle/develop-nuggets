@@ -12,13 +12,13 @@ flowchart TD
 
 ## Why it matters
 
-Inverting the pyramid — mostly end-to-end tests, few unit tests, sometimes
-called the "ice cream cone" — is a common trap. End-to-end tests are slow
+Inverting the pyramid (mostly end-to-end tests, few unit tests; sometimes
+called the "ice cream cone") is a common trap. End-to-end tests are slow
 and prone to flaking on things unrelated to the actual bug (timing,
 network, test environment), so a suite dominated by them becomes slow
 enough, and unreliable enough, that people start skipping it. Unit tests
-are fast and precise — a failure points at almost exactly the broken
-line — so they should carry the bulk of the coverage.
+are fast and precise (a failure points at almost exactly the broken
+line), so they should carry the bulk of the coverage.
 
 ## The layers
 
@@ -26,12 +26,12 @@ line — so they should carry the bulk of the coverage.
   Milliseconds each; thousands can run in seconds. Should cover the
   majority of logic and edge cases.
 - **Integration** — a few real pieces working together (a repository
-  against a real test database, for example) — catches the bugs that
+  against a real test database, for example), which catches the bugs that
   unit tests with mocks miss, like a query that doesn't actually match the
   real schema. Fewer of these; slower.
 - **End-to-end** — drives the whole system through its real interface (a
   browser, a full API call). Catches things nothing else can, like a
-  button that isn't actually wired up — but it's slow and often flaky, so
+  button that isn't actually wired up. But it's slow and often flaky, so
   it's reserved for the critical paths only.
 
 ## Where it applies
@@ -40,9 +40,9 @@ Any codebase with more than a handful of tests, and any PR review where
 the question is "is this the _right kind_ of test for what's being
 verified," not just "is there a test."
 
-## Key insight
+## Using it as a guide, not a ratio
 
-The pyramid isn't a strict ratio to hit — it's a reminder that test cost
-and confidence trade off differently at each layer. Push coverage as low
-(fast, isolated) as it can go while still catching real bugs, and reserve
-the expensive layers for what only they can verify.
+Treat the shape as a reminder, not a target ratio to hit exactly: test
+cost and confidence trade off differently at each layer, so coverage
+should sit as low (fast, isolated) as it can while still catching real
+bugs, saving the expensive layers for what only they can verify.

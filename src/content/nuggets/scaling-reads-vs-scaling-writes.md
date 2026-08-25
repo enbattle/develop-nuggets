@@ -1,7 +1,7 @@
 ## What it is
 
 Read-heavy and write-heavy workloads scale via genuinely different
-techniques, and conflating them is a common design mistake — throwing a
+techniques, and conflating them is a common design mistake: throwing a
 read-scaling technique (like a cache) at a write-heavy problem does
 nothing, and vice versa.
 
@@ -21,14 +21,14 @@ Reads are usually the easier side, because a read can be served from a
   servers close to the reader.
 
 The common thread: all of these add copies, and copies mean the reader
-might see slightly stale data — a
+might see slightly stale data: a
 [Cache vs. Freshness](/nuggets/cache-vs-freshness)-shaped tradeoff, not
 a free win.
 
 ## Scaling writes
 
 Writes are harder, because every write eventually has to land somewhere
-authoritative — there's no copying your way out of needing to actually
+authoritative. There's no copying your way out of needing to actually
 store the new data:
 
 - **Sharding/partitioning** — split writes across multiple database
@@ -40,7 +40,7 @@ store the new data:
   write throughput.
 - **Batching** — combine many small writes into fewer, larger ones,
   amortizing per-write overhead (a transaction commit, a network round
-  trip) — the same [Latency vs. Throughput](/nuggets/latency-vs-throughput)
+  trip): the same [Latency vs. Throughput](/nuggets/latency-vs-throughput)
   tradeoff batching always makes.
 
 ## Where it applies
@@ -51,10 +51,10 @@ than posts) and leans on caching and replicas; a metrics ingestion
 pipeline is write-heavy (constant high-volume writes, comparatively
 rare reads) and leans on sharding, batching, and async ingestion.
 
-## Key insight
+## Reads vs. writes, the actual difference
 
 Reads scale by adding copies; writes scale by splitting the
 authoritative data itself. A design that's struggling with write load
-needs sharding or async processing, not a bigger cache — a cache can
-only make reads of already-written data faster, it can't absorb more
+needs sharding or async processing, not a bigger cache. A cache can
+only make reads of already-written data faster; it can't absorb more
 writes.

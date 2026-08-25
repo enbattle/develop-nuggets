@@ -10,7 +10,7 @@ vs. other models in the first place, see
 
 - **Atomicity** — a transaction's statements all commit or none do.
   Transfer $10 from account A to account B: debit A and credit B either
-  both happen or neither does — there's no state where the money left A
+  both happen or neither does. There's no state where the money left A
   but never arrived at B.
 - **Consistency** — a transaction can only move the database from one
   valid state to another, per its own constraints (foreign keys, unique
@@ -38,7 +38,7 @@ correctness for concurrency:
 Most applications default to Read Committed (Postgres's default) and
 only reach for stricter isolation for specific operations that genuinely
 need it (like the version-check pattern in
-[Optimistic vs. Pessimistic Locking](/nuggets/optimistic-vs-pessimistic-locking)) —
+[Optimistic vs. Pessimistic Locking](/nuggets/optimistic-vs-pessimistic-locking)).
 Serializable everywhere is correct but expensive, since it forces far
 more transaction retries under contention.
 
@@ -53,7 +53,7 @@ richer built-in data types and extensions (`JSONB`, `PostGIS` for
 stricter standards compliance; MySQL has historically had a simpler
 replication story and remains extremely common in existing
 infrastructure. Neither is "faster" in a way that generalizes across
-workloads — the extensions and ecosystem fit matter more than raw
+workloads: the extensions and ecosystem fit matter more than raw
 performance for most real choices.
 
 ## Where it applies

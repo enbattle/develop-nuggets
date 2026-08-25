@@ -20,7 +20,7 @@ partition:
   clustering columns define the on-disk sort order within a partition.
 
 In both, a query that doesn't specify the partition key can't be served
-efficiently — there's no B-tree-style secondary index scanning the
+efficiently: there's no B-tree-style secondary index scanning the
 whole dataset by default the way a relational database offers. This is
 the sharp edge both systems share: the access patterns have to be
 designed *before* the schema, not discovered afterward, because
@@ -63,7 +63,7 @@ scale genuinely forces the tradeoff.
 
 Both systems' partition-key model is the same sharding decision
 described generally in
-[Sharding Strategies](/nuggets/sharding-strategies) — the "choose the
+[Sharding Strategies](/nuggets/sharding-strategies): the "choose the
 key that matches your dominant query pattern" principle applies
 identically here, just enforced by the database rather than left to a
 manual sharding scheme.

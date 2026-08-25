@@ -1,13 +1,13 @@
 ## What it is
 
-A hashing scheme for distributing keys across a set of nodes — cache
-servers, database shards — such that adding or removing a node only
+A hashing scheme for distributing keys across a set of nodes (cache
+servers, database shards) such that adding or removing a node only
 requires remapping a small fraction of the keys, not all of them.
 
 ## Why it matters
 
 The naive approach is `node = hash(key) % number_of_nodes`. It works, but
-the moment the node count changes — a server added, one crashes — the
+the moment the node count changes (a server added, one crashes) the
 modulo result changes for almost every key at once. Nearly the entire
 dataset needs to move or re-cache in one go, often at exactly the worst
 time: right after a node has just failed and the system is already under
@@ -15,7 +15,7 @@ stress.
 
 ## How it works, briefly
 
-Both nodes and keys are hashed onto the same fixed circular range — a
+Both nodes and keys are hashed onto the same fixed circular range: a
 "ring." A key belongs to whichever node comes first going clockwise from
 the key's position on the ring.
 
@@ -27,7 +27,7 @@ flowchart LR
 ```
 
 Adding or removing a node only affects the keys between it and its
-neighbor on the ring — everything else stays exactly where it was.
+neighbor on the ring. Everything else stays exactly where it was.
 
 ## Virtual nodes
 
@@ -42,9 +42,9 @@ Distributed caches (client-side hashing for Memcached), distributed
 databases and sharding (Cassandra, DynamoDB), and load balancers
 distributing sticky sessions across backend instances.
 
-## Key insight
+## Why this beats the naive approach
 
-Consistent hashing turns "add or remove a node" from a full-dataset
-reshuffle into a small, local, proportional one — which is what makes
-horizontally scaling a cache or a shard set operationally survivable
-instead of a scheduled-maintenance event.
+That's the entire benefit over `hash(key) % n`: adding or removing a node
+becomes a small, local, proportional change instead of a full-dataset
+reshuffle, which is what makes horizontally scaling a cache or a shard set
+an ordinary operation instead of a scheduled-maintenance event.

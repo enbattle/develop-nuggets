@@ -9,10 +9,10 @@ other.
 ## Why it matters
 
 **Batching** is the clearest example of the tradeoff. Processing items one
-at a time keeps each item's latency low — it's handled immediately — but
+at a time keeps each item's latency low (it's handled immediately) but
 caps throughput at whatever a single item costs. Batching many items
 together amortizes fixed overhead (a network round-trip, a database
-transaction) across all of them, raising throughput — but now the first
+transaction) across all of them, raising throughput. But now the first
 item in the batch has to wait for the batch to fill before it's processed
 at all, raising its latency.
 
@@ -43,12 +43,12 @@ requests in a system (`L`) equals the arrival rate (`λ`) times the average
 time each request spends in the system (`W`, i.e. latency). It's a
 reminder that these numbers are mechanically linked: if throughput
 (arrival rate) goes up and latency doesn't drop to compensate, the system
-ends up holding more in-flight requests at once — which usually means
+ends up holding more in-flight requests at once, which usually means
 queueing, and queueing usually means latency gets worse next, not better.
 
 For example: a service handling 50 requests/second (`λ`), each taking
 200ms (`W` = 0.2s), has on average `L = 50 × 0.2 = 10` requests in flight
-at any given moment — that's the concurrency it needs to sustain just to
+at any given moment: that's the concurrency it needs to sustain just to
 keep up, before queueing even starts.
 
 ## Where it applies
@@ -60,7 +60,7 @@ maximum throughput and can tolerate high latency for any single record.
 Choosing between a synchronous request/response API and an async queued
 one is usually a latency-vs-throughput decision in disguise.
 
-## Key insight
+## Which one wins
 
 Most systems can't maximize both at once — there's a real design decision
 in which one matters more for a given workload, and that answer differs by

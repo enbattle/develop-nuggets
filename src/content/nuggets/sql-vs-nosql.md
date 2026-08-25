@@ -10,7 +10,7 @@ for flexibility or horizontal scale.
 
 ## Why it matters
 
-The two aren't just "old vs. new" — they encode genuinely different
+The two aren't just "old vs. new"; they encode genuinely different
 answers to real tradeoffs:
 
 - **Schema**: a relational database enforces its schema on every write,
@@ -26,9 +26,9 @@ answers to real tradeoffs:
   avoid needing a join, trading storage and update complexity for
   read speed.
 - **Consistency vs. scale**: this is [CAP theorem](/nuggets/cap-theorem) in
-  practice. Traditional relational databases are usually CP — strongly
+  practice. Traditional relational databases are usually CP: strongly
   consistent, single-writer, harder to horizontally scale across regions.
-  Many NoSQL stores are built AP-first — eventually consistent, but able
+  Many NoSQL stores are built AP-first: eventually consistent, but able
   to scale writes horizontally across many nodes, often using
   [consistent hashing](/nuggets/consistent-hashing) to distribute data.
 
@@ -65,11 +65,12 @@ database instead of being helped by it — a reporting system doing complex
 ad-hoc joins wants SQL; a system ingesting a huge, bursty write volume of
 loosely structured events often wants NoSQL.
 
-## Key insight
+## Picking one
 
-Neither is "better" — they optimize for different things, and many real
-systems use both, choosing per-service or per-data-type rather than
-picking one database for the entire application. The question isn't "SQL
-or NoSQL" in the abstract, it's "does this data need relationships,
-transactions, and a fixed shape, or does it need flexible structure and
-horizontal write scale more than it needs those."
+Most real systems that live long enough end up using both, choosing
+per-service or even per-data-type rather than committing one database to
+the entire application. Framing the decision as "SQL or NoSQL" skips the
+actual question, which is what this specific data needs: relationships,
+transactions, and a fixed shape point toward SQL; flexible structure and
+horizontal write scale point toward NoSQL. Neither wins in general, only
+for a given access pattern.

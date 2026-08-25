@@ -1,5 +1,3 @@
-## What it is
-
 The **N+1 query problem**: code fetches a list of `N` records, then loops
 over them making one _additional_ query per record to fetch related data —
 1 query to get the list, plus N more, instead of a small constant number.
@@ -38,7 +36,7 @@ authors = db.query("SELECT * FROM users WHERE id IN (?)", author_ids)
 
 It's invisible in development. With 10 rows of test data, 11 queries is
 fast enough that nothing looks wrong. In production with 5,000 rows, it's
-5,001 sequential round-trips per request — the classic bug that only shows
+5,001 sequential round-trips per request: the classic bug that only shows
 up once there's real data, and by then it's often deep inside an ORM's
 lazy-loading behavior rather than an obvious loop in application code.
 
@@ -53,13 +51,14 @@ lazy-loading behavior rather than an obvious loop in application code.
   a "N+1 detected" warning mode for exactly this reason.
 
 N+1 is about the _number_ of queries; a slow query even after fixing that
-is usually a missing [index](/nuggets/database-indexing) — the other half
+is usually a missing [index](/nuggets/database-indexing): the other half
 of "why is this page slow."
 
-## Key insight
+## The fix, generalized
 
-The fix is almost always "turn N queries into 1" — via a join, or by
-collecting the ids first and issuing one batched `WHERE id IN (...)` query
-instead of querying inside the loop. The bug isn't really about queries at
-all; it's about fetching related data _inside_ a loop instead of _before_
-it.
+Almost every fix reduces to the same move: turn N queries into 1, either
+with a join or by collecting the ids first and issuing one batched
+`WHERE id IN (...)` query instead of querying inside the loop. Where the
+data fetch sits relative to the loop is the entire bug — move it before
+the loop and the N+1 disappears regardless of how it originally got
+introduced.

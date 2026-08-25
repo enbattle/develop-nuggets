@@ -1,7 +1,7 @@
 ## What it is
 
 A database purpose-built for data that's fundamentally a sequence of
-(timestamp, value) points — metrics, sensor readings, prices —
+(timestamp, value) points (metrics, sensor readings, prices),
 optimized for the access patterns that shape actually needs: fast
 writes of new points arriving in roughly time order, and reads that
 aggregate over a time range, rather than looking up one row by id.
@@ -19,7 +19,7 @@ aggregate over a time range, rather than looking up one row by id.
   barely changes minute to minute) compress extremely well sitting next
   to each other.
 - **Downsampling / retention**: raw per-second data from a year ago is
-  rarely useful at that resolution — time-series databases build in
+  rarely useful at that resolution: time-series databases build in
   automatic rollups (per-second → per-minute → per-hour averages) and
   expiry policies, rather than requiring an application-level cron job
   to do it.
@@ -34,17 +34,17 @@ flowchart LR
 
 Infrastructure metrics and monitoring (Prometheus, InfluxDB), IoT
 sensor data, financial tick data. This is exactly what backs the
-"metrics" leg of [Observability](/nuggets/observability) — a metrics
+"metrics" leg of [Observability](/nuggets/observability): a metrics
 backend at any real scale is a time-series database, not a
 general-purpose one, precisely because of the write volume and
 downsampling needs above.
 
-## Key insight
+## Not just a table with a timestamp column
 
 Forcing high-volume timestamped data into a general-purpose database
-works at small scale but breaks down on both ends at once — write
+works at small scale but breaks down on both ends at once: write
 throughput suffers because the database isn't optimized for sequential
 appends, and storage balloons because nothing is downsampling old data
 automatically. A time-series database is a genuinely different set of
-engineering tradeoffs, not just a relational database with a timestamp
-column.
+engineering tradeoffs, not just a relational database with an extra
+column for the timestamp.

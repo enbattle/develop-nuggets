@@ -1,5 +1,5 @@
 Once there's more than one server, something has to decide which
-request goes where. This guide covers how — for the transport-level
+request goes where. This guide covers how. For the transport-level
 mechanics a load balancer sits on top of, see
 [Networking: Protocols](/guides/networking-protocols).
 
@@ -39,7 +39,7 @@ mechanics a load balancer sits on top of, see
 ## Health checks
 
 A load balancer only helps if it stops sending traffic to a server
-that's actually broken — it periodically pings each backend (an HTTP
+that's actually broken: it periodically pings each backend (an HTTP
 `/health` endpoint, or just a TCP connect) and pulls any server that
 stops responding out of rotation automatically. This is what turns "one
 server crashed" into "a brief capacity dip" instead of "some fraction of
@@ -52,7 +52,7 @@ requests time out forever."
   every request passes through. Simple mental model, but it's a single
   additional hop, and can itself become a bottleneck or single point of
   failure if not made highly available. This is a specific case of the
-  broader [reverse proxy](/nuggets/proxy-vs-reverse-proxy) shape —
+  broader [reverse proxy](/nuggets/proxy-vs-reverse-proxy) shape:
   load balancing is one of several jobs a reverse proxy can do.
 - **Client-side load balancing** — the calling service itself holds a
   list of healthy backend instances (via a **service registry** it
@@ -79,6 +79,6 @@ flowchart LR
 ## Where to go from here
 
 Load balancing distributes read *and* write traffic across stateless
-servers — it doesn't, by itself, scale a database. For that, see
+servers. It doesn't, by itself, scale a database. For that, see
 [Scaling Reads vs. Scaling Writes](/nuggets/scaling-reads-vs-scaling-writes)
 and [Sharding Strategies](/nuggets/sharding-strategies).

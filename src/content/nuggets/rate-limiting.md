@@ -1,7 +1,7 @@
 ## What it is
 
 Rate limiting caps how many requests a client can make in a given window,
-protecting a shared service from being overwhelmed by any single caller —
+protecting a shared service from being overwhelmed by any single caller:
 the server-side sibling of [Circuit Breaker](/nuggets/circuit-breaker),
 which protects a _caller_ from a struggling dependency.
 
@@ -20,7 +20,7 @@ flowchart LR
 ```
 
 **Leaky bucket**: requests queue up and are processed at a fixed rate
-regardless of how bursty their arrival was — it smooths traffic to a
+regardless of how bursty their arrival was. It smooths traffic to a
 constant output rate rather than allowing bursts through.
 
 ```python
@@ -45,8 +45,8 @@ class TokenBucket:
 
 ## Why it matters
 
-Without rate limiting, a single misbehaving client — a bug, a retry storm,
-or a malicious actor — can consume all of a shared resource, degrading the
+Without rate limiting, a single misbehaving client (a bug, a retry storm,
+or a malicious actor) can consume all of a shared resource, degrading the
 service for every other client. It's the same class of failure that
 [Exponential Backoff](/nuggets/exponential-backoff) and Circuit Breaker
 protect against, but from the other side: those protect a caller from a
@@ -55,8 +55,8 @@ callers.
 
 ## Sliding window: the more precise alternative
 
-Token/leaky bucket track a running balance, not actual request timestamps
-— which is efficient but imprecise at window boundaries: a client could
+Token/leaky bucket track a running balance, not actual request timestamps,
+which is efficient but imprecise at window boundaries: a client could
 send a full burst right before a fixed window resets and another right
 after, doubling up right at the seam. Two sliding-window approaches fix
 that at different cost points:
@@ -83,7 +83,7 @@ that at different cost points:
 ## Making it work across multiple servers
 
 A counter that lives in one process's memory only limits requests hitting
-_that_ process — behind a load balancer with 10 instances, each enforcing
+_that_ process: behind a load balancer with 10 instances, each enforcing
 "100 requests/minute" independently effectively allows 1,000. The fix is
 centralizing the counter somewhere every instance shares, typically
 Redis:
@@ -116,7 +116,7 @@ internal service-to-service calls in a microservice architecture, and
 login endpoints (rate limiting is a standard defense against brute-force
 attacks).
 
-## Key insight
+## Complementary, not interchangeable
 
 Rate limiting and circuit breakers are complementary, not interchangeable:
 one protects a shared resource from its callers, the other protects a

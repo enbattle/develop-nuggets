@@ -35,7 +35,7 @@ sequenceDiagram
 ```
 
 A long GC pause, a slow disk, or just underestimating how long the work
-takes can make a process run longer than the lock's TTL — the lock
+takes can make a process run longer than the lock's TTL: the lock
 expires while the original holder is still working, a second process
 acquires it, and now two processes believe they exclusively hold it.
 This isn't a rare edge case; it's the central hard problem with
@@ -43,10 +43,10 @@ distributed locks.
 
 ## Fencing tokens
 
-The fix isn't a longer TTL (that just delays the same problem) — it's
-giving every acquisition a monotonically increasing **fencing token**,
-and having the *protected resource itself* reject any write from a
-stale token:
+A longer TTL doesn't fix this; it just delays the same problem. The
+actual fix is giving every acquisition a monotonically increasing
+**fencing token**, and having the *protected resource itself* reject
+any write from a stale token:
 
 ```
 if incoming_token < resource.highest_seen_token:
@@ -56,8 +56,8 @@ apply(write)
 ```
 
 This moves the actual safety check to the resource being protected,
-rather than trusting that lock possession alone means exclusivity —
-which is the only fully correct fix, not a workaround.
+rather than trusting that lock possession alone means exclusivity. It's
+the only fully correct fix, not a workaround.
 
 ## Where it applies
 
@@ -67,9 +67,9 @@ the same queue item, leader election. Redis (via `SET NX EX`, or the
 multi-node Redlock algorithm) and ZooKeeper/etcd (via their own
 consensus-backed primitives) are the common implementations.
 
-## Key insight
+## Treat possession as advisory
 
-A distributed lock without fencing tokens only prevents concurrent
-*acquisition* — it doesn't actually prevent concurrent *access* once a
-TTL can expire mid-operation. Treat lock possession as advisory unless
-the protected resource itself can reject stale writes.
+Without fencing tokens, a distributed lock only prevents concurrent
+*acquisition*, not concurrent *access*, once a TTL can expire
+mid-operation. Treat lock possession as advisory unless the protected
+resource itself can reject stale writes.
