@@ -15,6 +15,7 @@ import { dynamodbAndCassandra } from './dynamodb-and-cassandra';
 import { apiGateway } from './api-gateway';
 import { blobStorage } from './blob-storage';
 import { serverlessAwsLambda } from './serverless-aws-lambda';
+import { oauth } from './oauth';
 
 /** Add a new guide's import here — see CLAUDE.md "Adding a guide". */
 export const GUIDES: Nugget[] = [
@@ -34,4 +35,5 @@ export const GUIDES: Nugget[] = [
   apiGateway,
   blobStorage,
   serverlessAwsLambda,
+  oauth,
 ];

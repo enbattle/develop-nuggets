@@ -1,9 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { getRelatedNuggets } from './related';
-import type { Nugget } from '@/types';
+import type { Nugget, Tag } from '@/types';
 
-function nugget(id: string, tags: string[], title = id): Nugget {
-  return { id, title, body: '', tags, format: 'nugget' };
+function nugget(id: string, tags: Tag[], title = id): Nugget {
+  return {
+    id,
+    title,
+    summary: 'A one-line summary.',
+    body: '',
+    tags,
+    section: 'foundations',
+    format: 'nugget',
+  };
 }
 
 describe('getRelatedNuggets', () => {

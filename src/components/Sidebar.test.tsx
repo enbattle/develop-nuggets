@@ -3,59 +3,103 @@ import { MemoryRouter } from 'react-router-dom';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar } from './Sidebar';
-import { NUGGETS } from '@/content/nuggets';
-import { GUIDES } from '@/content/guides';
+import { contentBySection } from '@/content';
+import { SECTION_LABELS } from '@/lib/sections';
 
-function titlesOf(links: HTMLElement[]) {
-  return links.map((link) => link.textContent);
-}
+const SECTIONS = contentBySection();
 
-function sortedTitles(items: { title: string }[]) {
-  return items.map((item) => item.title).sort((a, b) => a.localeCompare(b));
+function renderAt(path = '/') {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Sidebar />
+    </MemoryRouter>,
+  );
 }
 
 describe('Sidebar', () => {
-  it('lists guides, then nuggets, each alphabetically by title', () => {
-    render(
-      <MemoryRouter>
-        <Sidebar />
-      </MemoryRouter>,
-    );
+  it('renders a collapsible heading for every non-empty section', () => {
+    renderAt('/');
 
-    const guidesGroup = screen.getByRole('heading', { name: 'Guides' })
-      .closest('div')!;
-    expect(titlesOf(within(guidesGroup).getAllByRole('link'))).toEqual(
-      sortedTitles(GUIDES),
-    );
-
-    const nuggetsGroup = screen.getByRole('heading', { name: 'Nuggets' })
-      .closest('div')!;
-    expect(titlesOf(within(nuggetsGroup).getAllByRole('link'))).toEqual(
-      sortedTitles(NUGGETS),
-    );
+    for (const { section } of SECTIONS) {
+      expect(
+        screen.getByRole('button', { name: SECTION_LABELS[section] }),
+      ).toBeInTheDocument();
+    }
   });
 
-  it('marks the current nugget as active', () => {
-    render(
-      <MemoryRouter initialEntries={['/nuggets/idempotency']}>
-        <Sidebar />
-      </MemoryRouter>,
+  it('starts every section collapsed off a content page', () => {
+    renderAt('/');
+
+    for (const { section } of SECTIONS) {
+      expect(
+        screen.getByRole('button', { name: SECTION_LABELS[section] }),
+      ).toHaveAttribute('aria-expanded', 'false');
+    }
+    expect(
+      screen.queryByRole('link', { name: 'Idempotency' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('expands a section when its heading is clicked, without touching the others', async () => {
+    const user = userEvent.setup();
+    renderAt('/');
+
+    const reliability = screen.getByRole('button', {
+      name: 'Reliability & Resilience',
+    });
+    await user.click(reliability);
+
+    expect(reliability).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('link', { name: 'Idempotency' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Foundations' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
     );
 
-    expect(screen.getByRole('link', { name: 'Idempotency' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await user.click(reliability);
+    expect(reliability).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.queryByRole('link', { name: 'Idempotency' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('auto-expands the current item’s section and marks the item active', () => {
+    renderAt('/nuggets/idempotency');
+
+    expect(
+      screen.getByRole('button', { name: 'Reliability & Resilience' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+
+    const active = screen.getByRole('link', { name: 'Idempotency' });
+    expect(active).toHaveAttribute('aria-current', 'page');
     expect(
       screen.getByRole('link', { name: 'Circuit Breaker' }),
     ).not.toHaveAttribute('aria-current');
+
+    // A different section stays collapsed.
+    expect(screen.getByRole('button', { name: 'Foundations' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
+  it('badges guides, not nuggets', () => {
+    renderAt('/guides/redis');
+
+    const guideLink = screen.getByRole('link', { name: /Redis/ });
+    expect(within(guideLink).getByText('Guide')).toBeInTheDocument();
+
+    const nuggetLink = screen.getByRole('link', { name: /Vector Databases/ });
+    expect(within(nuggetLink).queryByText('Guide')).not.toBeInTheDocument();
   });
 
   it('calls onNavigate when a link is clicked', async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/nuggets/idempotency']}>
         <Sidebar onNavigate={onNavigate} />
       </MemoryRouter>,
     );
@@ -63,30 +107,5 @@ describe('Sidebar', () => {
     await user.click(screen.getByRole('link', { name: 'Idempotency' }));
 
     expect(onNavigate).toHaveBeenCalled();
-  });
-
-  it('collapses and re-expands a group when its heading is clicked', async () => {
-    const user = userEvent.setup();
-    render(
-      <MemoryRouter>
-        <Sidebar />
-      </MemoryRouter>,
-    );
-
-    const guidesToggle = screen.getByRole('button', { name: 'Guides' });
-    expect(guidesToggle).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('link', { name: 'Idempotency' })).toBeInTheDocument();
-
-    await user.click(guidesToggle);
-
-    expect(guidesToggle).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByRole('link', { name: 'Redis' })).not.toBeInTheDocument();
-    // Collapsing Guides doesn't touch the independent Nuggets group.
-    expect(screen.getByRole('link', { name: 'Idempotency' })).toBeInTheDocument();
-
-    await user.click(guidesToggle);
-
-    expect(guidesToggle).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('link', { name: 'Redis' })).toBeInTheDocument();
   });
 });

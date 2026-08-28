@@ -179,36 +179,34 @@ similar in spirit to the sidebar's own sticky treatment) **once there
 are 2-3 real case studies to test it against**, not before. Don't
 build this speculatively in the same PR that adds the format.
 
-## 6. UI surfaces that need a third group
+## 6. UI surfaces that need a third `format`
 
-Every place that currently branches on "guide vs. nugget" needs a third
-branch. Concretely:
+> **Since this doc was written, the nugget/guide split was generalized
+> into a `section` field** (`src/types.ts`, `src/lib/sections.ts`) that
+> both the sidebar and the home page group by — see `CLAUDE.md` "the one
+> topic shelf" and "Home page: sections + filters". `PaginatedContentList`
+> and the home-page tabs are gone. The bullets below are updated to that
+> reality; a case study is a new `format`, filed under a topic `section`
+> like everything else, **not** its own nav group.
 
-- **`src/components/Sidebar.tsx`** — now a `SidebarGroup` per format
-  (`Guides`, `Nuggets`), each collapsible (its own `useState`, defaults
-  expanded) via a `<button aria-expanded>` heading. The "only show
-  headings once there's more than one non-empty group" check already
-  counts non-empty arrays generically
-  (`[SORTED_GUIDES, SORTED_NUGGETS].filter(...).length > 1`) rather than
-  hardcoding around guides — adding case studies is just adding
-  `SORTED_CASE_STUDIES` to that same array and rendering a third
-  `SidebarGroup`. No conditional logic to rewrite.
-- **`src/pages/HomePage.tsx`** — now a `role="tablist"` ("Nuggets" /
-  "Guides"), each tab rendering the shared `PaginatedContentList`
-  (`src/components/PaginatedContentList.tsx`) with its own tag-filter
-  chips and pagination. This makes the third format easy: add a
-  `{ id: 'case-studies', label: 'Case Studies' }` entry to `TABS` and a
-  third `PaginatedContentList` branch keyed `key="case-studies"` — the
-  component itself is already generic over `items`/`label` and needs no
-  changes. This also resolves what used to be an open question here
-  (paginate case studies, or keep them always-visible?) — moot now,
-  since every tab gets identical tag-filtered pagination automatically,
-  no per-format pagination decision to make.
-- **`src/components/SearchBar.tsx`** — no changes needed beyond what
-  landed in this session; it already renders `FORMAT_LABELS[item.format]`
+- **`src/components/Sidebar.tsx`** — groups by `section` via
+  `contentBySection()`, not by format, so a case study needs *no* sidebar
+  change: it appears under whatever topic section it's filed under, with a
+  "Case Study" badge (see `FORMAT_LABELS`) instead of "Guide". If case
+  studies should read as their own group regardless of topic, that's a
+  deliberate choice to add a `case-studies` pseudo-section — don't do it
+  by accident.
+- **`src/pages/HomePage.tsx`** — the format filter is `FORMAT_FILTERS`, a
+  `role="group"` of `aria-pressed` buttons. Add
+  `{ id: 'case-study', label: 'Case Studies' }` to that array; the body
+  (`SectionedContentList` → `contentBySection()`) is already
+  format-agnostic and needs no change. There's no pagination decision to
+  make — the home page doesn't paginate.
+- **`src/components/SearchBar.tsx`** — no changes needed; it already
+  renders `FORMAT_LABELS[item.format]` and `SECTION_LABELS[item.section]`
   generically over whatever's in `CONTENT`.
-- **`src/components/ContentListItem.tsx`** — no changes needed; it
-  already renders generically via `contentPath(item)`.
+- **`src/components/ContentListItem.tsx`** — no changes needed; it renders
+  generically via `contentPath(item)` and `FORMAT_LABELS[item.format]`.
 
 ## 7. Tags — no new tag for the format itself
 
@@ -268,27 +266,22 @@ feature from §5.
     the existing "Adding a nugget" tag-reuse guidance.
   - "Routing": add the third route and note `ContentPage` needs no
     changes.
-  - "Sidebar": document the third group and the corrected
-    non-empty-group-count condition (§6).
-  - "Home page: tabs + pagination": document the third `TABS` entry and
-    that `PaginatedContentList` needs no changes (§6).
+  - "Sidebar": note whether the case study gets its own pseudo-section
+    or just appears under a topic section with a badge (§6).
+  - "Home page: sections + filters": document the third `FORMAT_FILTERS`
+    entry and that `SectionedContentList` needs no changes (§6).
 - **`README.md`** — add case studies to the intro paragraph and feature
   list, same treatment guides got when they were introduced.
 
 ## 11. Test updates needed
 
-- **`src/components/Sidebar.test.tsx`** — currently asserts two groups
-  by querying `heading, { name: 'Guides' }` and `heading, { name: 'Nuggets' }`
-  and their sibling links. Add a third case for `'Case Studies'`, and
-  re-verify the "headings only render with >1 non-empty group" logic
-  from §6 with a case that has, say, guides + case studies but zero
-  nuggets (unlikely in practice, but the *logic* should be correct for
-  it, not just for the two groups that happen to be non-empty today).
-- **`src/pages/HomePage.test.tsx`** — add a "Case Studies" tab case
-  mirroring the existing "switches to the Nuggets tab..." and "paginates
-  the Nuggets tab independently..." tests — same shape, third tab. The
-  default active tab is "Guides"; adding a third tab doesn't change that
-  unless explicitly decided otherwise.
+- **`src/components/Sidebar.test.tsx`** — asserts by `section` heading
+  now, not by format. No change needed for a case study unless it gets its
+  own pseudo-section (§6); if it does, add a heading case for it.
+- **`src/pages/HomePage.test.tsx`** — add a case-study format-filter case
+  mirroring "filters to guides only": click the `Case Studies` button,
+  assert only case-study cards remain and nugget/guide-only sections drop.
+  There are no tabs and no pagination tests to mirror anymore.
 - **`src/lib/format.test.ts`** — add the `'case-study'` entries to both
   `FORMAT_LABELS` and `FORMAT_ROUTE_SEGMENTS` assertions.
 - **`src/content/index.test.ts`** — `CONTENT` merge test

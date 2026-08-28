@@ -3,9 +3,10 @@
 A personal, no-backend reference site for programming concepts worth
 remembering — patterns, gotchas, short write-ups with code and
 diagrams, plus longer-form guides for topics that need more room
-(technology primers, walkthroughs, best-practices checklists). It's a
-catalog to search and read, not a note-taking app: content is written
-into the codebase (like a small wiki), not created from the UI.
+(technology primers, walkthroughs, best-practices checklists). Everything
+is organized into topic sections to browse and search — it's a reference
+to read, not a note-taking app: content is written into the codebase
+(like a small wiki), not created from the UI.
 
 Built after learning the [expand-contract pattern](src/content/nuggets/expand-contract.md)
 and wanting a well-designed place to write that kind of thing down for
@@ -13,23 +14,28 @@ later.
 
 ## Features
 
+- **Topic sections** — every nugget and guide is filed under one topic
+  section (Foundations, APIs & Communication, Data Stores, Reliability &
+  Resilience, Security & Auth, …), each with a one-line charter, so the
+  catalog reads as an organized shelf rather than a flat list.
 - **Search** — `Ctrl`/`Cmd` + `K` fuzzy-searches title, tags, and body
   ([Fuse.js](https://www.fusejs.io)) across nuggets and guides together,
-  each result tagged with its format.
+  each result showing its format, section, and one-line summary.
 - **Markdown content** — fenced code blocks are syntax-highlighted
-  (via [Shiki](https://shiki.style)); ` ```mermaid ` fences render as diagrams
-  (via [Mermaid](https://mermaid.js.org)).
-- **Tags** — every nugget and guide carries tags, filterable per tab from
-  the home screen, so the catalog stays organized as it grows.
-- **Related content** — each page links to others that share tags,
-  computed automatically (no manual curation needed as the catalog grows).
-- **Home screen tabs** — Nuggets and Guides each get their own tab, tag
-  filter chips, and pagination (10 at a time, with "Load more"); switching
-  tabs starts that tab fresh (no filter carried over from the other one).
-- **Sidebar navigation** — guides, then every nugget, each listed
-  alphabetically within a collapsible section (collapse the ones you're
-  not using), always available for quick lookup (stays in view while you
-  scroll; collapses to a drawer on mobile).
+  (via [Shiki](https://shiki.style)) with a copy button; ` ```mermaid `
+  fences render as diagrams (via [Mermaid](https://mermaid.js.org)).
+- **Tags** — every nugget and guide also carries cross-cutting tags,
+  filterable from the home screen and used to compute related content.
+- **Related content** — each page links to others that share tags
+  (computed automatically), plus prev/next links to read through the rest
+  of its section in order.
+- **Home screen** — the whole catalog laid out by topic section, with a
+  format filter (All / Nuggets / Guides) and tag chips; each card shows a
+  one-sentence summary of what the item is for.
+- **Sidebar navigation** — the same sections as a collapsible outline,
+  starting collapsed so it reads as a table of contents; open an item and
+  its section expands automatically. Stays in view while you scroll;
+  collapses to a drawer on mobile.
 - **Continue reading** — the home screen resumes at whatever you were last
   reading, scroll position included. This is the only thing stored in the
   browser — the content itself ships with the app.

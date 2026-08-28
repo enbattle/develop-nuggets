@@ -5,8 +5,8 @@ your own application server (reading the whole upload into memory or
 disk before forwarding it to storage) ties up a server thread or
 process for the entire transfer and caps throughput at whatever one
 server can handle. The standard fix is letting the client upload
-**directly** to blob storage, with the app server only involved in
-authorizing the upload.
+**directly** to [blob storage](/guides/blob-storage), with the app server
+only involved in authorizing the upload.
 
 ## Presigned URLs
 
@@ -54,7 +54,7 @@ Any user-facing upload of non-trivial size — video platforms,
 document/backup tools, image-heavy apps. Also the receiving side of the
 same problem: serving a large file back out is the same "don't proxy
 bytes through the app server" idea, usually via a signed download URL
-or a CDN in front of storage.
+or a [CDN](/guides/cdn) in front of storage.
 
 ## The app server's actual job
 

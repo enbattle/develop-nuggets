@@ -8,15 +8,15 @@ plausible.
 
 ## Latency numbers
 
-| Operation | Approximate latency |
-| --- | --- |
-| L1 cache reference | ~1 ns |
-| Main memory (RAM) reference | ~100 ns |
-| SSD random read | ~100 μs |
-| Round trip within the same datacenter | ~0.5 ms |
-| HDD seek | ~10 ms |
-| Round trip, cross-country (e.g. US coast to coast) | ~50 ms |
-| Round trip, cross-continent | ~150 ms |
+| Operation                                          | Approximate latency |
+| -------------------------------------------------- | ------------------- |
+| L1 cache reference                                 | ~1 ns               |
+| Main memory (RAM) reference                        | ~100 ns             |
+| SSD random read                                    | ~100 μs             |
+| Round trip within the same datacenter              | ~0.5 ms             |
+| HDD seek                                           | ~10 ms              |
+| Round trip, cross-country (e.g. US coast to coast) | ~50 ms              |
+| Round trip, cross-continent                        | ~150 ms             |
 
 The jump between rows matters more than the exact number: memory is
 roughly 100x faster than SSD, which is roughly 100x faster than a
@@ -33,8 +33,9 @@ Back-of-envelope math in an interview usually chains a few of these:
   cacheable reads; far less (hundreds to low thousands) for anything
   hitting a database with real work per query.
 - A single database connection or query is usually the bottleneck well
-  before the network is. This is why connection pooling and read
-  replicas show up so often in scaling discussions.
+  before the network is. This is why connection pooling and
+  [read replicas](/nuggets/scaling-reads-vs-scaling-writes) show up so
+  often in scaling discussions.
 - **1 million requests/day ≈ ~12 requests/second average**. But design
   for peak, not average: a 10x peak-to-average ratio is a common,
   reasonable assumption absent better data.
@@ -46,7 +47,8 @@ Back-of-envelope math in an interview usually chains a few of these:
   video, tens of MB.
 - 1 million users × 1 KB of profile data ≈ **1 GB**: small. The same 1
   million users' photos at 1 MB each ≈ **1 TB**, which is usually where
-  "do we need blob storage, not a database row" becomes obvious.
+  "do we need [blob storage](/guides/blob-storage), not a database row"
+  becomes obvious.
 
 ## Where it applies
 

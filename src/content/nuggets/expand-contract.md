@@ -60,7 +60,8 @@ ALTER TABLE users DROP COLUMN name;
 ## Where else it applies
 
 - **APIs** — add a new field/endpoint, deprecate the old one once clients
-  have migrated, remove it in a later release.
+  have migrated, remove it in a later release (the removal is the
+  [MAJOR version bump](/nuggets/semantic-versioning)).
 - **Function signatures** — add a new parameter with a default, migrate
   call sites, then remove the old parameter.
 - **Feature flags** — often used to control which phase of the migration is

@@ -10,7 +10,9 @@ for a backwards-compatible bug fix.
 A version number is a promise, not just a label. If consumers can trust
 that a MINOR or PATCH bump never breaks them, they can upgrade freely
 without reading every changelog. If MAJOR bumps are the _only_ ones that
-can break them, they know exactly when to budget time for a migration.
+can break them, they know exactly when to budget time for a migration —
+and the [expand-contract pattern](/nuggets/expand-contract) is how you
+ship that breaking change without a hard cutover.
 Break that promise once (a breaking change hidden in a patch release)
 and consumers stop trusting version numbers at all, which defeats the
 entire point of having them.
@@ -28,9 +30,9 @@ entire point of having them.
 ## Where it applies
 
 Published packages and libraries (npm, PyPI, and most other registries
-follow SemVer), public APIs, and internal shared libraries consumed by
-other teams: anywhere something is versioned and used by code you don't
-control.
+follow SemVer), [public APIs](/guides/api-best-practices), and internal
+shared libraries consumed by other teams: anywhere something is versioned
+and used by code you don't control.
 
 ## The actual discipline
 

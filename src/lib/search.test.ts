@@ -6,8 +6,10 @@ function nugget(overrides: Partial<Nugget>): Nugget {
   return {
     id: 'id',
     title: 'Title',
+    summary: 'A one-line summary.',
     body: 'body',
     tags: [],
+    section: 'foundations',
     format: 'nugget',
     ...overrides,
   };

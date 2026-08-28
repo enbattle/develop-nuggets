@@ -4,6 +4,7 @@ import type { Nugget } from '@/types';
 import { CONTENT, contentPath } from '@/content';
 import { searchNuggets } from '@/lib/search';
 import { FORMAT_LABELS } from '@/lib/format';
+import { SECTION_LABELS } from '@/lib/sections';
 
 export const SearchBar = forwardRef<HTMLInputElement>(
   function SearchBar(_props, ref) {
@@ -42,8 +43,8 @@ export const SearchBar = forwardRef<HTMLInputElement>(
               event.currentTarget.blur();
             }
           }}
-          placeholder="Search nuggets… (Ctrl+K)"
-          aria-label="Search nuggets"
+          placeholder="Search… (Ctrl+K)"
+          aria-label="Search content"
           className="w-full rounded-md border border-border bg-bg-secondary px-3 py-1.5 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
         />
         {open && query.trim() && (
@@ -68,11 +69,12 @@ export const SearchBar = forwardRef<HTMLInputElement>(
                       {FORMAT_LABELS[item.format]}
                     </span>
                   </span>
-                  {item.tags.length > 0 && (
-                    <span className="text-xs text-text-tertiary">
-                      {item.tags.join(', ')}
-                    </span>
-                  )}
+                  <span className="mt-0.5 line-clamp-1 text-xs text-text-secondary">
+                    {item.summary}
+                  </span>
+                  <span className="block text-[0.7rem] uppercase tracking-wide text-text-tertiary">
+                    {SECTION_LABELS[item.section]}
+                  </span>
                 </button>
               ))
             )}

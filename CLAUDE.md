@@ -109,7 +109,8 @@ Vitest + React Testing Library, jsdom environment.
   Pattern`, `Idempotency`) rather than seeding fake data into storage. If
   you rename or remove a nugget or guide referenced in a test
   (`HomePage.test.tsx`, `ContentPage.test.tsx`, `App.test.tsx`), update the
-  test alongside it.
+  test alongside it — and `src/content/links.test.ts` fails if a renamed
+  slug leaves a dangling `](/nuggets/…)` link in any body.
 - Prefer `screen.getByRole()` over test IDs. Test user-visible behavior.
 
 ## Architecture
@@ -122,8 +123,10 @@ One shape, deliberately minimal (`src/types.ts`):
 interface Nugget {
   id: string;
   title: string;
+  summary: string;  // one plain-text sentence — what it's *for*, shown on cards + search
   body: string;  // markdown — fenced ```lang blocks and ```mermaid diagrams render inline
   tags: string[];
+  section: Section;  // the one topic section it's filed under — see below
   format: 'nugget' | 'guide';
 }
 ```
@@ -156,6 +159,38 @@ TypeScript then forces every one of those `Record`s to be updated the
 moment a new format is added to the union, instead of a new format
 silently missing a label somewhere. Add a new mapping here, don't
 inline another format check next to an existing one.
+
+**`section` — the one topic shelf, distinct from `tags`.** Every item is
+filed under exactly one `Section` (`src/types.ts`), and that's what the
+sidebar and the home page group by. This is deliberately *not* a "primary
+tag": `tags` stays multi-valued and cross-cutting (it drives the tag
+filter chips and "Related"), while `section` is the single, hand-curated
+place a thing lives in the nav — the answer to "where would someone
+*browse* for this." An item that's genuinely dual-topic (Idempotency is
+API + reliability) still picks one section; `tags` and "Related" carry the
+rest. `src/lib/sections.ts` holds three `Record`/array constants keyed by
+the `Section` union — `SECTION_LABELS` (heading text), `SECTION_DESCRIPTIONS`
+(the one-line charter shown under each heading on the home page), and
+`SECTION_ORDER` (display order, deliberately not alphabetical) — same
+exhaustiveness rationale as `FORMAT_LABELS`. `contentBySection()` in
+`src/content/index.ts` is the one place that groups `CONTENT` by section
+(guides before nuggets, alphabetical within, empty sections dropped); the
+sidebar and home page both render through it. A test in
+`src/content/index.test.ts` fails if any item lands in an unknown section
+or any section ends up empty.
+
+**`summary` — a scannable one-liner, not a definition.** One plain-text
+sentence per item, framed as what it's *for* / when you'd reach for it.
+It's rendered on the home-page cards and in the search dropdown in place of
+an auto-generated body excerpt (there is no `excerpt()` util anymore).
+Keep it to a sentence; a test enforces that it's non-empty.
+
+**`tags` — a closed `Tag` union, not `string[]`.** The vocabulary lives in
+`src/types.ts` as a union type (`'apis' | 'auth' | 'databases' | …`), so a
+typo or near-duplicate (`api` vs `apis`) is a compile error rather than a
+silently fragmented filter set. Adding a tag is a deliberate edit to that
+union; don't widen it back to `string`. Same "controlled by the type
+system" treatment `Section` and `format` already get.
 
 Nuggets and guides each live in their own content directory, same
 `.md` + `.ts` pair shape:
@@ -220,25 +255,31 @@ topic into parts — both conventions coexist and shouldn't be mixed
    export const mySlug: Nugget = {
      id: '<slug>',
      title: 'My Title',
+     summary: 'One sentence on what this is for — not a definition.',
      tags: ['some', 'tags'],
+     section: 'reliability',
      body,
      format: 'nugget',
    };
    ```
-   Reuse existing tags where they genuinely fit (`reliability`, `patterns`,
-   `apis`, `migrations`, `databases`, `performance`, `messaging`, `security`,
-   `testing`, `git`, `ai`, `process`, `tooling`, `networking`) rather than
-   inventing near-duplicates —
-   the tag vocabulary is what drives both the home page's filter chips and the
-   "Related" section (see below), so a fragmented vocabulary weakens both.
+   Pick the one `section` (from the `Section` union in `src/types.ts`) a
+   reader would *browse* for this under — see "the one topic shelf" above;
+   if it's a toss-up, `tags` and "Related" cover the other angle. Tags come
+   from the `Tag` union in `src/types.ts` (`ai`, `apis`, `auth`,
+   `databases`, `git`, `messaging`, `migrations`, `networking`, `patterns`,
+   `performance`, `process`, `reliability`, `security`, `testing`,
+   `tooling`, `web`) — TypeScript rejects anything else. Reuse a fitting
+   existing tag rather than adding a near-duplicate to the union; the tag
+   vocabulary drives both the home page's filter chips and the "Related"
+   section (see below), so a fragmented vocabulary weakens both.
 3. Import it and add it to the `NUGGETS` array in
    `src/content/nuggets/index.ts`.
 
-**Adding a guide:** same three steps, but in `src/content/guides/`, with
-`format: 'guide'`, added to the `GUIDES` array in
-`src/content/guides/index.ts`. No other wiring is needed — the merged
-`CONTENT` registry, routing, search, sidebar, and related-content lookup are
-all format-aware already.
+**Adding a guide:** same three steps (including `summary` and `section`),
+but in `src/content/guides/`, with `format: 'guide'`, added to the `GUIDES`
+array in `src/content/guides/index.ts`. No other wiring is needed — the
+merged `CONTENT` registry, routing, search, sidebar, and related-content
+lookup are all format- and section-aware already.
 
 Body content is kept in a separate `.md` file (imported via Vite's `?raw`
 suffix) rather than a JS template literal — a markdown body containing
@@ -246,18 +287,25 @@ fenced code blocks has literal backtick characters in it, which would
 prematurely terminate a template literal string unless escaped. `?raw`
 avoids that entirely.
 
-### Related content
+### Related content, and section prev/next
 
-`getRelatedNuggets` (`src/lib/related.ts`) ranks every other item —
-nuggets and guides both, it's format-agnostic — by number of shared tags
-with the current one (ties broken alphabetically by title) and returns the
-top 3. `ContentPage` renders those as a "Related" section below the
-content, called with the merged `CONTENT` array so a nugget can surface a
-related guide and vice versa. This is entirely tag-derived — there's no
-per-item `related: [...]` field to maintain, so any new nugget or guide
-participates automatically as long as its tags overlap with something
-else's. If an item's related section looks wrong or empty, the fix is
-almost always to its `tags`, not to `related.ts`.
+`ContentPage` has two navigation aids below the body; they're different
+things:
+
+- **"Related"** — `getRelatedNuggets` (`src/lib/related.ts`) ranks every
+  other item (nuggets and guides both, format-agnostic) by number of
+  shared tags (ties broken alphabetically) and returns the top 3. Entirely
+  tag-derived — no per-item `related: [...]` field — so anything new
+  participates automatically once its tags overlap. If a related section
+  looks wrong or empty, fix the item's `tags`, not `related.ts`.
+- **Prev/next pager** — `sectionNeighbors(item)` (`src/content/index.ts`)
+  returns the items immediately before and after this one *within its own
+  section*, in the order `contentBySection()` produces (guides before
+  nuggets, alphabetical); `null` at either end. It's the "read this
+  section in order" affordance, derived purely from `section` + title.
+
+The header also shows the section label as a plain eyebrow (not a link —
+there's no per-section page; the home page is where sections are browsed).
 
 ### Reading state
 
@@ -274,10 +322,11 @@ disabled). It backs two independent, unrelated concerns:
 
 Neither of these stores content — only reading state. There is no
 repository/CRUD layer for nuggets or guides; components read
-`CONTENT`/`getContent()`/`contentPath()` from `src/content/index.ts` for
-anything that spans both formats, or the per-format `NUGGETS`/`GUIDES`
-constants directly when a view is deliberately scoped to just one (e.g.
-the home page's tag-filtered nugget list).
+`CONTENT`/`getContent()`/`contentPath()`/`contentBySection()` from
+`src/content/index.ts`. The per-format `NUGGETS`/`GUIDES` arrays exist only
+to build the merged `CONTENT` (and as test fixtures); no component imports
+them directly anymore — a format-scoped view is a `.filter()` on `CONTENT`,
+and a section-grouped view goes through `contentBySection()`.
 
 ### Markdown & diagram rendering
 
@@ -286,12 +335,19 @@ nugget's `body` via `react-markdown` + `remark-gfm`, with a custom `a`
 renderer (internal `/...` links use `react-router`'s `Link`, everything
 else opens in a new tab) and a custom `code` renderer that routes to:
 
-- `CodeBlock` — Shiki-highlighted (`shiki`'s `codeToHtml`, async, themed
-  `github-dark`/`github-light` to match the app's dark/light mode)
+- `CodeBlock` — Shiki-highlighted, async, themed `github-dark`/`github-light`
+  to match the app's dark/light mode. It does *not* import the `shiki`
+  bundled entrypoint (that pulls every grammar). Instead it lazy-`import()`s
+  `shiki/core`, the JS regex engine (no Oniguruma WASM), the two themes, and
+  one grammar per language on first use — `LANGUAGE_LOADERS` is an explicit
+  language→loader allowlist. A fence in a language not in the map renders as
+  a plain `<pre>`; add a loader entry when content starts using a new
+  language. Every block is wrapped by `CodeShell`, which adds the
+  hover-revealed **Copy** button.
 - `MermaidDiagram` — for ` ```mermaid ` fences, via `mermaid.render()`
   (`securityLevel: 'strict'`)
 
-Both pull in real weight (Shiki grammars, Mermaid's diagram engines), so
+Both still pull real weight (grammars, Mermaid's diagram engines), so
 `MarkdownRenderer` is only ever consumed through `LazyMarkdownRenderer`
 (`React.lazy` + `Suspense`), used by `ContentPage`. Import
 `LazyMarkdownRenderer`, not `MarkdownRenderer` directly, from any new call
@@ -309,9 +365,9 @@ from `AppShell` in `App.tsx`.
 Three routes (`src/App.tsx`), two of them pointing at the same page
 component:
 
-- `/` — `HomePage`: continue-reading banner, then a `role="tablist"` for
-  "Nuggets" / "Guides" — each tab renders its own tag-filtered, paginated
-  list (see "Pagination" below)
+- `/` — `HomePage`: continue-reading banner, then a format filter
+  (`All`/`Nuggets`/`Guides`) and tag chips, then the catalog rendered as
+  topic-section blocks (see "Home page: sections + filters" below)
 - `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, which
   resolves the `:id` param through `getContent()` (the merged registry) and
   renders identically either way. There's no separate `GuidePage` — a guide
@@ -326,28 +382,31 @@ routed content, so it's present on every page.
 
 ### Sidebar
 
-`Sidebar` (`src/components/Sidebar.tsx`) lists guides, then every nugget,
-each group alphabetically by title — not grouped by tag. Tags are
-multi-valued (an item can be both `reliability` and `patterns`), so a
-tag-grouped sidebar would mean either duplicating entries across sections
-or inventing an unspecified "primary tag." Topic-based browsing is
-already the home page's job (tag chips + related content); the sidebar's
-job is fast, unambiguous lookup by name from any page.
+`Sidebar` (`src/components/Sidebar.tsx`) groups content by `section` — the
+topic sections in `SECTION_ORDER`, via `contentBySection()` — with
+guides before nuggets within each and a small "Guide" badge on the guides.
+It is *not* grouped by tag: tags are multi-valued (an item can be both
+`reliability` and `patterns`), so a tag-grouped sidebar would mean either
+duplicating entries or inventing a "primary tag" — `section` is the
+single-valued axis that already exists for exactly this. The sidebar's job
+is fast lookup and orientation by topic from any page; free-text lookup by
+name is what `Ctrl`/`Cmd`+`K` search is for.
 
 Each group is a `SidebarGroup` (a local component inside `Sidebar.tsx`,
-not its own file — it isn't reused anywhere else yet) with its own
-collapsed/expanded `useState`, defaulting to expanded. The heading is a
+not its own file — not reused elsewhere) with its own collapsed/expanded
+`useState`. **Collapsed by default**, so the sidebar opens as a scannable
+list of section names; the section holding the current route's item
+starts expanded (`useActiveSection()` parses the id out of the pathname
+and looks up its section). A small `useEffect` re-opens a section when you
+navigate into it (e.g. via a "Related" link) but never auto-*closes* one
+the reader opened — it only ever sets `open` true. The heading is a
 `<button aria-expanded>` wrapped in an `<h2>` (the WAI-ARIA accordion
-pattern — a screen reader still gets heading navigation via the `h2`,
-while the `button` carries the actual disclosure semantics), so
-`getByRole('heading', ...)` and `getByRole('button', ...)` both resolve
-to it in tests. The heading only renders — and is therefore only
-collapsible — once there's more than one *non-empty* group; `Sidebar`
-computes this by counting non-empty arrays
-(`[SORTED_GUIDES, SORTED_NUGGETS].filter(...).length > 1`), not by
-hardcoding the check around guides specifically, so a third group (see
-`CASE_STUDIES_PLAN.md`) just needs adding to that same array — no
-conditional logic to rewrite.
+pattern — a screen reader gets heading navigation via the `h2`, the
+`button` carries the disclosure semantics), so `getByRole('heading', ...)`
+and `getByRole('button', ...)` both resolve to it. Headings render once
+there's more than one non-empty group (`SECTIONS.length > 1`, where
+`SECTIONS = contentBySection()` already drops empty ones) — with this many
+sections that's always true in practice, but the guard stays generic.
 
 Topic links are indented further than their group heading (`pl-6` vs.
 the heading's `px-3`) so they read as nested under it, not flush with
@@ -355,15 +414,17 @@ it — the link element itself still spans the full row width, so the
 hover/active background isn't affected, only the text's start position.
 
 Desktop and the mobile drawer are two separate `Sidebar` instances (see
-below), so their collapsed states are independent — collapsing "Guides"
+below), so their collapsed states are independent — collapsing a section
 on desktop doesn't collapse it in the drawer.
 
 `AppShell` renders two copies of it: a static one in a `hidden md:block`
 `<aside>` for desktop, and a second one inside a fixed-overlay drawer
-(`role="dialog"`) toggled by the hamburger button in `Header`, for
-viewports below `md`. Both read the same `NUGGETS`/`GUIDES` constants —
-there's no prop threading data into either. The drawer closes on backdrop
-click, `Escape`, or clicking a link (`Sidebar`'s `onNavigate` prop).
+(`role="dialog"`, `aria-label="All content"`) toggled by the hamburger
+button in `Header` (`aria-label="Toggle navigation"`), for viewports below
+`md`. Both read the same module-level `SECTIONS = contentBySection()`
+grouping — there's no prop threading data into either. The drawer closes on
+backdrop click, `Escape`, or clicking a link (`Sidebar`'s `onNavigate`
+prop).
 
 The desktop `<aside>` is `sticky top-16` with its own `max-h-[calc(100vh-4rem)]`
 and `overflow-y-auto`, plus `self-start` so it doesn't stretch to match
@@ -375,38 +436,33 @@ in the viewport while the article scrolls, and only scrolls internally
 once its own content (dozens of nuggets plus a growing set of guides)
 exceeds the viewport height.
 
-### Home page: tabs + pagination
+### Home page: sections + filters
 
-`HomePage` shows one content type at a time behind a `role="tablist"` —
-"Nuggets" and "Guides" — rather than stacking both as always-visible
-sections. That stacking was the original design (see git history) but
-stopped working once the catalog passed ~50 items combined; `CLAUDE.md`
-had explicitly called out guides being unpaginated as a decision to
-*reconsider* once there were "many guides" — there are now more than a
-dozen, so this is that reconsideration.
+`HomePage` stacks the whole catalog as topic-section blocks — heading +
+one-line charter (`SECTION_LABELS`/`SECTION_DESCRIPTIONS`) + the section's
+cards — rendered by `SectionedContentList`
+(`src/components/SectionedContentList.tsx`), which just groups an
+already-filtered `Nugget[]` through `contentBySection()` and shows an
+empty-state line if nothing survived. `HomePage` owns the two filters
+above it: a format filter (`All`/`Nuggets`/`Guides`, a `role="group"` of
+`aria-pressed` buttons) and tag chips (`All topics` + every tag in
+`CONTENT`, so the chip set doesn't shift when the format changes). The two
+compose; sections with no surviving items just don't render.
 
-Both tabs are the same `PaginatedContentList` component
-(`src/components/PaginatedContentList.tsx`), given a different `items`
-array (`NUGGETS` or `GUIDES`) and `label`. It owns its own tag-filter
-chips and pagination (`PAGE_SIZE` = 10, a "Load N more" button appending
-another page to `visibleCount`, reset to `PAGE_SIZE` whenever the tag
-filter changes — otherwise a filter matching only a few items could
-leave a stale, unreachable "Load more" state). Since every content array
-is a plain in-memory list (no backend), "loading more" is just revealing
-more of it — no fetch, no loading state to handle.
-
-`HomePage` renders each tab's `PaginatedContentList` with `key="nuggets"`
-/`key="guides"` — that's what resets filter/pagination state on tab
-switch. Do **not** replace this with a `useEffect` inside
-`PaginatedContentList` that syncs state to the `items` prop instead;
-`key` is the React-recommended way to reset a component's state when
-swapping what it's showing, and it avoids the extra render an effect-based
-reset would cost.
+**There is no pagination.** The earlier design paginated two flat
+per-format lists at `PAGE_SIZE = 10` because each was 30-40 items long;
+grouped into topic sections the largest is under a dozen, so the whole
+catalog renders at once. `PaginatedContentList` and its `visibleCount`/"Load more"
+machinery were deleted with this change — don't reintroduce them for the
+home page. If a single section ever genuinely gets too long to scan, the
+fix is to split the section (add a `Section` value), not to paginate
+inside one.
 
 Adding a third content format (see `CASE_STUDIES_PLAN.md`) means adding
-a third entry to `TABS` in `HomePage.tsx` and a third
-`PaginatedContentList` branch — the component itself needs no changes,
-since it already takes `items`/`label` generically.
+`{ id: 'case-study', label: 'Case Studies' }` to `FORMAT_FILTERS` in
+`HomePage.tsx`; `SectionedContentList` and `contentBySection()` are
+already format-agnostic. A case study is still filed under a topic
+`section` like everything else.
 
 ### Path alias
 

@@ -60,6 +60,18 @@ restart (more durable, larger on disk, slower to restore). Many
 deployments use both, or accept RDB's small data-loss window for pure
 cache use cases where the source of truth lives elsewhere anyway.
 
+## Single-threaded, and eviction
+
+Redis runs commands on a single thread. That's why `INCR`, `SET … NX`,
+and `MULTI`/Lua blocks are atomic with no effort on your part — and also
+why one `KEYS *` or a large `SORT` against a live instance stalls every
+other client until it finishes. Keep individual commands cheap.
+
+For cache use, set `maxmemory` together with a `maxmemory-policy` (usually
+`allkeys-lru` or `allkeys-lfu`) so Redis evicts cold keys when RAM fills
+instead of rejecting writes. With no eviction policy, a full instance
+starts returning an error on every `SET`.
+
 ## Where it applies
 
 Caching, rate limiting, distributed locks, session storage,

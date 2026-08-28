@@ -6,7 +6,7 @@ what a database index answers.
 
 A normal [database index](/nuggets/database-indexing) (a B-tree) maps a
 value to the rows containing it: fast for "find the row where
-`email = 'x'`," bad at "find every row whose `description` *contains*
+`email = 'x'`," bad at "find every row whose `description` _contains_
 the word 'waterproof' anywhere in a paragraph of text." An inverted
 index flips the relationship: it maps each individual **term** to the
 list of documents containing it.
@@ -35,11 +35,22 @@ finding an obvious match" bugs.
 
 ## Relevance ranking
 
-Unlike an exact-match database query, a text search returns *ranked*
+Unlike an exact-match database query, a text search returns _ranked_
 results: Elasticsearch scores each match (commonly via **BM25**, which
 weighs terms higher if they're rare across the corpus but frequent in a
 specific document) so "best match first" is a first-class concept, not
 something the application has to compute itself.
+
+## Operational reality
+
+Elasticsearch is **near-real-time**, not real-time: a document isn't
+searchable until the next index refresh (1 second by default), so it's a
+poor fit for read-your-own-writes flows. It has **no transactions** and no
+joins, and changing a field's mapping means reindexing everything into a
+new index. Treat it as a secondary index rebuilt from a source of truth
+that lives elsewhere — a relational database, or an event stream via
+[Change Data Capture](/nuggets/change-data-capture) — never as the
+primary store.
 
 ## When to reach for it vs. a database index
 
@@ -48,7 +59,7 @@ A relational database's full-text search extensions (like Postgres's
 [Database Indexing](/nuggets/database-indexing)) work fine for
 moderate-scale, simple text search without introducing a second system.
 Elasticsearch earns its place once search needs go beyond that: faceted
-search (filter by category *and* price range *and* rating,
+search (filter by category _and_ price range _and_ rating,
 simultaneously, fast), typo tolerance (fuzzy matching), relevance tuning,
 or search volume/data size that a single relational instance can't
 comfortably serve alongside its transactional workload.

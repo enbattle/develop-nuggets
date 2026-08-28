@@ -47,7 +47,8 @@ Any code that builds a database query from external input — form fields,
 URL parameters, HTTP headers, even values that "shouldn't" contain SQL
 syntax (attackers don't respect that assumption). The same underlying bug
 class (untrusted input treated as code) also shows up as command
-injection and, in a different form, cross-site scripting.
+injection and, in a different form,
+[cross-site scripting](/nuggets/xss).
 
 ## The actual rule
 

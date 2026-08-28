@@ -39,7 +39,8 @@ disproportionately large or small arc of the ring purely by chance.
 ## Where it applies
 
 Distributed caches (client-side hashing for Memcached), distributed
-databases and sharding (Cassandra, DynamoDB), and load balancers
+databases and [sharding](/nuggets/sharding-strategies) (Cassandra,
+DynamoDB), and [load balancers](/guides/networking-load-balancing)
 distributing sticky sessions across backend instances.
 
 ## Why this beats the naive approach

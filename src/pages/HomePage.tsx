@@ -1,23 +1,39 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { NUGGETS } from '@/content/nuggets';
-import { GUIDES } from '@/content/guides';
+import { useMemo, useState } from 'react';
+import type { Nugget, Tag } from '@/types';
 import { CONTENT, contentPath } from '@/content';
+import { FORMAT_LABELS } from '@/lib/format';
 import { useLastViewedNugget } from '@/hooks/useContinueReading';
-import { PaginatedContentList } from '@/components/PaginatedContentList';
+import { SectionedContentList } from '@/components/SectionedContentList';
 
-type Tab = 'nuggets' | 'guides';
+type FormatFilter = 'all' | Nugget['format'];
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'guides', label: 'Guides' },
-  { id: 'nuggets', label: 'Nuggets' },
+const FORMAT_FILTERS: { id: FormatFilter; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'nugget', label: `${FORMAT_LABELS.nugget}s` },
+  { id: 'guide', label: `${FORMAT_LABELS.guide}s` },
 ];
+
+const ALL_TAGS: Tag[] = Array.from(
+  new Set(CONTENT.flatMap((item) => item.tags)),
+).sort();
 
 export function HomePage() {
   const lastViewed = useLastViewedNugget(CONTENT);
-  const [activeTab, setActiveTab] = useState<Tab>('guides');
+  const [format, setFormat] = useState<FormatFilter>('all');
+  const [tag, setTag] = useState<Tag | null>(null);
 
-  if (NUGGETS.length === 0 && GUIDES.length === 0) {
+  const filtered = useMemo(
+    () =>
+      CONTENT.filter(
+        (item) =>
+          (format === 'all' || item.format === format) &&
+          (tag === null || item.tags.includes(tag)),
+      ),
+    [format, tag],
+  );
+
+  if (CONTENT.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border p-10 text-center">
         <h1 className="text-lg font-semibold text-text-primary">
@@ -49,37 +65,63 @@ export function HomePage() {
         </Link>
       )}
 
-      <div
-        role="tablist"
-        aria-label="Content type"
-        className="flex gap-4 border-b border-border"
-      >
-        {TABS.map((tab) => (
+      <div className="flex flex-col gap-3">
+        <div
+          role="group"
+          aria-label="Filter by format"
+          className="flex gap-4 border-b border-border"
+        >
+          {FORMAT_FILTERS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={format === option.id}
+              onClick={() => setFormat(option.id)}
+              className={formatTabClass(format === option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
           <button
-            key={tab.id}
             type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={tabClass(activeTab === tab.id)}
+            onClick={() => setTag(null)}
+            className={tagChipClass(tag === null)}
           >
-            {tab.label}
+            All topics
           </button>
-        ))}
+          {ALL_TAGS.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setTag(option)}
+              className={tagChipClass(tag === option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {activeTab === 'nuggets' ? (
-        <PaginatedContentList key="nuggets" items={NUGGETS} label="Nuggets" />
-      ) : (
-        <PaginatedContentList key="guides" items={GUIDES} label="Guides" />
-      )}
+      <SectionedContentList items={filtered} />
     </div>
   );
 }
 
-function tabClass(active: boolean): string {
-  const base = '-mb-px border-b-2 px-1 py-2 text-sm font-medium transition-colors';
+function formatTabClass(active: boolean): string {
+  const base =
+    '-mb-px border-b-2 px-1 py-2 text-sm font-medium transition-colors';
   return active
     ? `${base} border-accent text-accent`
     : `${base} border-transparent text-text-secondary hover:text-text-primary`;
+}
+
+function tagChipClass(active: boolean): string {
+  const base =
+    'rounded-full border px-3 py-1 text-xs font-medium transition-colors';
+  return active
+    ? `${base} border-accent bg-accent/10 text-accent`
+    : `${base} border-border text-text-secondary hover:bg-bg-tertiary`;
 }

@@ -1,160 +1,108 @@
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '@/test/utils';
+import { render, screen } from '@/test/utils';
 import { HomePage } from './HomePage';
-import { NUGGETS } from '@/content/nuggets';
+import { CONTENT } from '@/content';
 import { GUIDES } from '@/content/guides';
+import { SECTION_DESCRIPTIONS } from '@/lib/sections';
 import { readingProgress } from '@/lib/readingProgress';
 
-// Guides is the default active tab — scoping queries to its tabpanel
-// excludes the Nuggets tab's content, which isn't mounted until selected.
-function guideListItems() {
-  return within(
-    screen.getByRole('tabpanel', { name: 'Guides' }),
-  ).getAllByRole('listitem');
+function cardCount() {
+  return screen.queryAllByRole('listitem').length;
 }
-
-function nuggetListItems() {
-  return within(
-    screen.getByRole('tabpanel', { name: 'Nuggets' }),
-  ).getAllByRole('listitem');
-}
-
-// Must match PaginatedContentList's own PAGE_SIZE constant.
-const PAGE_SIZE = 10;
 
 describe('HomePage', () => {
-  it('defaults to the Guides tab, selected and marked in the tablist', () => {
+  it('groups content into topic sections, each with a heading and charter', () => {
     render(<HomePage />);
 
-    expect(screen.getByRole('tab', { name: 'Guides' })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    expect(screen.getByRole('tab', { name: 'Nuggets' })).toHaveAttribute(
-      'aria-selected',
-      'false',
-    );
+    expect(
+      screen.getByRole('heading', { name: 'Foundations' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(SECTION_DESCRIPTIONS.foundations),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Reliability & Resilience' }),
+    ).toBeInTheDocument();
   });
 
-  it('lists guides with their tags, alphabetically by title', () => {
+  it('shows every item as a card by default', () => {
+    render(<HomePage />);
+    expect(cardCount()).toBe(CONTENT.length);
+  });
+
+  it('shows a continue-reading banner for the last-viewed item', () => {
+    readingProgress.setLastViewedId('idempotency');
+    render(<HomePage />);
+    expect(screen.getByText(/continue reading/i)).toBeInTheDocument();
+  });
+
+  it('filters to guides only, dropping nugget-only sections', async () => {
+    const user = userEvent.setup();
     render(<HomePage />);
 
-    const alphabeticallyFirst = [...GUIDES].sort((a, b) =>
-      a.title.localeCompare(b.title),
-    )[0];
+    await user.click(screen.getByRole('button', { name: 'Guides' }));
 
-    expect(screen.getByText(alphabeticallyFirst.title)).toBeInTheDocument();
-    expect(screen.getAllByText('databases').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Redis' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Idempotency' }),
+    ).not.toBeInTheDocument();
+    // Reliability & Resilience is entirely nuggets — its section disappears.
+    expect(
+      screen.queryByRole('heading', { name: 'Reliability & Resilience' }),
+    ).not.toBeInTheDocument();
+    expect(cardCount()).toBe(GUIDES.length);
   });
 
-  it('filters the guide list when a tag chip is clicked', async () => {
+  it('filters by tag across sections', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
     await user.click(screen.getByRole('button', { name: 'databases' }));
 
-    expect(screen.getByText('Redis')).toBeInTheDocument();
-    expect(screen.queryByText('Networking: CDN')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Redis' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Idempotency' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Foundations' }),
+    ).not.toBeInTheDocument();
   });
 
-  it('shows a continue-reading banner for the last-viewed nugget', () => {
-    readingProgress.setLastViewedId('idempotency');
-
-    render(<HomePage />);
-
-    expect(screen.getByText(/continue reading/i)).toBeInTheDocument();
-  });
-
-  it('caps the initial guide list at 10 and loads more per click', async () => {
+  it('combines the format and tag filters', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
-    expect(guideListItems()).toHaveLength(Math.min(PAGE_SIZE, GUIDES.length));
+    await user.click(screen.getByRole('button', { name: 'Guides' }));
+    await user.click(screen.getByRole('button', { name: 'databases' }));
 
-    let loadMoreButton = screen.queryByRole('button', {
-      name: /load .* more/i,
-    });
-    while (loadMoreButton) {
-      const before = guideListItems().length;
-      await user.click(loadMoreButton);
-      const after = guideListItems().length;
-      expect(after - before).toBeLessThanOrEqual(PAGE_SIZE);
-      loadMoreButton = screen.queryByRole('button', {
-        name: /load .* more/i,
-      });
-    }
-
-    expect(guideListItems()).toHaveLength(GUIDES.length);
+    const expected = GUIDES.filter((g) => g.tags.includes('databases')).length;
+    expect(cardCount()).toBe(expected);
+    expect(
+      screen.getByRole('heading', { name: 'Data Stores' }),
+    ).toBeInTheDocument();
   });
 
-  it('resets pagination when the guide tag filter changes', async () => {
+  it('shows an empty state when no item matches the filter', async () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
-    const loadMoreButton = screen.queryByRole('button', {
-      name: /load .* more/i,
-    });
-    if (loadMoreButton) {
-      await user.click(loadMoreButton);
-    }
-    expect(guideListItems()).toHaveLength(GUIDES.length);
+    await user.click(screen.getByRole('button', { name: 'Guides' }));
+    await user.click(screen.getByRole('button', { name: 'testing' }));
 
-    // 'messaging' matches far fewer guides than are currently shown, so a
-    // stale "Load more" would be unreachable if pagination didn't reset.
-    await user.click(screen.getByRole('button', { name: 'messaging' }));
+    expect(screen.getByText(/nothing matches/i)).toBeInTheDocument();
+    expect(cardCount()).toBe(0);
+  });
+
+  it('shows the whole catalog at once — no pagination', () => {
+    render(<HomePage />);
 
     expect(
       screen.queryByRole('button', { name: /load .* more/i }),
     ).not.toBeInTheDocument();
-  });
-
-  it('switches to the Nuggets tab, independently tag-filterable', async () => {
-    const user = userEvent.setup();
-    render(<HomePage />);
-
-    await user.click(screen.getByRole('tab', { name: 'Nuggets' }));
-
-    expect(screen.getByRole('tab', { name: 'Nuggets' })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    const nuggetsPanel = screen.getByRole('tabpanel', { name: 'Nuggets' });
+    // A late-alphabet item that a paginated first page would have hidden.
     expect(
-      within(nuggetsPanel).getAllByRole('listitem').length,
-    ).toBeGreaterThan(0);
-
-    await user.click(
-      within(nuggetsPanel).getByRole('button', { name: 'apis' }),
-    );
-
-    expect(screen.getByText('Idempotency')).toBeInTheDocument();
-    expect(
-      screen.queryByText('Expand-Contract Pattern'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('paginates the Nuggets tab independently of Guides', async () => {
-    const user = userEvent.setup();
-    render(<HomePage />);
-
-    await user.click(screen.getByRole('tab', { name: 'Nuggets' }));
-
-    expect(nuggetListItems()).toHaveLength(PAGE_SIZE);
-
-    let loadMoreButton = screen.queryByRole('button', {
-      name: /load .* more/i,
-    });
-    while (loadMoreButton) {
-      const before = nuggetListItems().length;
-      await user.click(loadMoreButton);
-      const after = nuggetListItems().length;
-      expect(after - before).toBeLessThanOrEqual(PAGE_SIZE);
-      loadMoreButton = screen.queryByRole('button', {
-        name: /load .* more/i,
-      });
-    }
-
-    expect(nuggetListItems()).toHaveLength(NUGGETS.length);
+      screen.getByRole('heading', { name: 'Vector Databases' }),
+    ).toBeInTheDocument();
   });
 });

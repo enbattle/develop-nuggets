@@ -15,7 +15,7 @@ export function Header({ searchRef, onToggleSidebar }: HeaderProps) {
         <button
           type="button"
           onClick={onToggleSidebar}
-          aria-label="Toggle nugget list"
+          aria-label="Toggle navigation"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-bg-tertiary md:hidden"
         >
           <svg

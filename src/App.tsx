@@ -51,7 +51,7 @@ function AppShell() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="All nuggets"
+          aria-label="All content"
           className="fixed inset-0 z-40 md:hidden"
         >
           <div

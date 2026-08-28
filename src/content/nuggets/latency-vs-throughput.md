@@ -49,7 +49,9 @@ queueing, and queueing usually means latency gets worse next, not better.
 For example: a service handling 50 requests/second (`λ`), each taking
 200ms (`W` = 0.2s), has on average `L = 50 × 0.2 = 10` requests in flight
 at any given moment: that's the concurrency it needs to sustain just to
-keep up, before queueing even starts.
+keep up, before queueing even starts. (See also
+[numbers every engineer should know](/nuggets/numbers-every-engineer-should-know)
+for the raw latencies these estimates build on.)
 
 ## Where it applies
 
@@ -57,8 +59,9 @@ System design generally — a search-autocomplete endpoint needs low latency
 even at some throughput cost (a slow suggestion is useless even if the
 backend could technically handle more), while a nightly batch ETL job wants
 maximum throughput and can tolerate high latency for any single record.
-Choosing between a synchronous request/response API and an async queued
-one is usually a latency-vs-throughput decision in disguise.
+[Choosing between a synchronous request/response API and an async queued
+one](/nuggets/long-running-tasks) is usually a latency-vs-throughput
+decision in disguise.
 
 ## Which one wins
 

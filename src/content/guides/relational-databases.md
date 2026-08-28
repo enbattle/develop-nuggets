@@ -28,12 +28,12 @@ vs. other models in the first place, see
 Isolation is a dial, not a single guarantee, and the level chosen trades
 correctness for concurrency:
 
-| Level | Prevents | Allows |
-| --- | --- | --- |
-| Read Uncommitted | Nothing | Dirty reads (seeing another transaction's uncommitted writes) |
-| Read Committed | Dirty reads | Non-repeatable reads (a row you re-read mid-transaction has changed) |
-| Repeatable Read | Non-repeatable reads | Phantom reads (a *new* row matching your query appears on re-query) |
-| Serializable | Everything | Transactions behave as if run one at a time — full safety, least concurrency |
+| Level            | Prevents             | Allows                                                                       |
+| ---------------- | -------------------- | ---------------------------------------------------------------------------- |
+| Read Uncommitted | Nothing              | Dirty reads (seeing another transaction's uncommitted writes)                |
+| Read Committed   | Dirty reads          | Non-repeatable reads (a row you re-read mid-transaction has changed)         |
+| Repeatable Read  | Non-repeatable reads | Phantom reads (a _new_ row matching your query appears on re-query)          |
+| Serializable     | Everything           | Transactions behave as if run one at a time — full safety, least concurrency |
 
 Most applications default to Read Committed (Postgres's default) and
 only reach for stricter isolation for specific operations that genuinely
@@ -55,6 +55,21 @@ replication story and remains extremely common in existing
 infrastructure. Neither is "faster" in a way that generalizes across
 workloads: the extensions and ecosystem fit matter more than raw
 performance for most real choices.
+
+## Connections are a limited resource
+
+Each connection costs the database a backend process (or thread) and its
+own memory, so servers cap connections in the low hundreds by default. An
+app that opens one connection per request exhausts that ceiling under
+load, and further requests block waiting for one to free up. The fix is a
+**connection pool** — a fixed set of long-lived connections the app
+borrows and returns — sized to the database's limit, not the app's
+request concurrency. At larger scale a dedicated pooler (PgBouncer)
+multiplexes many app connections onto a few database ones. This is the
+bottleneck
+[Numbers Every Engineer Should Know](/nuggets/numbers-every-engineer-should-know)
+is pointing at when it says the database connection is usually the limit
+before the network is.
 
 ## Where it applies
 

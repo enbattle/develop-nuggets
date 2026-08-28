@@ -34,8 +34,9 @@ conflicting data (**AP**).
 
 - **CP**: systems built on consensus protocols (ZooKeeper, etcd) —
   they'd rather return an error than risk an inconsistent read.
-- **AP**: Cassandra (in its default configuration), DNS — they keep
-  serving during a partition and reconcile conflicting writes afterward.
+- **AP**: [Cassandra](/guides/dynamodb-and-cassandra) (in its default
+  configuration), DNS — they keep serving during a partition and reconcile
+  conflicting writes afterward.
 
 ## PACELC: the tradeoff CAP leaves out
 
@@ -71,9 +72,9 @@ answer an interviewer asking about CAP is usually listening for.
 
 ## Where it applies
 
-Choosing a database (a strongly consistent relational store vs. an
-eventually consistent NoSQL store), and designing any service replicated
-across multiple regions or availability zones.
+Choosing a database ([a strongly consistent relational store vs. an
+eventually consistent NoSQL store](/nuggets/sql-vs-nosql)), and designing
+any service replicated across multiple regions or availability zones.
 
 ## Choose it deliberately
 

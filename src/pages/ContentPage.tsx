@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
-import { CONTENT, contentPath, getContent } from '@/content';
+import { CONTENT, contentPath, getContent, sectionNeighbors } from '@/content';
+import { SECTION_LABELS } from '@/lib/sections';
 import { useRecordReadingProgress } from '@/hooks/useContinueReading';
 import { LazyMarkdownRenderer } from '@/components/LazyMarkdownRenderer';
 import { getRelatedNuggets } from '@/lib/related';
@@ -18,10 +19,15 @@ export function ContentPage() {
   }
 
   const related = getRelatedNuggets(item, CONTENT);
+  const { prev, next } = sectionNeighbors(item);
+  const sectionLabel = SECTION_LABELS[item.section];
 
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-3">
+        <p className="text-xs font-medium uppercase tracking-wide text-text-tertiary">
+          {sectionLabel}
+        </p>
         <h1 className="text-2xl font-bold text-text-primary">{item.title}</h1>
 
         {item.tags.length > 0 && (
@@ -39,6 +45,40 @@ export function ContentPage() {
       </header>
 
       <LazyMarkdownRenderer content={item.body} />
+
+      {(prev || next) && (
+        <nav
+          aria-label={`More in ${sectionLabel}`}
+          className="grid grid-cols-2 gap-3 border-t border-border pt-6 text-sm"
+        >
+          {prev ? (
+            <Link
+              to={contentPath(prev)}
+              className="flex flex-col gap-1 rounded-md border border-border px-3 py-2 transition-colors hover:border-accent"
+            >
+              <span className="text-xs text-text-tertiary">← Previous</span>
+              <span className="font-medium text-text-primary">
+                {prev.title}
+              </span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <Link
+              to={contentPath(next)}
+              className="flex flex-col gap-1 rounded-md border border-border px-3 py-2 text-right transition-colors hover:border-accent"
+            >
+              <span className="text-xs text-text-tertiary">Next →</span>
+              <span className="font-medium text-text-primary">
+                {next.title}
+              </span>
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
 
       {related.length > 0 && (
         <footer className="flex flex-col gap-3 border-t border-border pt-6">

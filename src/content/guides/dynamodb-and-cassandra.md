@@ -9,7 +9,7 @@ these are concrete examples of.
 
 Both are built around a **partition key** that determines which node
 owns a given row (via [consistent hashing](/nuggets/consistent-hashing)
-in both systems), plus an optional key that orders rows *within* a
+in both systems), plus an optional key that orders rows _within_ a
 partition:
 
 - **DynamoDB** — partition key (+ optional **sort key**). All items
@@ -23,7 +23,7 @@ In both, a query that doesn't specify the partition key can't be served
 efficiently: there's no B-tree-style secondary index scanning the
 whole dataset by default the way a relational database offers. This is
 the sharp edge both systems share: the access patterns have to be
-designed *before* the schema, not discovered afterward, because
+designed _before_ the schema, not discovered afterward, because
 changing how data is queried later often means the partition key was
 wrong from the start.
 
@@ -46,6 +46,17 @@ adjustable: both systems default toward the **AP** side, but let a
 specific query trade some availability/latency back for consistency
 when it actually needs it, rather than making the whole system pick
 one side globally.
+
+## Hot partitions
+
+Since the partition key decides which node owns a row, a low-cardinality
+or skewed key — `status = "active"`, today's date, a celebrity user's ID —
+funnels a disproportionate share of traffic to one node while the rest of
+the cluster idles. Both systems throttle per partition, not per table, so
+a hot partition caps throughput long before the cluster as a whole is
+busy. The fix is a higher-cardinality key, or a random/derived suffix that
+fans a hot key across several partitions. It's the same failure mode as a
+hot shard in [Sharding Strategies](/nuggets/sharding-strategies).
 
 ## When to reach for these vs. a relational database
 

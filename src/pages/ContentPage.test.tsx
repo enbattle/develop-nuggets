@@ -18,18 +18,16 @@ function renderAt(path: string) {
 }
 
 describe('ContentPage', () => {
-  it('renders a known nugget with its tags', () => {
+  it('renders a known nugget with its section eyebrow and tags', () => {
     renderAt('/nuggets/expand-contract');
 
     const heading = screen.getByRole('heading', {
       name: 'Expand-Contract Pattern',
     });
     expect(heading).toBeInTheDocument();
-    // Scoped to the header — the related-nuggets footer can also mention
-    // "patterns" as part of another nugget's tag list.
-    expect(
-      within(heading.closest('header')!).getByText('patterns'),
-    ).toBeInTheDocument();
+    const header = heading.closest('header')!;
+    expect(within(header).getByText('Delivery & Tooling')).toBeInTheDocument();
+    expect(within(header).getByText('patterns')).toBeInTheDocument();
   });
 
   it('shows a not-found message for an unknown id', () => {
@@ -41,9 +39,31 @@ describe('ContentPage', () => {
   it('lists related nuggets by shared tags', () => {
     renderAt('/nuggets/idempotency');
 
-    expect(screen.getByText('Related')).toBeInTheDocument();
+    const relatedList = screen
+      .getByRole('heading', { name: 'Related' })
+      .closest('footer')!;
     expect(
-      screen.getByRole('link', { name: /exponential backoff & jitter/i }),
+      within(relatedList).getByRole('link', {
+        name: /exponential backoff & jitter/i,
+      }),
     ).toBeInTheDocument();
+  });
+
+  it('offers prev/next navigation within the same section', () => {
+    renderAt('/nuggets/idempotency');
+
+    // Reliability & Resilience, alphabetical: … Exponential Backoff & Jitter,
+    // Idempotency, Observability, …
+    const pager = screen.getByRole('navigation', {
+      name: /more in reliability & resilience/i,
+    });
+    expect(
+      within(pager).getByRole('link', {
+        name: /exponential backoff & jitter/i,
+      }),
+    ).toHaveAttribute('href', '/nuggets/exponential-backoff');
+    expect(
+      within(pager).getByRole('link', { name: /observability/i }),
+    ).toHaveAttribute('href', '/nuggets/observability');
   });
 });

@@ -7,7 +7,7 @@ tool.
 Messages are published to a **topic**, which is split into
 **partitions** for parallelism — each partition is an ordered,
 append-only log, and a message's position in it is its **offset**.
-Order is only guaranteed *within* a partition, not across the whole
+Order is only guaranteed _within_ a partition, not across the whole
 topic, which is why the partition key (what determines which partition
 a message lands on) matters as much as a database's shard key does.
 See [Sharding Strategies](/nuggets/sharding-strategies) for the same
@@ -46,6 +46,18 @@ a natural fit for **event streaming**: the same order-created event can
 feed a fulfillment service, an analytics pipeline, and a notification
 service, each consuming at its own pace from the same retained log,
 rather than a single point-to-point handoff.
+
+## Replication and durability
+
+Each partition is replicated to several brokers (the **replication
+factor**). One replica is the leader that serves reads and writes; the
+others follow, and the leader tracks which followers are caught up — the
+**in-sync replicas**. A producer using `acks=all` gets its acknowledgement
+only once every in-sync replica has the message, so losing one broker
+loses nothing. `acks=1` acknowledges as soon as the leader has it: faster,
+but a message is gone if the leader fails before a follower copies it.
+It's the same durability-versus-latency dial as synchronous vs.
+asynchronous replication in a database.
 
 ## Where it applies
 

@@ -1,8 +1,8 @@
 ## What it is
 
 An **API** is a contract for how one program calls another — shaped
-however that service's authors chose (REST endpoints, RPC methods, a
-GraphQL schema). A client has to be written specifically for that one
+however that service's authors chose
+([REST endpoints, RPC methods, a GraphQL schema](/guides/apis-rest-vs-graphql-vs-grpc)). A client has to be written specifically for that one
 API. **MCP** (Model Context Protocol) is a standardized protocol for
 connecting an AI model or agent to tools and data sources — one common
 interface (list the available tools, call a tool, fetch a resource) that

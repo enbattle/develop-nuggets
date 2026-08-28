@@ -36,6 +36,10 @@ import { timeSeriesDatabases } from './time-series-databases';
 import { vectorDatabases } from './vector-databases';
 import { partitioningVsSharding } from './partitioning-vs-sharding';
 import { proxyVsReverseProxy } from './proxy-vs-reverse-proxy';
+import { xss } from './xss';
+import { csrf } from './csrf';
+import { jwt } from './jwt';
+import { sessionVsTokenAuth } from './session-vs-token-auth';
 
 /** Add a new nugget's import here — see CLAUDE.md "Adding a nugget". */
 export const NUGGETS: Nugget[] = [
@@ -76,4 +80,8 @@ export const NUGGETS: Nugget[] = [
   vectorDatabases,
   partitioningVsSharding,
   proxyVsReverseProxy,
+  xss,
+  csrf,
+  jwt,
+  sessionVsTokenAuth,
 ];

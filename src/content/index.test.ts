@@ -2,14 +2,17 @@ import { describe, it, expect } from 'vitest';
 import { CONTENT, getContent, contentPath } from './index';
 import { NUGGETS } from './nuggets';
 import { GUIDES } from './guides';
+import { SECTION_ORDER, SECTION_LABELS } from '@/lib/sections';
 import type { Nugget } from '@/types';
 
 function nugget(overrides: Partial<Nugget>): Nugget {
   return {
     id: 'id',
     title: 'Title',
+    summary: 'A one-line summary.',
     body: 'body',
     tags: [],
+    section: 'foundations',
     format: 'nugget',
     ...overrides,
   };
@@ -20,6 +23,25 @@ describe('CONTENT', () => {
     expect(CONTENT).toHaveLength(NUGGETS.length + GUIDES.length);
     expect(CONTENT).toEqual(expect.arrayContaining(NUGGETS));
     expect(CONTENT).toEqual(expect.arrayContaining(GUIDES));
+  });
+});
+
+describe('section assignments', () => {
+  it('files every content item under a known section', () => {
+    const known = new Set(SECTION_ORDER);
+    const orphans = CONTENT.filter((item) => !known.has(item.section));
+    expect(orphans.map((item) => `${item.id} → ${item.section}`)).toEqual([]);
+  });
+
+  it('leaves no section empty', () => {
+    const used = new Set(CONTENT.map((item) => item.section));
+    const empty = SECTION_ORDER.filter((section) => !used.has(section));
+    expect(empty.map((section) => SECTION_LABELS[section])).toEqual([]);
+  });
+
+  it('gives every item a non-empty one-line summary', () => {
+    const missing = CONTENT.filter((item) => !item.summary.trim());
+    expect(missing.map((item) => item.id)).toEqual([]);
   });
 });
 

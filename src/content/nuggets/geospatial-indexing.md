@@ -4,7 +4,7 @@ Finding entities "near" a given location — nearby drivers, restaurants
 within a mile — efficiently, rather than checking the distance to every
 row in the database (which is `O(n)` and gets worse as the dataset
 grows). Geospatial indexes convert 2D location into something a
-standard index can search quickly.
+[standard index](/nuggets/database-indexing) can search quickly.
 
 ## Geohashing
 
@@ -45,10 +45,11 @@ flowchart TD
 
 Ride-sharing and delivery apps (nearest driver), local search
 (restaurants within N miles), any "what's near this point" query at
-scale. PostGIS (a Postgres extension) and Elasticsearch both ship
-built-in geospatial indexing using these ideas; Uber's own H3 is a
-newer hexagonal-grid alternative to geohashing's rectangles, avoiding
-some of the boundary distortion.
+scale. PostGIS (a Postgres extension) and
+[Elasticsearch](/guides/elasticsearch) both ship built-in geospatial
+indexing using these ideas; Uber's own H3 is a newer hexagonal-grid
+alternative to geohashing's rectangles, avoiding some of the boundary
+distortion.
 
 ## The common trick
 
