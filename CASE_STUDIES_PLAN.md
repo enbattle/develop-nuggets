@@ -215,11 +215,11 @@ carries that distinction; a tag would conflate content-shape with
 topic, which is exactly what `format` was introduced to avoid. Tag
 each case study with the real topics it touches (`apis`, `databases`,
 `reliability`, …) so the existing tag-driven mechanisms work on it the
-same as everything else — home page tag chips are per-tab (§6, each
-`PaginatedContentList` computes its own tag set from whatever `items`
-it's given), so a case-study tab's chips populate automatically from
-whatever tags real case-study content actually uses. No `HomePage.tsx`
-filter logic to touch.
+same as everything else. The home page's tag chips are built once from
+every tag in `CONTENT` (`ALL_TAGS` in `HomePage.tsx`), so a new case
+study's tags show up as chips automatically; the format filter and the
+tag filter compose, and `SectionedContentList` is format-agnostic.
+There's no `HomePage.tsx` filter logic to touch.
 
 ## 8. Content authoring rule: link, don't re-teach
 
@@ -308,9 +308,10 @@ feature from §5.
 2. Pilot scope: which 2-3 systems to write first? (§9.)
 
 (The pagination and per-format tag-filtering questions this section
-used to list are resolved by the `HomePage` tabs redesign — see §6.
-Every tab, including a future Case Studies one, gets identical
-tag-filtered pagination for free.)
+used to list are moot: the home page no longer paginates or uses
+per-format tabs — it renders the whole catalog as topic sections under
+a shared format filter and tag chips (see §6). A future Case Studies
+option slots into `FORMAT_FILTERS` with no other layout work.)
 
 Neither open item blocks starting on §2-§4 (type/registry/routing
 plumbing) — they only need answers before content authoring begins in

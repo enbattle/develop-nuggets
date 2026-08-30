@@ -77,7 +77,7 @@ export function HomePage() {
               type="button"
               aria-pressed={format === option.id}
               onClick={() => setFormat(option.id)}
-              className={formatTabClass(format === option.id)}
+              className={formatFilterClass(format === option.id)}
             >
               {option.label}
             </button>
@@ -110,7 +110,7 @@ export function HomePage() {
   );
 }
 
-function formatTabClass(active: boolean): string {
+function formatFilterClass(active: boolean): string {
   const base =
     '-mb-px border-b-2 px-1 py-2 text-sm font-medium transition-colors';
   return active

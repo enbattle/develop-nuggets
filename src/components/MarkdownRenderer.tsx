@@ -18,8 +18,10 @@ const components: Components = {
   },
   a({ href, children, ...props }) {
     // Internal cross-references (e.g. to another nugget) navigate client-side;
-    // everything else is a real external link.
-    if (href?.startsWith('/')) {
+    // everything else is a real external link. A protocol-relative `//host`
+    // href also starts with `/` but points off-site — exclude it so it can't
+    // be routed through <Link> as an open redirect.
+    if (href?.startsWith('/') && !href.startsWith('//')) {
       return (
         <Link to={href} className="text-accent hover:text-accent-hover">
           {children}

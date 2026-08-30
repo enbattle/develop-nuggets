@@ -1,6 +1,17 @@
 import { useEffect, useId, useState } from 'react';
-import mermaid from 'mermaid';
 import { useTheme } from '@/contexts/ThemeContext';
+
+// Mermaid (plus the diagram engines it pulls in) is the heaviest dependency
+// in the markdown-rendering path, and 16 of the ~58 content pages have no
+// diagram at all. Import it only when a ```mermaid fence actually renders,
+// cached for the rest of the session — same lazy pattern as Shiki in CodeBlock.
+type MermaidApi = (typeof import('mermaid'))['default'];
+
+let mermaidPromise: Promise<MermaidApi> | null = null;
+function loadMermaid(): Promise<MermaidApi> {
+  mermaidPromise ??= import('mermaid').then((module) => module.default);
+  return mermaidPromise;
+}
 
 interface MermaidDiagramProps {
   chart: string;
@@ -14,13 +25,15 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
 
   useEffect(() => {
     let cancelled = false;
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: theme === 'dark' ? 'dark' : 'default',
-      securityLevel: 'strict',
-    });
-    mermaid
-      .render(`mermaid-${id}`, chart)
+    loadMermaid()
+      .then((mermaid) => {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: theme === 'dark' ? 'dark' : 'default',
+          securityLevel: 'strict',
+        });
+        return mermaid.render(`mermaid-${id}`, chart);
+      })
       .then(({ svg: rendered }) => {
         if (!cancelled) {
           setSvg(rendered);

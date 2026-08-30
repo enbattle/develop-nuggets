@@ -21,12 +21,4 @@ export const safeStorage = {
       return false;
     }
   },
-
-  remove(key: string): void {
-    try {
-      window.localStorage.removeItem(key);
-    } catch {
-      // ignore
-    }
-  },
 };
