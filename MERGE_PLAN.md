@@ -92,6 +92,17 @@ fit. Platform-Nav finalizes; Migration-Tooling's inventory flags gaps.
 - **P4 — Integration & cutover** (Architect): full green + bundle check,
   `README.md` + `CLAUDE.md` rewrite, cross-link pass, one Pages config +
   `basename`, redirect old ai-cauldron Pages, archive that repo.
+  - **P4 correctness pass on migrated content:**
+    - Normalize the model id in every code block: `claude-sonnet-4-6`
+      → `claude-sonnet-5` across `src/content/guides/ai/**` (flagged by
+      Migrator A; consistent across the whole staged corpus).
+    - Restore the strict "no section left empty" assertion in
+      `src/content/index.test.ts` (relaxed in P1A).
+    - Wire the 9 `AI_*` section arrays into `GUIDES`
+      (`src/content/guides/index.ts`) and fill each `Track.items` from the
+      Content-Migrators' final ordered id lists.
+    - `rm -rf migration-staging/` once all four sections' content is in
+      `src/content/guides/ai/`.
 
 ## File ownership (avoid cross-agent conflicts)
 
