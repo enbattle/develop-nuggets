@@ -5,13 +5,15 @@ import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { HomePage } from '@/pages/HomePage';
 import { ContentPage } from '@/pages/ContentPage';
+import { TrackPage } from '@/pages/TrackPage';
+import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
 
 function AppShell() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useGlobalShortcuts({
+  const { shortcutsOpen, closeShortcuts } = useGlobalShortcuts({
     onSearch: () => searchRef.current?.focus(),
   });
 
@@ -42,10 +44,13 @@ function AppShell() {
               <Route path="/" element={<HomePage />} />
               <Route path="/nuggets/:id" element={<ContentPage />} />
               <Route path="/guides/:id" element={<ContentPage />} />
+              <Route path="/tracks/:id" element={<TrackPage />} />
             </Routes>
           </div>
         </main>
       </div>
+
+      <KeyboardShortcutsModal open={shortcutsOpen} onClose={closeShortcuts} />
 
       {sidebarOpen && (
         <div
