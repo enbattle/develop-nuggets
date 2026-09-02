@@ -11,7 +11,7 @@ client = anthropic.Anthropic()
 
 # Method 1: Manual SSE consumption
 with client.messages.stream(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Explain quantum entanglement"}]
 ) as stream:
@@ -20,7 +20,7 @@ with client.messages.stream(
 
 # Method 2: Event-by-event for full control
 with client.messages.stream(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Explain quantum entanglement"}]
 ) as stream:
@@ -48,7 +48,7 @@ client = anthropic.Anthropic()
 async def stream_chat(request: dict):
     async def generate():
         with client.messages.stream(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=2048,
             messages=request["messages"]
         ) as stream:
@@ -104,7 +104,7 @@ def stream_with_tools(messages: list, tools: list) -> str:
     full_response = []
 
     with client.messages.stream(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2048,
         tools=tools,
         messages=messages

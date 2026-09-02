@@ -44,7 +44,7 @@ client = anthropic.Anthropic()
 def tree_of_thoughts(problem: str, n_branches: int = 3) -> str:
     # Step 1: Generate candidate approaches
     brainstorm_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1500,
         messages=[{
             "role": "user",
@@ -66,7 +66,7 @@ Respond as JSON:
 
     # Step 3: Expand and solve with the best approach
     solve_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2000,
         messages=[{
             "role": "user",

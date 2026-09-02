@@ -51,7 +51,7 @@ def run_code(code: str, language: str = "python") -> str:
     return sandbox.run(code, language)
 
 agent = Agent(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     tools=[search_web, run_code],
     system="You are a research assistant. Use tools to answer questions accurately.",
     max_iterations=15,

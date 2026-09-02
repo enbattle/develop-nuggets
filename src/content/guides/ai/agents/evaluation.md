@@ -6,7 +6,7 @@ Agents are harder to evaluate than static models because success depends on mult
 Did the agent achieve the stated objective?
 
 ```python
-def evaluate_goal_completion(task: str, agent_result: str, judge_model: str = "claude-sonnet-4-6") -> float:
+def evaluate_goal_completion(task: str, agent_result: str, judge_model: str = "claude-sonnet-5") -> float:
     prompt = f"""Did the agent successfully complete this task?
 
 Task: {task}

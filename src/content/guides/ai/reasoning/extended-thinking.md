@@ -10,7 +10,7 @@ import anthropic
 client = anthropic.Anthropic()
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=16000,
     thinking={
         "type": "enabled",
@@ -38,7 +38,7 @@ For a better user experience, stream the response. Thinking blocks stream separa
 
 ```python
 with client.messages.stream(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=16000,
     thinking={"type": "enabled", "budget_tokens": 8000},
     messages=[{"role": "user", "content": "Explain the halting problem."}]

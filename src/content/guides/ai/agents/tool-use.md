@@ -42,7 +42,7 @@ tools = [
 ]
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1000,
     tools=tools,
     messages=[{"role": "user", "content": "What's the weather in Tokyo?"}]

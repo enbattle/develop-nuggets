@@ -69,7 +69,7 @@ Generate a hypothetical answer, then retrieve documents similar to that answer. 
 def hyde_retrieve(query: str, top_k: int = 5) -> list[str]:
     # Step 1: Generate a hypothetical answer
     hypothetical = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=200,
         messages=[{
             "role": "user",
@@ -131,7 +131,7 @@ def process_image(image_path: str) -> str:
         b64 = base64.b64encode(f.read()).decode()
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         messages=[{
             "role": "user",
             "content": [

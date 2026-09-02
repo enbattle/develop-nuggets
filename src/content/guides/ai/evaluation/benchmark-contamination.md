@@ -41,7 +41,7 @@ def estimate_contamination(benchmark_examples: list[str], control_examples: list
         for example in examples:
             # Ask model to complete the example; measure token count needed
             response = client.messages.create(
-                model="claude-sonnet-4-6",
+                model="claude-sonnet-5",
                 max_tokens=50,
                 messages=[{"role": "user", "content": f"Complete this: {example[:100]}..."}]
             )

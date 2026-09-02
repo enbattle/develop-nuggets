@@ -47,7 +47,7 @@ client = anthropic.Anthropic()
 
 def generate_training_example(instruction_seed: str) -> dict:
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1000,
         system="""You are generating training examples for a fine-tuned model.
 For each instruction, produce an ideal, detailed response that demonstrates

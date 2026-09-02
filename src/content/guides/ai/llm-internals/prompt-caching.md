@@ -15,7 +15,7 @@ SYSTEM_PROMPT = """You are an expert assistant for Acme Corp.
 [... 2000 tokens of company context, product docs, FAQs ...]"""
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     system=[
         {
@@ -54,7 +54,7 @@ Put stable, large content first — dynamic content last:
 
 ```python
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     system=[
         {

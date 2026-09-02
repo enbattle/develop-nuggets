@@ -13,7 +13,7 @@ client = anthropic.Anthropic()
 async def run_subagent(role: str, task: str) -> str:
     """Each subagent is an independent LLM call with a specialized prompt."""
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2048,
         system=f"You are a {role}. Be concise and precise.",
         messages=[{"role": "user", "content": task}]
@@ -23,7 +23,7 @@ async def run_subagent(role: str, task: str) -> str:
 async def orchestrate(goal: str) -> str:
     # Step 1: Orchestrator decomposes the goal
     plan_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1024,
         system="Decompose the user's goal into 3 parallel research tasks. Return JSON.",
         messages=[{"role": "user", "content": goal}]
@@ -38,7 +38,7 @@ async def orchestrate(goal: str) -> str:
 
     # Step 3: Orchestrator synthesizes
     synthesis = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=4096,
         system="Synthesize these research findings into a coherent report.",
         messages=[{"role": "user", "content": "\n\n".join(results)}]

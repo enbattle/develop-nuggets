@@ -74,7 +74,7 @@ For most teams, a lightweight custom solution works best:
 
 ```python
 class EvalRunner:
-    def __init__(self, llm_judge_model: str = "claude-sonnet-4-6"):
+    def __init__(self, llm_judge_model: str = "claude-sonnet-5"):
         self.judge = anthropic.Anthropic()
         self.judge_model = llm_judge_model
 

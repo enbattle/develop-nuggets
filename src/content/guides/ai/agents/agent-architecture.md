@@ -38,7 +38,7 @@ Respond with:
 Or if done:
 {{"thought": "reasoning", "action": "finish", "answer": "final answer"}}"""
 
-    response = llm.messages.create(model="claude-sonnet-4-6", ...)
+    response = llm.messages.create(model="claude-sonnet-5", ...)
     return json.loads(response.content[0].text)
 ```
 

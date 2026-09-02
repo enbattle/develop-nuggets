@@ -25,7 +25,7 @@ def query_with_retry(prompt: str, max_retries: int = 3) -> str:
     for attempt in range(max_retries):
         try:
             response = client.messages.create(
-                model="claude-sonnet-4-6",
+                model="claude-sonnet-5",
                 max_tokens=1000,
                 messages=[{"role": "user", "content": prompt}]
             )

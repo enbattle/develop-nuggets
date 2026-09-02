@@ -13,7 +13,7 @@ client = anthropic.Anthropic()
 
 def answer_with_feedback_loop(query: str, session_id: str) -> dict:
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1024,
         messages=[{"role": "user", "content": query}]
     )
@@ -26,7 +26,7 @@ def answer_with_feedback_loop(query: str, session_id: str) -> dict:
         "id": interaction_id,
         "query": query,
         "output": output,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5",
         "tokens": response.usage.output_tokens,
         "feedback": None   # Populated later via feedback endpoint
     })

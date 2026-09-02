@@ -18,8 +18,8 @@ import anthropic
 
 class BlueGreenDeployment:
     def __init__(self):
-        self.blue_model = "claude-sonnet-4-6"    # Current stable
-        self.green_model = "claude-opus-4-8"     # New version
+        self.blue_model = "claude-sonnet-5"    # Current stable
+        self.green_model = "claude-opus-5"     # New version
         self.active = "blue"
 
     def query(self, prompt: str) -> str:
@@ -49,8 +49,8 @@ import random
 
 class CanaryDeployment:
     def __init__(self, canary_percentage: float = 0.05):
-        self.stable_model = "claude-sonnet-4-6"
-        self.canary_model = "claude-opus-4-8"
+        self.stable_model = "claude-sonnet-5"
+        self.canary_model = "claude-opus-5"
         self.canary_pct = canary_percentage
 
     def query(self, prompt: str, user_id: str) -> tuple[str, str]:

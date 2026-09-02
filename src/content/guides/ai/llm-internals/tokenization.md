@@ -26,7 +26,7 @@ client = anthropic.Anthropic()
 
 # Count tokens to understand how a string is tokenized
 response = client.messages.count_tokens(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     messages=[{"role": "user", "content": "strawberry"}]
 )
 print(response.input_tokens)  # 2 tokens: ["straw", "berry"]
@@ -45,7 +45,7 @@ import anthropic
 
 client = anthropic.Anthropic()
 
-def count_tokens(messages: list, model: str = "claude-sonnet-4-6") -> int:
+def count_tokens(messages: list, model: str = "claude-sonnet-5") -> int:
     """Exact token count from the API — use this for billing estimates."""
     response = client.messages.count_tokens(model=model, messages=messages)
     return response.input_tokens

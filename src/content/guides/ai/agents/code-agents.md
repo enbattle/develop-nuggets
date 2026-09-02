@@ -41,7 +41,7 @@ def code_agent(task: str) -> str:
 
     for _ in range(20):  # Max iterations
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=4096,
             tools=tools,
             messages=messages

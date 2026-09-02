@@ -117,6 +117,6 @@ Most production voice stacks (LiveKit Agents, Vapi, Retell) handle this automati
 |-----------|---------|
 | Real-time audio transport | LiveKit, Daily, Twilio Media Streams |
 | ASR | Deepgram Nova-2, AssemblyAI Universal, Whisper (self-hosted) |
-| LLM | Claude Haiku (lowest latency), claude-sonnet-4-6 (higher quality) |
+| LLM | Claude Haiku (lowest latency), claude-sonnet-5 (higher quality) |
 | TTS | ElevenLabs Turbo v2 (~100ms), Cartesia Sonic, Play.ht |
 | Orchestration | LiveKit Agents, Vapi, Retell AI (managed platform) |

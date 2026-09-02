@@ -35,7 +35,7 @@ class CustomerTicket(BaseModel):
 
 # Instructor handles retry logic automatically
 ticket = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=500,
     response_model=CustomerTicket,
     max_retries=3,
@@ -68,7 +68,7 @@ class AnswerWithConfidence(BaseModel):
 
 def answer_with_abstention(question: str, min_confidence: float = 0.8) -> str:
     result = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         response_model=AnswerWithConfidence,
         messages=[{
             "role": "user",
@@ -137,7 +137,7 @@ def validated_llm_call(
 ) -> T | None:
     try:
         return client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=1000,
             response_model=response_model,
             max_retries=max_retries,

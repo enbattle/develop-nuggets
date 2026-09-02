@@ -73,7 +73,7 @@ def generate_distillation_dataset(
     for input_text in input_examples:
         for _ in range(n_per_example):
             response = client.messages.create(
-                model="claude-sonnet-4-6",
+                model="claude-sonnet-5",
                 max_tokens=1000,
                 system=f"You are an expert at: {task_description}. Provide thorough, accurate responses.",
                 messages=[{"role": "user", "content": input_text}],

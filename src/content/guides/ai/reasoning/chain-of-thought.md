@@ -21,7 +21,7 @@ With CoT:
 
 ```python
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     messages=[{
         "role": "user",
         "content": "Solve this problem step by step: " + problem
@@ -58,7 +58,7 @@ Your final answer here
 """
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     system=system_prompt,
     messages=[{"role": "user", "content": problem}]
 )
@@ -78,7 +78,7 @@ def solve_with_self_consistency(problem: str, n_samples: int = 5) -> str:
     answers = []
     for _ in range(n_samples):
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=1000,
             messages=[{
                 "role": "user",

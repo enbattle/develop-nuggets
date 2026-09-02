@@ -90,7 +90,7 @@ client = Anthropic()
 
 # Tools discovered from MCP servers can be passed directly
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=4096,
     tools=mcp_tools,      # Tool definitions from MCP server discovery
     messages=[{"role": "user", "content": "Show me total sales by region for Q3"}]

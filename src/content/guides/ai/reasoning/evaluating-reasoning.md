@@ -71,7 +71,7 @@ Respond as JSON: {{"logical_validity": N, "completeness": N, "accuracy": N, "eff
 """
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         messages=[{"role": "user", "content": judge_prompt}]
     )
 

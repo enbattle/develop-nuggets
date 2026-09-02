@@ -28,7 +28,7 @@ def reflexion(task: str, max_iterations: int = 3) -> str:
             })
 
         gen = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=1500,
             messages=messages
         )
@@ -36,7 +36,7 @@ def reflexion(task: str, max_iterations: int = 3) -> str:
 
         # Critique — ask the model to evaluate its own output
         critique_response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=500,
             messages=[{
                 "role": "user",
@@ -66,7 +66,7 @@ Meta-prompting asks the model to generate a structured plan or set of sub-instru
 def meta_prompt(task: str) -> str:
     # Step 1: Ask the model to design its own approach
     plan_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=800,
         messages=[{
             "role": "user",
@@ -82,7 +82,7 @@ Plan:"""
 
     # Step 2: Execute the task following the plan
     execute_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2000,
         messages=[{
             "role": "user",
@@ -107,7 +107,7 @@ APE (Zhou et al., 2022) uses an LLM to generate and evaluate candidate prompts f
 def automatic_prompt_engineer(task_description: str, eval_examples: list[dict]) -> str:
     # Step 1: Generate candidate prompts
     candidate_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1000,
         messages=[{
             "role": "user",
@@ -135,7 +135,7 @@ def evaluate_prompt(prompt: str, examples: list[dict]) -> float:
     correct = 0
     for ex in examples:
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             messages=[
                 {"role": "user", "content": prompt + "\n\n" + ex["input"]}
             ]
@@ -168,7 +168,7 @@ def agentic_reflexion(coding_task: str) -> str:
 
         # Use real error output as critique
         fix_response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             messages=[{
                 "role": "user",
                 "content": f"Fix this code. Error: {result.error}\n\nCode:\n{code}"

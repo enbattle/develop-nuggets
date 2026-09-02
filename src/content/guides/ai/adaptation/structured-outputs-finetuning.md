@@ -36,7 +36,7 @@ def generate_extraction_example(document: str, schema: type[BaseModel]) -> dict:
     schema_json = schema.model_json_schema()
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1500,
         system=f"""Extract structured data from documents.
 Always respond with valid JSON matching this schema exactly:

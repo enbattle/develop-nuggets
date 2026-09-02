@@ -113,7 +113,7 @@ def run_agent_step(state: AgentState) -> AgentState:
 Long-running agents exhaust the context window. Manage it explicitly:
 
 ```python
-CONTEXT_LIMIT = 180_000   # claude-sonnet-4-6 context
+CONTEXT_LIMIT = 180_000   # claude-sonnet-5 context
 RESERVE_TOKENS = 8_000    # Leave room for the response
 MAX_CONTEXT    = CONTEXT_LIMIT - RESERVE_TOKENS
 

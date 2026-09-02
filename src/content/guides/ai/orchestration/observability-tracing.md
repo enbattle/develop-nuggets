@@ -14,7 +14,7 @@ Model each agent run as a root span with child spans for every LLM call and tool
 
 ```
 agent_run [run_id=abc, goal="...", duration=12.4s]
-  ├── llm_call [model=claude-sonnet-4-6, tokens_in=1420, tokens_out=312, latency=1.2s]
+  ├── llm_call [model=claude-sonnet-5, tokens_in=1420, tokens_out=312, latency=1.2s]
   │     └── tool_call [name=search_web, query="...", latency=0.8s, status=ok]
   ├── llm_call [tokens_in=1890, tokens_out=520, latency=1.5s]
   │     └── tool_call [name=run_code, latency=2.1s, status=ok]
@@ -42,7 +42,7 @@ def run_agent_with_tracing(goal: str, run_id: str):
 
         for step in agent_loop(goal):
             with tracer.start_as_current_span("llm_call") as llm_span:
-                llm_span.set_attribute("model", "claude-sonnet-4-6")
+                llm_span.set_attribute("model", "claude-sonnet-5")
                 llm_span.set_attribute("tokens_in", step.input_tokens)
 
                 response = call_llm(step.messages)
@@ -67,7 +67,7 @@ client = anthropic.Anthropic()
 
 def traced_llm_call(messages: list, run_id: str) -> dict:
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=4096,
         messages=messages,
     )
@@ -89,7 +89,7 @@ def traced_llm_call(messages: list, run_id: str) -> dict:
 Track cost per run so you can set budgets and detect runaway loops:
 
 ```python
-# claude-sonnet-4-6 pricing (check Anthropic pricing page for current rates)
+# claude-sonnet-5 pricing (check Anthropic pricing page for current rates)
 COST_PER_1K_INPUT  = 0.003   # USD
 COST_PER_1K_OUTPUT = 0.015   # USD
 

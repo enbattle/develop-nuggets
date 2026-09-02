@@ -91,7 +91,7 @@ User question: {user_question}
 Answer based only on the documents above."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         system=system,
         messages=[{"role": "user", "content": user_message}]
     )

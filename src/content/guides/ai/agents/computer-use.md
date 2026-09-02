@@ -50,7 +50,7 @@ def run_computer_agent(task: str) -> str:
         ]
 
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=4096,
             tools=tools,
             messages=messages

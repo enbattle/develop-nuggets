@@ -26,7 +26,7 @@ extract_tool = {
 }
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     tools=[extract_tool],
     tool_choice={"type": "tool", "name": "extract_invoice"},  # Force this exact tool
@@ -58,7 +58,7 @@ class Invoice(BaseModel):
 client = instructor.from_anthropic(anthropic.Anthropic())
 
 invoice = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     response_model=Invoice,       # Instructor injects schema and retries on failure
     messages=[{

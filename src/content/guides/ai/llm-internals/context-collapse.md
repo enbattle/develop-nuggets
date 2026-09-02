@@ -86,7 +86,7 @@ def decompose_and_answer(complex_query: str, retrieve_fn) -> str:
 
     # Step 1: generate focused sub-questions
     resp = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=300,
         messages=[{
             "role": "user",
@@ -101,7 +101,7 @@ def decompose_and_answer(complex_query: str, retrieve_fn) -> str:
         chunks = retrieve_fn(sub_q, k=3)        # small, focused context per sub-question
         context = "\n\n".join(chunks)
         resp = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=300,
             messages=[{"role": "user", "content": f"Context:\n{context}\n\nQuestion: {sub_q}"}]
         )
@@ -110,7 +110,7 @@ def decompose_and_answer(complex_query: str, retrieve_fn) -> str:
     # Step 3: synthesize with a small final context
     synthesis_input = "\n\n".join(f"Q: {q}\nA: {a}" for q, a in zip(sub_questions, sub_answers))
     resp = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=800,
         messages=[{"role": "user", "content": f"Synthesize a final answer to: {complex_query}\n\n{synthesis_input}"}]
     )

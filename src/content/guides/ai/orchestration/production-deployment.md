@@ -106,7 +106,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
 def call_llm_with_retry(messages: list) -> anthropic.types.Message:
     return client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=4096,
         messages=messages,
     )

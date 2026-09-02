@@ -15,7 +15,7 @@ Monitoring           5%  █
 ```
 Cost per request = (input_tokens × input_price) + (output_tokens × output_price)
 
-At claude-sonnet-4-6 pricing (approximate):
+At claude-sonnet-5 pricing (approximate):
   Input: $3.00 / 1M tokens
   Output: $15.00 / 1M tokens
 
@@ -46,9 +46,9 @@ def route_to_model(task_type: str, complexity: float) -> str:
     if task_type in ("classify", "extract", "format"):
         return "claude-haiku-4-5-20251001"
     elif complexity < 0.6:
-        return "claude-sonnet-4-6"
+        return "claude-sonnet-5"
     else:
-        return "claude-opus-4-8"
+        return "claude-opus-5"
 ```
 
 **2. Prompt caching** (high impact for repeated content)
@@ -58,7 +58,7 @@ Cache stable system prompts, tool definitions, and retrieval context. Cached tok
 ```python
 # Before: $0.003 per request × 1M requests = $3,000
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=512,
     system=long_system_prompt,  # 2000 tokens, paid every request
     messages=[{"role": "user", "content": query}]
@@ -66,7 +66,7 @@ response = client.messages.create(
 
 # After: pay once to write cache, 90% less on reads
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=512,
     system=[{"type": "text", "text": long_system_prompt,
              "cache_control": {"type": "ephemeral"}}],
@@ -82,10 +82,10 @@ Output tokens cost 5× more than input tokens. Constrain output length aggressiv
 
 ```python
 # Bad: open-ended max_tokens
-response = client.messages.create(model="claude-sonnet-4-6", max_tokens=4096, ...)
+response = client.messages.create(model="claude-sonnet-5", max_tokens=4096, ...)
 
 # Good: set max_tokens to match your actual need
-response = client.messages.create(model="claude-sonnet-4-6", max_tokens=256, ...)
+response = client.messages.create(model="claude-sonnet-5", max_tokens=256, ...)
 
 # Also: instruct the model to be brief in the prompt itself
 system = "Respond in 2-3 sentences maximum. Be direct."

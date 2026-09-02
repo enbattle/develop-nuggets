@@ -85,7 +85,7 @@ import anthropic
 
 client = anthropic.Anthropic()
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1000,
     temperature=0,   # deterministic for factual questions
     messages=[{"role": "user", "content": prompt}]
@@ -150,7 +150,7 @@ Question: {query}
 Answer:"""
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1000,
         temperature=0,   # 0 = deterministic, factual
         messages=[{"role": "user", "content": prompt}]

@@ -39,7 +39,7 @@ client = anthropic.Anthropic()
 
 def judge_preference(prompt: str, response_a: str, response_b: str) -> str:
     judge_response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=300,
         messages=[{
             "role": "user",

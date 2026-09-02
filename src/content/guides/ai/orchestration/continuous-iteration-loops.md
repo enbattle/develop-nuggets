@@ -122,7 +122,7 @@ class ProductizedRalph:
         done_before, remaining_before = self._count_tasks()
 
         response = self.client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=MAX_TOKENS_PER_CYCLE,
             system=(
                 "You are an autonomous coding agent working through a task list. "

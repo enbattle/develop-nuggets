@@ -23,7 +23,7 @@ class PromptTest:
 def llm_grade(output: str, assertion: str) -> bool:
     """Use a separate LLM call to grade whether output satisfies assertion."""
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=64,
         messages=[{
             "role": "user",
@@ -46,7 +46,7 @@ def run_tests(tests: list[PromptTest], system_prompt: str, n: int = 3) -> dict:
         passes = 0
         for _ in range(n):
             response = client.messages.create(
-                model="claude-sonnet-4-6",
+                model="claude-sonnet-5",
                 max_tokens=1024,
                 system=system_prompt,
                 messages=[{"role": "user", "content": test.user_input}]

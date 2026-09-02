@@ -56,7 +56,7 @@ def best_of_n(problem: str, reward_model, n: int = 8) -> str:
     responses = []
     for _ in range(n):
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             messages=[{"role": "user", "content": problem}]
         )
         responses.append(response.content[0].text)
@@ -83,7 +83,7 @@ For production systems, you can implement a lightweight version of this pattern:
 def verified_answer(question: str, expected_type: str) -> str:
     for attempt in range(3):
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             thinking={"type": "enabled", "budget_tokens": 5000},
             messages=[{"role": "user", "content": question}]
         )

@@ -65,7 +65,7 @@ def summarize_in_chunks(text: str, chunk_tokens: int = 4000) -> str:
     summaries = []
     for chunk in chunks:
         resp = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=500,
             messages=[{"role": "user", "content": f"Summarize concisely:\n\n{chunk}"}]
         )
@@ -76,7 +76,7 @@ def summarize_in_chunks(text: str, chunk_tokens: int = 4000) -> str:
 
     combined = "\n\n".join(summaries)
     resp = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1000,
         messages=[{"role": "user", "content": f"Synthesize into a single summary:\n\n{combined}"}]
     )

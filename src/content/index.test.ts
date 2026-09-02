@@ -33,15 +33,10 @@ describe('section assignments', () => {
     expect(orphans.map((item) => `${item.id} → ${item.section}`)).toEqual([]);
   });
 
-  // TODO(merge): restore "no empty section" once Phase 2 lands AI content.
-  // The seven `ai-*` sections are declared in `SECTION_ORDER` ahead of their
-  // content, so until then the check is only that every *non-empty* section is
-  // a known, ordered one.
-  it('files every non-empty section under a known, ordered section', () => {
-    const known = new Set(SECTION_ORDER);
-    const used = [...new Set(CONTENT.map((item) => item.section))];
-    const unknown = used.filter((section) => !known.has(section));
-    expect(unknown).toEqual([]);
+  it('leaves no section in SECTION_ORDER empty', () => {
+    const used = new Set(CONTENT.map((item) => item.section));
+    const empty = SECTION_ORDER.filter((section) => !used.has(section));
+    expect(empty).toEqual([]);
   });
 
   it('gives every item a non-empty one-line summary', () => {

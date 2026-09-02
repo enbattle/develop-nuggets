@@ -47,7 +47,7 @@ client = langsmith.Client()
 prompt = client.pull_prompt("customer-support:v3")
 
 response = anthropic_client.messages.create(
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     max_tokens=1024,
     system=prompt.system,
     messages=[{"role": "user", "content": query}]
@@ -104,7 +104,7 @@ def answer_with_tracking(query: str, user_id: str) -> str:
 
     start = time.time()
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1024,
         system=system,
         messages=[{"role": "user", "content": query}]

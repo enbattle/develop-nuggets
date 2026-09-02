@@ -53,7 +53,7 @@ def monitored_query(query: str) -> str:
         query=query[:100],
         response_length=len(response),
         latency_ms=latency,
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         tokens_used=estimate_tokens(query + response),
         timestamp=datetime.now().isoformat()
     ))
