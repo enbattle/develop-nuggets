@@ -11,6 +11,8 @@ type LangModule = { default: LanguageRegistration[] };
 // here when content starts using a new language; an unmapped language just
 // renders as a plain <pre>.
 const LANGUAGE_LOADERS: Record<string, () => Promise<LangModule>> = {
+  bash: () => import('shiki/langs/bash.mjs'),
+  sh: () => import('shiki/langs/bash.mjs'),
   dockerfile: () => import('shiki/langs/dockerfile.mjs'),
   graphql: () => import('shiki/langs/graphql.mjs'),
   html: () => import('shiki/langs/html.mjs'),
@@ -18,10 +20,14 @@ const LANGUAGE_LOADERS: Record<string, () => Promise<LangModule>> = {
   javascript: () => import('shiki/langs/javascript.mjs'),
   json: () => import('shiki/langs/json.mjs'),
   lua: () => import('shiki/langs/lua.mjs'),
+  markdown: () => import('shiki/langs/markdown.mjs'),
+  md: () => import('shiki/langs/markdown.mjs'),
   protobuf: () => import('shiki/langs/protobuf.mjs'),
   python: () => import('shiki/langs/python.mjs'),
   py: () => import('shiki/langs/python.mjs'),
   sql: () => import('shiki/langs/sql.mjs'),
+  ts: () => import('shiki/langs/typescript.mjs'),
+  typescript: () => import('shiki/langs/typescript.mjs'),
   yaml: () => import('shiki/langs/yaml.mjs'),
   yml: () => import('shiki/langs/yaml.mjs'),
 };
