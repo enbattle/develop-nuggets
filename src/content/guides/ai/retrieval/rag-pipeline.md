@@ -98,7 +98,7 @@ response = client.messages.create(
 |-----------|-------------|--------------|
 | **[Chunking](/guides/chunking-strategies)** | Splits documents for precise retrieval | Size (512 tokens), overlap (50), strategy |
 | **Embeddings** | Converts text to searchable vectors | Model choice (accuracy vs. speed) |
-| **[Vector DB](/guides/vector-databases)** | Stores and searches embeddings | Scale: Chroma (local) → Qdrant/Pinecone (prod) |
+| **[Vector search](/guides/vector-search)** | Stores and searches embeddings | Scale: Chroma (local) → Qdrant/Pinecone (prod) |
 | **Retrieval** | Finds relevant chunks | top_k (start at 5), similarity threshold |
 | **Generation** | Produces grounded answers | temperature=0, explicit citation instruction |
 

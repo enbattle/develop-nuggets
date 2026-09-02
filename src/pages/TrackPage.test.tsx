@@ -31,13 +31,15 @@ describe('TrackPage', () => {
     expect(bar).toHaveAttribute('aria-valuenow', '0');
   });
 
-  it('shows the empty-items state while a track has no migrated content', () => {
+  it('lists the track items in order with a Start link', () => {
     renderAt('/tracks/rag');
-    expect(screen.getByText(/no items yet/i)).toBeInTheDocument();
-    // Nothing to start yet, so no Start/Resume link.
+
     expect(
-      screen.queryByRole('link', { name: /start|resume/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', { name: /what is rag\?/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /^start|^resume/i }),
+    ).toBeInTheDocument();
   });
 
   it('shows a not-found card for an unknown track id', () => {

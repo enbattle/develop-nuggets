@@ -6,8 +6,9 @@
  * yet, in which case the UI shows a "Coming soon" row and skips it for
  * neighbour and progress math.
  *
- * Seeded here with real `id` / `title` / `section` / `summary`; `items` is
- * filled per-module in Phase 2 of the ai-cauldron merge (see MERGE_PLAN.md).
+ * Each track's `items` is the ordered id list of that ai-cauldron module's
+ * migrated guides (see MERGE_PLAN.md). An id that doesn't resolve renders as
+ * a "Coming soon" row and is skipped for neighbour/progress math.
  */
 
 import type { Section } from '@/types';
@@ -35,7 +36,18 @@ export const TRACKS: Track[] = [
     summary:
       'How LLMs work under the hood: inference mechanics, memory management, and the optimisations that make them practical to run.',
     section: 'ai-llm-internals',
-    items: [],
+    items: [
+      'inference',
+      'kv-cache',
+      'context-window',
+      'context-collapse',
+      'quantization',
+      'prompt-caching',
+      'structured-outputs',
+      'speculative-decoding',
+      'mixture-of-experts',
+      'tokenization',
+    ],
   },
   {
     id: 'reasoning',
@@ -43,7 +55,15 @@ export const TRACKS: Track[] = [
     summary:
       'How modern models think step by step — chain-of-thought, reasoning models, reward models, and search-based problem solving.',
     section: 'ai-reasoning',
-    items: [],
+    items: [
+      'reasoning-models',
+      'extended-thinking',
+      'chain-of-thought',
+      'reward-models',
+      'tree-of-thoughts',
+      'reflexion-meta-prompting',
+      'evaluating-reasoning',
+    ],
   },
   {
     id: 'model-adaptation',
@@ -51,7 +71,16 @@ export const TRACKS: Track[] = [
     summary:
       'When and how to customise a model: fine-tuning strategies, LoRA, data curation, and preference optimisation.',
     section: 'ai-adaptation',
-    items: [],
+    items: [
+      'when-to-finetune',
+      'lora-qlora',
+      'instruction-finetuning',
+      'dpo',
+      'structured-outputs-finetuning',
+      'distillation',
+      'model-merging',
+      'evaluating-finetuned',
+    ],
   },
   {
     id: 'rag',
@@ -59,7 +88,25 @@ export const TRACKS: Track[] = [
     summary:
       'How RAG works end to end, from chunking and embeddings through production retrieval architecture and evaluation.',
     section: 'ai-retrieval',
-    items: [],
+    items: [
+      'what-is-rag',
+      'rag-pipeline',
+      'vector-search',
+      'chunking-strategies',
+      'building-first-rag',
+      'naive-vs-production',
+      'improvements-and-advanced',
+      'common-issues',
+      'evaluation-metrics',
+      'rag-tools-and-frameworks',
+      'late-chunking',
+      'multi-vector-retrieval',
+      'rag-fusion',
+      'contextual-compression',
+      'semantic-caching',
+      'open-knowledge-format',
+      'knowledge-architecture',
+    ],
   },
   {
     id: 'agents',
@@ -67,7 +114,21 @@ export const TRACKS: Track[] = [
     summary:
       'Building autonomous agents that reason, plan, and use tools to finish complex multi-step tasks.',
     section: 'ai-agents',
-    items: [],
+    items: [
+      'what-is-agentic-ai',
+      'agent-architecture',
+      'building-first-agent',
+      'common-challenges',
+      'tool-use',
+      'memory-systems',
+      'planning-reasoning',
+      'evaluation',
+      'agentic-advanced-topics',
+      'model-context-protocol',
+      'computer-use',
+      'code-agents',
+      'voice-agents',
+    ],
   },
   {
     id: 'orchestration',
@@ -75,7 +136,18 @@ export const TRACKS: Track[] = [
     summary:
       'Designing and operating multi-agent systems: orchestration frameworks, state management, and production tooling.',
     section: 'ai-orchestration',
-    items: [],
+    items: [
+      'what-is-agent-harness',
+      'framework-landscape',
+      'orchestration-patterns',
+      'continuous-iteration-loops',
+      'tool-state-management',
+      'human-in-the-loop',
+      'observability-tracing',
+      'production-deployment',
+      'durable-execution',
+      'streaming-architecture',
+    ],
   },
   {
     id: 'safety-guardrails',
@@ -83,7 +155,16 @@ export const TRACKS: Track[] = [
     summary:
       'Systematic AI safety engineering — failure-mode taxonomy, prompt-injection defence, red teaming, and guardrail frameworks.',
     section: 'ai-safety',
-    items: [],
+    items: [
+      'failure-modes',
+      'prompt-injection',
+      'red-teaming',
+      'guardrails-frameworks',
+      'output-validation',
+      'pii-privacy',
+      'content-moderation',
+      'ai-governance',
+    ],
   },
   {
     id: 'evaluation',
@@ -91,7 +172,18 @@ export const TRACKS: Track[] = [
     summary:
       'Measuring what matters in an AI system, from basic metrics to automated evaluation pipelines.',
     section: 'ai-evaluation',
-    items: [],
+    items: [
+      'what-are-evals',
+      'evaluation-types',
+      'essential-metrics',
+      'building-first-eval',
+      'evaluation-workflow',
+      'common-pitfalls',
+      'evals-tools-and-frameworks',
+      'evals-advanced-topics',
+      'benchmark-contamination',
+      'prompt-regression-testing',
+    ],
   },
   {
     id: 'mlops',
@@ -99,7 +191,20 @@ export const TRACKS: Track[] = [
     summary:
       'Operating AI systems in production: CI/CD gates, deployment strategies, monitoring, and lifecycle management.',
     section: 'ai-mlops',
-    items: [],
+    items: [
+      'what-is-mlops',
+      'cicd-for-ai',
+      'deployment-strategies',
+      'monitoring-observability',
+      'security-compliance',
+      'reliability-scale',
+      'model-lifecycle',
+      'guardrails',
+      'mlops-advanced-topics',
+      'prompt-version-control',
+      'data-flywheels',
+      'ai-cost-optimization',
+    ],
   },
 ];
 

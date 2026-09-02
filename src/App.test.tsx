@@ -5,15 +5,17 @@ import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 import { NUGGETS } from '@/content/nuggets';
 import { GUIDES } from '@/content/guides';
+import { sectionDomain } from '@/lib/sections';
 
-const alphabeticalNuggets = [...NUGGETS].sort((a, b) =>
-  a.title.localeCompare(b.title),
-);
-const firstNuggetTitle = alphabeticalNuggets[0].title;
+// The home page defaults to the Systems domain, so assert against the first
+// systems item of each format.
+const byTitle = (a: { title: string }, b: { title: string }) =>
+  a.title.localeCompare(b.title);
+const isSystems = (item: { section: Parameters<typeof sectionDomain>[0] }) =>
+  sectionDomain(item.section) === 'systems';
 
-const firstGuideTitle = [...GUIDES].sort((a, b) =>
-  a.title.localeCompare(b.title),
-)[0].title;
+const firstNuggetTitle = [...NUGGETS].filter(isSystems).sort(byTitle)[0].title;
+const firstGuideTitle = [...GUIDES].filter(isSystems).sort(byTitle)[0].title;
 
 describe('App', () => {
   it('renders the header, the section sidebar, and the full home catalog', () => {

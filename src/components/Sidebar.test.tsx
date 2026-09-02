@@ -95,30 +95,28 @@ describe('Sidebar', () => {
     expect(within(nuggetLink).queryByText('Guide')).not.toBeInTheDocument();
   });
 
-  it('super-groups sections by domain, hiding the header while only one domain has content', () => {
-    // Every section currently shipped is in the systems domain, so the
-    // domain-level headers stay collapsed away (same `length > 1` guard the
-    // section headers use). They light up once Phase 2 adds AI content.
-    // TODO(merge): assert both domain headers render once AI sections fill.
+  it('super-groups sections under both domain headers', () => {
     renderAt('/');
 
     expect(
-      screen.queryByRole('button', { name: 'AI Engineering' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Systems & Infrastructure' }),
+    ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Systems & Infrastructure' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'AI Engineering' }),
+    ).toBeInTheDocument();
 
-    // Sections themselves still render as before.
+    // Section headings still render under them.
     expect(
       screen.getByRole('button', { name: 'Foundations' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Retrieval & RAG' }),
+    ).toBeInTheDocument();
   });
 
-  it('files every rendered section under the systems domain for now', () => {
-    for (const { section } of SECTIONS) {
-      expect(sectionDomain(section)).toBe('systems');
-    }
+  it('spans both domains', () => {
+    const domains = new Set(SECTIONS.map(({ section }) => sectionDomain(section)));
+    expect(domains).toEqual(new Set(['systems', 'ai']));
   });
 
   it('calls onNavigate when a link is clicked', async () => {

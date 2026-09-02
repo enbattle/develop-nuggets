@@ -3,13 +3,18 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '@/test/utils';
 import { HomePage } from './HomePage';
 import { CONTENT } from '@/content';
-import { GUIDES } from '@/content/guides';
-import { SECTION_DESCRIPTIONS } from '@/lib/sections';
+import { SECTION_DESCRIPTIONS, sectionDomain } from '@/lib/sections';
 import { readingProgress } from '@/lib/readingProgress';
 
 function cardCount() {
   return screen.queryAllByRole('listitem').length;
 }
+
+// The home page defaults to the Systems domain, so "what renders by default"
+// is the systems slice of the catalog, not all of it.
+const SYSTEMS = CONTENT.filter((item) => sectionDomain(item.section) === 'systems');
+const AI = CONTENT.filter((item) => sectionDomain(item.section) === 'ai');
+const SYSTEMS_GUIDES = SYSTEMS.filter((item) => item.format === 'guide');
 
 describe('HomePage', () => {
   it('groups content into topic sections, each with a heading and charter', () => {
@@ -26,9 +31,9 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows every item as a card by default', () => {
+  it('shows every systems item as a card by default', () => {
     render(<HomePage />);
-    expect(cardCount()).toBe(CONTENT.length);
+    expect(cardCount()).toBe(SYSTEMS.length);
   });
 
   it('shows a continue-reading banner for the last-viewed item', () => {
@@ -51,7 +56,7 @@ describe('HomePage', () => {
     expect(
       screen.queryByRole('heading', { name: 'Reliability & Resilience' }),
     ).not.toBeInTheDocument();
-    expect(cardCount()).toBe(GUIDES.length);
+    expect(cardCount()).toBe(SYSTEMS_GUIDES.length);
   });
 
   it('filters by tag across sections', async () => {
@@ -76,7 +81,9 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('button', { name: 'Guides' }));
     await user.click(screen.getByRole('button', { name: 'databases' }));
 
-    const expected = GUIDES.filter((g) => g.tags.includes('databases')).length;
+    const expected = SYSTEMS_GUIDES.filter((g) =>
+      g.tags.includes('databases'),
+    ).length;
     expect(cardCount()).toBe(expected);
     expect(
       screen.getByRole('heading', { name: 'Data Stores' }),
@@ -122,18 +129,25 @@ describe('HomePage', () => {
     const user = userEvent.setup();
     render(<HomePage />);
 
-    // All current content is in the systems domain, so switching to AI leaves
-    // nothing to show.
-    // TODO(merge): once Phase 2 lands AI content, assert the AI sections render.
+    expect(cardCount()).toBe(SYSTEMS.length);
+    expect(
+      screen.queryByRole('heading', { name: 'Retrieval & RAG' }),
+    ).not.toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: 'AI Engineering' }));
 
-    expect(screen.getByText(/nothing matches/i)).toBeInTheDocument();
-    expect(cardCount()).toBe(0);
+    expect(cardCount()).toBe(AI.length);
+    expect(
+      screen.getByRole('heading', { name: 'Retrieval & RAG' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Data Stores' }),
+    ).not.toBeInTheDocument();
 
     await user.click(
       screen.getByRole('button', { name: 'Systems & Infrastructure' }),
     );
-    expect(cardCount()).toBe(CONTENT.length);
+    expect(cardCount()).toBe(SYSTEMS.length);
   });
 
   it('keeps the tag-chip set fixed when the domain changes', async () => {

@@ -1,7 +1,7 @@
 import type { Nugget } from '@/types';
 import { whatIsRag } from './what-is-rag';
 import { ragPipeline } from './rag-pipeline';
-import { vectorDatabases } from './vector-databases';
+import { vectorSearch } from './vector-search';
 import { chunkingStrategies } from './chunking-strategies';
 import { buildingFirstRag } from './building-first-rag';
 import { naiveVsProduction } from './naive-vs-production';
@@ -25,7 +25,7 @@ import { knowledgeArchitecture } from './knowledge-architecture';
 export const AI_RETRIEVAL: Nugget[] = [
   whatIsRag,
   ragPipeline,
-  vectorDatabases,
+  vectorSearch,
   chunkingStrategies,
   buildingFirstRag,
   naiveVsProduction,

@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { trackProgress } from '@/lib/trackProgress';
+import { getTrack } from '@/content/tracks';
 import { useResumeTrack } from './useContinueReading';
 
 afterEach(() => {
@@ -13,9 +14,15 @@ describe('useResumeTrack', () => {
     expect(result.current).toBeNull();
   });
 
-  it('is null when the last track has no resolvable, incomplete item', () => {
-    // Tracks seed with empty `items` until Phase 2 fills them.
+  it('returns the first incomplete item of the last-engaged track', () => {
     trackProgress.setLastTrackId('rag');
+    const { result } = renderHook(() => useResumeTrack());
+    expect(result.current?.id).toBe('what-is-rag');
+  });
+
+  it('is null once every resolvable item in the last track is complete', () => {
+    trackProgress.setLastTrackId('rag');
+    for (const id of getTrack('rag')!.items) trackProgress.markComplete(id);
     const { result } = renderHook(() => useResumeTrack());
     expect(result.current).toBeNull();
   });
