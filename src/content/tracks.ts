@@ -10,21 +10,7 @@
  * filled per-module in Phase 2 of the ai-cauldron merge (see MERGE_PLAN.md).
  */
 
-/**
- * The seven AI-domain sections these tracks file their content under. These
- * are exactly the values Platform-Nav (P1A) adds to the `Section` union in
- * `src/types.ts`; they're declared here as a local union only so this module
- * type-checks before that change lands. Once `Section` includes them, drop
- * this alias and use `Section` directly.
- */
-export type TrackSection =
-  | 'ai-llm-internals'
-  | 'ai-reasoning'
-  | 'ai-retrieval'
-  | 'ai-agents'
-  | 'ai-orchestration'
-  | 'ai-safety'
-  | 'ai-evaluation';
+import type { Section } from '@/types';
 
 export interface Track {
   /** URL slug, e.g. `rag` → `/tracks/rag`. */
@@ -33,15 +19,14 @@ export interface Track {
   /** One sentence on what the track covers — same voice as `Nugget.summary`. */
   summary: string;
   /** The AI section this track's content is filed under. */
-  section: TrackSection;
+  section: Section;
   /** Ordered content ids. May include ids that don't resolve yet. */
   items: string[];
 }
 
 /**
- * The nine tracks, 1:1 with the ai-cauldron modules. `reasoning` +
- * `model-adaptation` share the `ai-reasoning` section but are separate
- * tracks; same for `evaluation` + `mlops` under `ai-evaluation`.
+ * The nine tracks, 1:1 with the ai-cauldron modules and (after the
+ * 9-section split) 1:1 with the AI sections too.
  */
 export const TRACKS: Track[] = [
   {
@@ -65,7 +50,7 @@ export const TRACKS: Track[] = [
     title: 'Model Adaptation',
     summary:
       'When and how to customise a model: fine-tuning strategies, LoRA, data curation, and preference optimisation.',
-    section: 'ai-reasoning',
+    section: 'ai-adaptation',
     items: [],
   },
   {
@@ -110,10 +95,10 @@ export const TRACKS: Track[] = [
   },
   {
     id: 'mlops',
-    title: 'MLOps',
+    title: 'MLOps & Infra',
     summary:
       'Operating AI systems in production: CI/CD gates, deployment strategies, monitoring, and lifecycle management.',
-    section: 'ai-evaluation',
+    section: 'ai-mlops',
     items: [],
   },
 ];
