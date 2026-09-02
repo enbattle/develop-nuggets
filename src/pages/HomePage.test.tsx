@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@/test/utils';
+import { render, screen, within } from '@/test/utils';
 import { HomePage } from './HomePage';
 import { CONTENT } from '@/content';
 import { GUIDES } from '@/content/guides';
@@ -104,5 +104,47 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Vector Databases' }),
     ).toBeInTheDocument();
+  });
+
+  it('offers a domain filter defaulting to Systems & Infrastructure', () => {
+    render(<HomePage />);
+
+    const group = screen.getByRole('group', { name: /filter by domain/i });
+    expect(
+      within(group).getByRole('button', { name: 'Systems & Infrastructure' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      within(group).getByRole('button', { name: 'AI Engineering' }),
+    ).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('scopes the section blocks to the active domain', async () => {
+    const user = userEvent.setup();
+    render(<HomePage />);
+
+    // All current content is in the systems domain, so switching to AI leaves
+    // nothing to show.
+    // TODO(merge): once Phase 2 lands AI content, assert the AI sections render.
+    await user.click(screen.getByRole('button', { name: 'AI Engineering' }));
+
+    expect(screen.getByText(/nothing matches/i)).toBeInTheDocument();
+    expect(cardCount()).toBe(0);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Systems & Infrastructure' }),
+    );
+    expect(cardCount()).toBe(CONTENT.length);
+  });
+
+  it('keeps the tag-chip set fixed when the domain changes', async () => {
+    const user = userEvent.setup();
+    render(<HomePage />);
+
+    const databasesChip = screen.getByRole('button', { name: 'databases' });
+    await user.click(screen.getByRole('button', { name: 'AI Engineering' }));
+
+    // The chip is derived from all content, so it stays put even when the
+    // active domain has none of it.
+    expect(databasesChip).toBeInTheDocument();
   });
 });

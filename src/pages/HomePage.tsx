@@ -3,10 +3,20 @@ import { useMemo, useState } from 'react';
 import type { Nugget, Tag } from '@/types';
 import { CONTENT, contentPath } from '@/content';
 import { FORMAT_LABELS } from '@/lib/format';
+import {
+  DOMAIN_LABELS,
+  DOMAIN_ORDER,
+  sectionDomain,
+  type Domain,
+} from '@/lib/sections';
 import { useLastViewedNugget } from '@/hooks/useContinueReading';
 import { SectionedContentList } from '@/components/SectionedContentList';
 
 type FormatFilter = 'all' | Nugget['format'];
+
+const DOMAIN_FILTERS: { id: Domain; label: string }[] = DOMAIN_ORDER.map(
+  (id) => ({ id, label: DOMAIN_LABELS[id] }),
+);
 
 const FORMAT_FILTERS: { id: FormatFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -20,6 +30,7 @@ const ALL_TAGS: Tag[] = Array.from(
 
 export function HomePage() {
   const lastViewed = useLastViewedNugget(CONTENT);
+  const [domain, setDomain] = useState<Domain>('systems');
   const [format, setFormat] = useState<FormatFilter>('all');
   const [tag, setTag] = useState<Tag | null>(null);
 
@@ -27,10 +38,11 @@ export function HomePage() {
     () =>
       CONTENT.filter(
         (item) =>
+          sectionDomain(item.section) === domain &&
           (format === 'all' || item.format === format) &&
           (tag === null || item.tags.includes(tag)),
       ),
-    [format, tag],
+    [domain, format, tag],
   );
 
   if (CONTENT.length === 0) {
@@ -66,6 +78,24 @@ export function HomePage() {
       )}
 
       <div className="flex flex-col gap-3">
+        <div
+          role="group"
+          aria-label="Filter by domain"
+          className="flex flex-wrap gap-2"
+        >
+          {DOMAIN_FILTERS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={domain === option.id}
+              onClick={() => setDomain(option.id)}
+              className={domainFilterClass(domain === option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
         <div
           role="group"
           aria-label="Filter by format"
@@ -108,6 +138,14 @@ export function HomePage() {
       <SectionedContentList items={filtered} />
     </div>
   );
+}
+
+function domainFilterClass(active: boolean): string {
+  const base =
+    'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors';
+  return active
+    ? `${base} border-accent bg-accent/10 text-accent`
+    : `${base} border-border text-text-secondary hover:bg-bg-tertiary hover:text-text-primary`;
 }
 
 function formatFilterClass(active: boolean): string {

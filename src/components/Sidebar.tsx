@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import type { Nugget, Section } from '@/types';
 import { contentBySection, contentPath, getContent } from '@/content';
-import { SECTION_LABELS } from '@/lib/sections';
+import {
+  DOMAIN_LABELS,
+  DOMAIN_ORDER,
+  SECTION_LABELS,
+  sectionDomain,
+} from '@/lib/sections';
 import { FORMAT_LABELS } from '@/lib/format';
 
 interface SidebarProps {
@@ -12,6 +17,14 @@ interface SidebarProps {
 
 // Content is static, so the section grouping is computed once at module load.
 const SECTIONS = contentBySection();
+
+// The section groups, super-grouped by domain (systems vs. AI), in
+// `DOMAIN_ORDER`. Domains with no non-empty section are dropped, so the AI
+// domain simply doesn't appear until it has content.
+const DOMAIN_SECTIONS = DOMAIN_ORDER.map((domain) => ({
+  domain,
+  groups: SECTIONS.filter(({ section }) => sectionDomain(section) === domain),
+})).filter(({ groups }) => groups.length > 0);
 
 // Indented further than the group heading (pl-6 vs. the heading's px-3) so
 // topic names read as nested under it, not flush with it. The link itself
@@ -24,11 +37,76 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
   }`;
 
+const chevronClass = (open: boolean) =>
+  `h-3 w-3 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`;
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={chevronClass(open)}
+      aria-hidden
+    >
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 /** Which section the current route's item belongs to, or null off a content page. */
 function useActiveSection(): Section | null {
   const { pathname } = useLocation();
   const id = pathname.match(/^\/(?:nuggets|guides)\/(.+)$/)?.[1];
   return (id && getContent(id)?.section) || null;
+}
+
+interface DomainGroupProps {
+  title: string;
+  /** Only shown once there's more than one non-empty domain — see `Sidebar`. */
+  showHeading: boolean;
+  /** The current route's item lives in this domain — keep it expanded. */
+  active: boolean;
+  children: ReactNode;
+}
+
+function DomainGroup({
+  title,
+  showHeading,
+  active,
+  children,
+}: DomainGroupProps) {
+  // Domains start expanded so the sidebar still opens as a scannable list of
+  // section names; navigating into a domain re-opens it, but — like the
+  // section groups — this never force-*closes* one the reader collapsed.
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (active) setOpen(true);
+  }, [active]);
+
+  if (!showHeading) return <>{children}</>;
+
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="px-3">
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          className="flex w-full items-center gap-1 text-left text-xs font-bold uppercase tracking-wide text-text-secondary transition-colors hover:text-text-primary"
+        >
+          <Chevron open={open} />
+          {title}
+        </button>
+      </h2>
+      {open && <div className="flex flex-col gap-4">{children}</div>}
+    </div>
+  );
 }
 
 interface SidebarGroupProps {
@@ -71,19 +149,7 @@ function SidebarGroup({
             aria-expanded={open}
             className="flex w-full items-center gap-1 text-left text-xs font-semibold uppercase tracking-wide text-text-tertiary transition-colors hover:text-text-secondary"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`h-3 w-3 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`}
-              aria-hidden
-            >
-              <path d="M9 6l6 6-6 6" />
-            </svg>
+            <Chevron open={open} />
             {title}
           </button>
         </h2>
@@ -110,19 +176,30 @@ function SidebarGroup({
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const activeSection = useActiveSection();
-  const showHeadings = SECTIONS.length > 1;
+  const activeDomain = activeSection ? sectionDomain(activeSection) : null;
+  const showSectionHeadings = SECTIONS.length > 1;
+  const showDomainHeadings = DOMAIN_SECTIONS.length > 1;
 
   return (
     <nav aria-label="All content" className="flex flex-col gap-4">
-      {SECTIONS.map(({ section, items }) => (
-        <SidebarGroup
-          key={section}
-          title={SECTION_LABELS[section]}
-          items={items}
-          showHeading={showHeadings}
-          active={section === activeSection}
-          onNavigate={onNavigate}
-        />
+      {DOMAIN_SECTIONS.map(({ domain, groups }) => (
+        <DomainGroup
+          key={domain}
+          title={DOMAIN_LABELS[domain]}
+          showHeading={showDomainHeadings}
+          active={domain === activeDomain}
+        >
+          {groups.map(({ section, items }) => (
+            <SidebarGroup
+              key={section}
+              title={SECTION_LABELS[section]}
+              items={items}
+              showHeading={showSectionHeadings}
+              active={section === activeSection}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </DomainGroup>
       ))}
     </nav>
   );
