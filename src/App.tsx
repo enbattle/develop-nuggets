@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
@@ -8,6 +8,8 @@ import { ContentPage } from '@/pages/ContentPage';
 import { TrackPage } from '@/pages/TrackPage';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
+
+const InteractivePage = lazy(() => import('@/pages/InteractivePage'));
 
 function AppShell() {
   const searchRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,22 @@ function AppShell() {
               <Route path="/nuggets/:id" element={<ContentPage />} />
               <Route path="/guides/:id" element={<ContentPage />} />
               <Route path="/tracks/:id" element={<TrackPage />} />
+              <Route
+                path="/interactive"
+                element={
+                  <Suspense fallback={null}>
+                    <InteractivePage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/interactive/:id"
+                element={
+                  <Suspense fallback={null}>
+                    <InteractivePage />
+                  </Suspense>
+                }
+              />
             </Routes>
           </div>
         </main>
