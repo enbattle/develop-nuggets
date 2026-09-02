@@ -16,6 +16,13 @@ export const SECTION_LABELS: Record<Section, string> = {
   networking: 'Networking',
   'security-auth': 'Security & Auth',
   delivery: 'Delivery & Tooling',
+  'ai-llm-internals': 'LLM Internals',
+  'ai-reasoning': 'Reasoning & Adaptation',
+  'ai-retrieval': 'Retrieval & RAG',
+  'ai-agents': 'Agents',
+  'ai-orchestration': 'Orchestration',
+  'ai-safety': 'Safety & Guardrails',
+  'ai-evaluation': 'Evaluation & Ops',
 };
 
 /**
@@ -42,13 +49,29 @@ export const SECTION_DESCRIPTIONS: Record<Section, string> = {
     'Proving who a request is from, deciding what it may do, and the web attacks that bypass both.',
   delivery:
     'Getting code into production safely: version control, testing, packaging, and rollout.',
+  'ai-llm-internals':
+    'How a language model turns tokens into text — attention, context windows, sampling, and why it hallucinates.',
+  'ai-reasoning':
+    'Getting stronger answers from a fixed model — structured prompting, chain-of-thought, and adapting behavior without a full retrain.',
+  'ai-retrieval':
+    'Grounding model output in your own data — chunking, embeddings, vector search, and the RAG pipeline around them.',
+  'ai-agents':
+    'Letting a model plan, call tools, and act in loops — and keeping those loops from running away.',
+  'ai-orchestration':
+    'Wiring models, tools, and steps into one reliable pipeline — routing, chaining, and carrying state between calls.',
+  'ai-safety':
+    'Keeping model behavior inside bounds — prompt-injection defense, content filtering, and guardrails on input and output.',
+  'ai-evaluation':
+    'Measuring whether an LLM system actually works — eval sets, scoring, and watching it in production.',
 };
 
 /**
  * The order sections appear in the sidebar and on the home page — roughly
  * foundational first, then outer layers (APIs, data) inward to cross-cutting
- * concerns (reliability, delivery). Not alphabetical, and not derived from
- * the union's declaration order, so it's changed here deliberately.
+ * concerns (reliability, delivery), then the AI-engineering sections in
+ * pipeline order (internals → reasoning → retrieval → agents → orchestration
+ * → safety → evaluation). Not alphabetical, and not derived from the union's
+ * declaration order, so it's changed here deliberately.
  */
 export const SECTION_ORDER: Section[] = [
   'foundations',
@@ -61,4 +84,32 @@ export const SECTION_ORDER: Section[] = [
   'networking',
   'security-auth',
   'delivery',
+  'ai-llm-internals',
+  'ai-reasoning',
+  'ai-retrieval',
+  'ai-agents',
+  'ai-orchestration',
+  'ai-safety',
+  'ai-evaluation',
 ];
+
+/**
+ * The two top-level shelves the sections split into: classic systems/backend
+ * material and AI-engineering material. Drives the domain toggle on the home
+ * page and the super-grouping in the sidebar.
+ */
+export type Domain = 'systems' | 'ai';
+
+/** A section is in the `ai` domain iff its value is prefixed `ai-`. */
+export function sectionDomain(section: Section): Domain {
+  return section.startsWith('ai-') ? 'ai' : 'systems';
+}
+
+/** Display label per domain — same exhaustiveness rationale as `SECTION_LABELS`. */
+export const DOMAIN_LABELS: Record<Domain, string> = {
+  systems: 'Systems & Infrastructure',
+  ai: 'AI Engineering',
+};
+
+/** Order the domains are shown in — systems first, then AI. */
+export const DOMAIN_ORDER: Domain[] = ['systems', 'ai'];

@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar } from './Sidebar';
 import { contentBySection } from '@/content';
-import { SECTION_LABELS } from '@/lib/sections';
+import { SECTION_LABELS, sectionDomain } from '@/lib/sections';
 
 const SECTIONS = contentBySection();
 
@@ -93,6 +93,32 @@ describe('Sidebar', () => {
 
     const nuggetLink = screen.getByRole('link', { name: /Vector Databases/ });
     expect(within(nuggetLink).queryByText('Guide')).not.toBeInTheDocument();
+  });
+
+  it('super-groups sections by domain, hiding the header while only one domain has content', () => {
+    // Every section currently shipped is in the systems domain, so the
+    // domain-level headers stay collapsed away (same `length > 1` guard the
+    // section headers use). They light up once Phase 2 adds AI content.
+    // TODO(merge): assert both domain headers render once AI sections fill.
+    renderAt('/');
+
+    expect(
+      screen.queryByRole('button', { name: 'AI Engineering' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Systems & Infrastructure' }),
+    ).not.toBeInTheDocument();
+
+    // Sections themselves still render as before.
+    expect(
+      screen.getByRole('button', { name: 'Foundations' }),
+    ).toBeInTheDocument();
+  });
+
+  it('files every rendered section under the systems domain for now', () => {
+    for (const { section } of SECTIONS) {
+      expect(sectionDomain(section)).toBe('systems');
+    }
   });
 
   it('calls onNavigate when a link is clicked', async () => {
