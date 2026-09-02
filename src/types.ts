@@ -21,11 +21,13 @@ export type Section =
   // `src/lib/sections.ts` keys the home-page / sidebar domain split off that.
   | 'ai-llm-internals'
   | 'ai-reasoning'
+  | 'ai-adaptation'
   | 'ai-retrieval'
   | 'ai-agents'
   | 'ai-orchestration'
   | 'ai-safety'
-  | 'ai-evaluation';
+  | 'ai-evaluation'
+  | 'ai-mlops';
 
 /**
  * Controlled tag vocabulary. Tags are the multi-valued, cross-cutting axis

@@ -25,12 +25,14 @@ appear in the app. Phase 2 agents write real `summary` strings, sanity-check
 | section | staged lessons |
 |---|---|
 | `ai-llm-internals` | 10 |
-| `ai-reasoning` | 15 |
+| `ai-reasoning` | 7 |
+| `ai-adaptation` | 8 |
 | `ai-retrieval` | 17 |
 | `ai-agents` | 13 |
 | `ai-orchestration` | 10 |
 | `ai-safety` | 8 |
-| `ai-evaluation` | 23 |
+| `ai-evaluation` | 10 |
+| `ai-mlops` | 13 |
 
 Total: 96
 

@@ -37,17 +37,17 @@ const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 // Config: module -> section / track, and per-module tag guesses.
 // ---------------------------------------------------------------------------
 
-/** ai-cauldron module id -> develop-nuggets `section` value. 9 modules, 7 sections. */
+/** ai-cauldron module id -> develop-nuggets `section` value. One section per module (9). */
 const MODULE_SECTION: Record<string, string> = {
   foundations: 'ai-llm-internals',
   reasoning: 'ai-reasoning',
-  adaptation: 'ai-reasoning',
+  adaptation: 'ai-adaptation',
   rag: 'ai-retrieval',
   agentic: 'ai-agents',
   orchestration: 'ai-orchestration',
   safety: 'ai-safety',
   evals: 'ai-evaluation',
-  mlops: 'ai-evaluation',
+  mlops: 'ai-mlops',
 };
 
 /** ai-cauldron module id -> track id (inventory only; the tracks feature is not built here). */

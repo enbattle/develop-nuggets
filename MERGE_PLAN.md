@@ -22,22 +22,27 @@ here turns out wrong, change it here and note it — don't diverge silently.
   contentId[] }`. Guides stay guides. `Nugget` / `format` do not change.
 - **No repo split.** One app, one Pages project, on this branch.
 
-## Section mapping (9 modules → 7 sections)
+## Section mapping (9 modules → 9 sections, one per module)
 
-| ai-cauldron module | new `Section` value | `SECTION_LABELS` text |
-|---|---|---|
-| foundations | `ai-llm-internals` | LLM Internals |
-| reasoning | `ai-reasoning` | Reasoning & Adaptation |
-| adaptation | `ai-reasoning` | ″ |
-| rag | `ai-retrieval` | Retrieval & RAG |
-| agentic | `ai-agents` | Agents |
-| orchestration | `ai-orchestration` | Orchestration |
-| safety | `ai-safety` | Safety & Guardrails |
-| evals | `ai-evaluation` | Evaluation & Ops |
-| mlops | `ai-evaluation` | ″ |
+Revised from the initial 7-section consolidation: 1C's inventory showed
+`ai-reasoning` (15) and `ai-evaluation` (23) would blow past the
+"under a dozen per section" guideline, and the Systems/AI sidebar
+accordion already solves the length concern. One section per module.
+
+| ai-cauldron module | `Section` value | `SECTION_LABELS` text | items |
+|---|---|---|---|
+| foundations | `ai-llm-internals` | LLM Internals | 10 |
+| reasoning | `ai-reasoning` | Reasoning | 7 |
+| adaptation | `ai-adaptation` | Model Adaptation | 8 |
+| rag | `ai-retrieval` | Retrieval & RAG | 17 |
+| agentic | `ai-agents` | Agents | 13 |
+| orchestration | `ai-orchestration` | Orchestration | 10 |
+| safety | `ai-safety` | Safety & Guardrails | 8 |
+| evals | `ai-evaluation` | Evaluation | 10 |
+| mlops | `ai-mlops` | MLOps & Infra | 13 |
 
 Existing 10 systems sections are unchanged. `SECTION_ORDER`: all existing
-systems sections first, then the 7 AI sections in the row order above.
+systems sections first, then the 9 AI sections in the row order above.
 Home page + sidebar gain a **domain split** (Systems / AI) above the
 section list.
 
@@ -48,8 +53,9 @@ section list.
 `orchestration`→`orchestration` · `safety`→`safety-guardrails` ·
 `evals`→`evaluation` · `mlops`→`mlops`
 
-`reasoning`+`adaptation` share a section but are **two separate tracks**.
-Same for `evals`+`mlops`.
+Each track's section is now its own (`reasoning`→`ai-reasoning`,
+`model-adaptation`→`ai-adaptation`, `evaluation`→`ai-evaluation`,
+`mlops`→`ai-mlops`) — section and track are 1:1.
 
 ## New `Tag` union values (add to `src/types.ts`, deliberately)
 
