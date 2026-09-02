@@ -1,5 +1,3 @@
-## Semantic Caching
-
 Exact-match caching ([Redis](/guides/redis), Memcached) returns a cached result only when the query string matches byte for byte. In practice users ask the same question in slightly different ways: "What's your refund policy?" vs "How do I get a refund?" vs "Can I return this item?" All three have the same answer, but only one can match a cached key.
 
 Semantic caching maps queries to their embeddings and returns cached answers for any new query whose embedding is within a cosine similarity threshold of an existing cached query.

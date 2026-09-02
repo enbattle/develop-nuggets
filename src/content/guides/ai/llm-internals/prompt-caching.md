@@ -1,5 +1,3 @@
-## Prompt Caching
-
 Anthropic's prompt caching is a server-side feature that stores the computed [KV state](/guides/kv-cache) of a prompt prefix and reuses it across requests. When the same prefix arrives again within the TTL, the model skips recomputation entirely — reducing cost and TTFT for prompts with stable content.
 
 This is distinct from vLLM prefix caching or SGLang's RadixAttention, which cache at the self-hosted serving layer (see [KV Cache](/guides/kv-cache)). Anthropic's prompt caching works through the managed API.

@@ -1,5 +1,3 @@
-## DPO: Direct Preference Optimization
-
 After [instruction fine-tuning](/guides/instruction-finetuning), a model can follow instructions — but it may not produce the *kind* of responses users prefer. Preference optimization trains the model to favor responses that humans rate as better, without the complexity of full RLHF with PPO.
 
 ## What RLHF Is and Why PPO Is Hard

@@ -1,5 +1,3 @@
-## Planning and Reasoning Patterns
-
 How agents think through problems and sequence their actions.
 
 ## The ReAct Pattern

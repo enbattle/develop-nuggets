@@ -1,5 +1,3 @@
-## Tool Use & Function Calling
-
 Tools are what turn a chatbot into an agent, and their design tends to make or break how well the agent works.
 
 ## Defining Tools with Anthropic

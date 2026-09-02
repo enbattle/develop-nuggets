@@ -1,5 +1,3 @@
-## Context Window
-
 The context window is the maximum number of tokens an LLM can process in a single call — everything the model can "see" at once. It is a shared budget between input (system prompt, history, documents) and output (the generated response).
 
 ```

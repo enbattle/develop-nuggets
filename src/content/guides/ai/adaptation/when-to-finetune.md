@@ -1,5 +1,3 @@
-## When to Fine-Tune vs. Everything Else
-
 Fine-tuning is one of four strategies for adapting a model to your use case. Picking the wrong one burns weeks of engineering time and budget for little gain, so it's worth being deliberate about the choice.
 
 ## The Four Strategies

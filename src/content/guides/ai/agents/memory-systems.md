@@ -1,5 +1,3 @@
-## Agent Memory Systems
-
 Memory determines how much context and history an agent can use.
 
 ## Types of Memory

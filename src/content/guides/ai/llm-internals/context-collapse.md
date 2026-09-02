@@ -1,5 +1,3 @@
-## Context Collapse
-
 Context collapse (also called the "lost in the middle" problem) is the tendency of LLMs to give **disproportionately less attention to information in the middle** of a long context, even when that information is clearly relevant to the query.
 
 ## The Finding

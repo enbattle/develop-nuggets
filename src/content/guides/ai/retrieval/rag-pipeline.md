@@ -1,5 +1,3 @@
-## The RAG Pipeline
-
 RAG runs in two phases: **indexing** (one-time setup) and **querying** (real-time, once per request). You can [step through the standard pipeline interactively](/interactive/standard) alongside the code below.
 
 ## Phase 1: Indexing

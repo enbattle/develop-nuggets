@@ -1,5 +1,3 @@
-## LoRA and QLoRA
-
 Full fine-tuning updates all model parameters — for a 70B model, that's 70 billion floats to store, compute gradients for, and update. Most teams don't have that hardware. LoRA (Low-Rank Adaptation) makes fine-tuning tractable by updating only a tiny fraction of the parameters.
 
 ## Why Full Fine-Tuning Is Impractical

@@ -1,5 +1,3 @@
-## Mixture of Experts
-
 In a standard dense transformer, all parameters are active for every token — a 70B model uses all 70B parameters per forward pass. Mixture of Experts (MoE) breaks this: a learned **gating network** routes each token to a subset of "expert" sub-networks, keeping most parameters inactive per token.
 
 ## Architecture

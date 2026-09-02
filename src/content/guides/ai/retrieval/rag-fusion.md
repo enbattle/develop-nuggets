@@ -1,5 +1,3 @@
-## RAG Fusion
-
 A single query is a single perspective. "What are the best practices for error handling in Python?" retrieves documents matching that exact phrasing — but misses material phrased as "Python exception management," "handling runtime errors," or "try/except patterns."
 
 RAG Fusion addresses this with **query expansion + rank fusion**: generate multiple query variants, retrieve independently for each, then merge the result lists using Reciprocal Rank Fusion (RRF). The [RAG Fusion walkthrough](/interactive/rag-fusion) steps through a single query end to end.

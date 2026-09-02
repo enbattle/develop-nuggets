@@ -1,5 +1,3 @@
-## Vector Databases
-
 Traditional databases index exact values for precise lookups. Vector databases
 solve a different problem: given a query embedding, find the K stored vectors
 closest by semantic distance — approximate nearest neighbor (ANN) search, not

@@ -1,5 +1,3 @@
-## Knowledge Architecture
-
 No single retrieval mechanism is optimal for every query type. Production AI
 systems layer multiple mechanisms — the skill is knowing which to engage when.
 

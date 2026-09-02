@@ -1,5 +1,3 @@
-## Late Chunking
-
 Standard [chunking](/guides/chunking-strategies) embeds each text segment independently, so a chunk's embedding has no knowledge of its surroundings: "the company" in paragraph 3 doesn't know who "the company" was in paragraph 1.
 
 Late chunking inverts the order: embed the full document first, then split the resulting embeddings into chunk-level representations. Each token's embedding already encodes its position within the full document context, so the chunk-level vectors carry cross-document semantic information.

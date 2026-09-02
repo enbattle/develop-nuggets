@@ -1,5 +1,3 @@
-## Voice Agents & Real-Time AI
-
 A voice agent processes spoken input and responds with synthesized speech in a continuous, low-latency loop. Unlike chat interfaces, voice requires: streaming audio input → streaming ASR → LLM response → streaming TTS → audio output — with latencies measured in milliseconds, not seconds.
 
 ## Two Architectures

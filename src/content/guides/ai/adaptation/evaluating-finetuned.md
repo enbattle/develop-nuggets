@@ -1,5 +1,3 @@
-## Evaluating Fine-Tuned Models
-
 A fine-tuning run that improves your target metric might silently degrade performance on adjacent tasks. Rigorous evaluation catches these regressions before deployment.
 
 ## The Only Honest Measure: Held-Out Test Set

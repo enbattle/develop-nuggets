@@ -1,5 +1,3 @@
-## KV Cache
-
 The KV (Key-Value) cache is the memory structure that makes LLM [inference](/guides/inference) practical. Without it, generating a 100-token response would require 100 separate full forward passes through the model, each recomputing attention over the entire sequence from scratch.
 
 ## How Attention Works

@@ -1,5 +1,3 @@
-## Structured Outputs
-
 LLMs generate free-form text; production systems need structured data. The gap is a class of reliability bug that only shows up at scale: valid JSON on 99.8% of calls, then one malformed response that crashes the parser on the request that mattered.
 
 ## Approach 1: Tool Use (Native Anthropic)

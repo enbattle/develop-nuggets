@@ -1,5 +1,3 @@
-## Computer Use & GUI Agents
-
 GUI agents operate computers the way humans do: by observing a screen and sending keyboard/mouse events. Anthropic's computer use API gives Claude the ability to take screenshots, click, type, and scroll — acting as a user of any desktop or web application without needing an API or automation framework.
 
 ## The Computer Use Loop

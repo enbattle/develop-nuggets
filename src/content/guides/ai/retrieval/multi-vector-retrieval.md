@@ -1,5 +1,3 @@
-## Multi-Vector Retrieval
-
 Standard embedding models compress an entire query or document into a single vector. Multi-vector retrieval keeps one embedding **per token**, then scores query–document pairs with fine-grained token alignment. This preserves semantic detail that single-vector compression inevitably loses.
 
 ## ColBERT: Token-Level Interaction

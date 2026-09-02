@@ -1,5 +1,3 @@
-## Tokenization
-
 Before an LLM processes text, a tokenizer converts the raw string into integer token IDs. The model sees only these IDs — never individual characters or words. Token boundaries affect what the model can "see" and directly determine cost.
 
 ## Byte-Pair Encoding (BPE)

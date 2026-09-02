@@ -1,5 +1,3 @@
-## Code Agents
-
 A code agent generates code, executes it, observes the output (stdout, stderr, return values), and iterates. The execution environment becomes the model's feedback mechanism — it sees runtime errors, test failures, and function outputs directly, rather than reasoning about code behavior in the abstract.
 
 ## The Execute-Observe Loop

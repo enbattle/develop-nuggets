@@ -1,5 +1,3 @@
-## Reflexion & Meta-Prompting
-
 Beyond single-pass reasoning, a class of techniques teaches models to improve their own outputs through self-critique, self-instruction, and automated prompt optimization. These are particularly powerful when tasks have verifiable quality signals.
 
 ## Reflexion: Generate, Critique, Retry

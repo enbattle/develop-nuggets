@@ -1,5 +1,3 @@
-## Evaluating Agentic AI Systems
-
 Agents are harder to evaluate than static models because success depends on multi-step behavior.
 
 ## Key Dimensions to Evaluate

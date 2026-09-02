@@ -1,5 +1,3 @@
-## What is RAG?
-
 RAG (Retrieval-Augmented Generation) fetches relevant external data and puts it in the prompt before the model answers, so the response is grounded in retrieved facts rather than the model's training-time memory.
 
 ```

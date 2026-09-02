@@ -1,5 +1,3 @@
-## Model Merging
-
 Model merging combines the weights of two or more fine-tuned models without additional training. The goal: a merged model that's better at multiple tasks than any individual model, without the cost of re-training.
 
 ## Why Merge Models?

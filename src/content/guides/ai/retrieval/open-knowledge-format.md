@@ -1,5 +1,3 @@
-## Open Knowledge Format (OKF)
-
 Vector RAG re-derives knowledge at query time from raw text chunks. OKF inverts
 this: curated, cross-linked concepts are written down once in structured files
 and loaded directly into agent context — no embedding, no retrieval.

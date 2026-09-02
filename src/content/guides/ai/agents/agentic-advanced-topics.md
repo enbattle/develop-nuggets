@@ -1,5 +1,3 @@
-## Advanced Agentic AI Topics
-
 Patterns that show up once a single agent loop isn't enough: multiple agents, recursive planning, parallel execution, explicit state machines, and the instrumentation to debug all of it. The [agentic RAG walkthrough](/interactive/agentic) is a compact reference for the single-agent loop these build on.
 
 ## 1. Multi-Agent Systems

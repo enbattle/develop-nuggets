@@ -1,5 +1,3 @@
-## What are AI Agents?
-
 An AI agent reasons, plans, and calls tools to work through a multi-step task on its own. Where a chatbot answers one query at a time, an agent keeps going — observing results, deciding the next move — until the goal is met or it gives up.
 
 ## Agent vs Chatbot

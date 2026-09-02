@@ -1,5 +1,3 @@
-## RAG Tools & Frameworks
-
 The ecosystem splits into three layers — vector stores, orchestration frameworks, and eval tools. Here's what each one is good at.
 
 ## Vector Databases

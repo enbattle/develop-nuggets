@@ -1,5 +1,3 @@
-## Agent Architecture
-
 The parts every reliable agent has in common, and how they fit together. The [agentic RAG walkthrough](/interactive/agentic) shows these pieces running on one task.
 
 ## High-Level Architecture

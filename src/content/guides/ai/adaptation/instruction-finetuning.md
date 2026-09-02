@@ -1,5 +1,3 @@
-## Instruction Fine-Tuning & Data Curation
-
 Instruction fine-tuning teaches a model to follow instructions reliably — in a specific format, tone, or task domain. The quality of your training data is the single most important variable. A model fine-tuned on 500 excellent examples consistently outperforms one trained on 50,000 mediocre ones.
 
 ## What Instruction Fine-Tuning Is

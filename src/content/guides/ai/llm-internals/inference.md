@@ -1,5 +1,3 @@
-## Inference
-
 Inference is the process of running a trained model to generate outputs. For LLMs, generation is **autoregressive**: the model produces one token at a time, and each new token depends on all previous ones.
 
 ## The Two Phases

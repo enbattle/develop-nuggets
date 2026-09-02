@@ -1,5 +1,3 @@
-## Evaluating Your RAG System
-
 Without measurement you can't identify failures, compare approaches, or track improvements.
 
 ## Retrieval Metrics

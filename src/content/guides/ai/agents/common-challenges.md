@@ -1,5 +1,3 @@
-## Common Agent Challenges
-
 Agents fail in characteristic ways. Know the patterns to build more reliable systems.
 
 ## 1. Infinite Loops

@@ -1,5 +1,3 @@
-## Advanced RAG Techniques
-
 Once a [basic pipeline](/guides/rag-pipeline) works, these are the techniques that move retrieval quality from "usually right" to "reliably right."
 
 ## 1. Hybrid Search

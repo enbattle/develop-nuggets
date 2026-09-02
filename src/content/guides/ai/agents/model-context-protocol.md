@@ -1,5 +1,3 @@
-## Model Context Protocol (MCP)
-
 MCP is an open standard (Anthropic, 2024) that defines how AI models connect to external tools and data sources. The problem it solves: every AI application was reinventing tool integration — custom APIs, bespoke auth, one-off function wrappers. MCP provides a universal protocol so tools built once work with any compliant model host.
 
 ## Architecture

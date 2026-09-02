@@ -1,5 +1,3 @@
-## Tree of Thoughts & Search-Based Reasoning
-
 [Chain-of-thought](/guides/chain-of-thought) generates a single linear reasoning path. But many problems benefit from exploring multiple approaches, evaluating them, and pursuing the most promising one. Tree of Thoughts (ToT) extends CoT by letting the model generate and evaluate a **tree** of reasoning paths.
 
 ## Beyond Linear Chains

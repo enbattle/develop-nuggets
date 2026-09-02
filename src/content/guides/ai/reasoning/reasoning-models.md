@@ -1,5 +1,3 @@
-## What are Reasoning Models?
-
 Reasoning models allocate extra compute at inference time to think through a problem before answering. Unlike a standard completion model, a reasoning model keeps an internal scratchpad — a stream of "thinking tokens" — before it produces a final response.
 
 ## The Shift from Completion to Reasoning

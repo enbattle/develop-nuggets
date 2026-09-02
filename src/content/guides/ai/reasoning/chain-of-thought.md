@@ -1,5 +1,3 @@
-## Chain-of-Thought Prompting
-
 Chain-of-Thought (CoT) prompting is the observation that asking a language model to explain its reasoning before giving an answer improves accuracy on multi-step problems, often by a wide margin. It remains one of the highest-leverage prompt engineering techniques.
 
 ## The Original Insight

@@ -1,5 +1,3 @@
-## Quantization
-
 Quantization reduces the numerical precision of model weights to shrink GPU memory usage and speed up inference — at a small cost to output quality.
 
 ## Precision Types

@@ -1,5 +1,3 @@
-## Contextual Compression
-
 Standard RAG retrieves fixed-size chunks and feeds them to the LLM verbatim. A 512-token chunk retrieved for the query "What is the CEO's compensation?" might contain 480 tokens about board structure, company history, and legal boilerplate — only 30 tokens actually answer the question.
 
 Contextual compression extracts only the relevant portion of each retrieved chunk before passing it to the generation model, reducing noise and context window usage.

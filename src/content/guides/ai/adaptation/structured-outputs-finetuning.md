@@ -1,5 +1,3 @@
-## Fine-Tuning for Structured Outputs
-
 Getting LLMs to reliably produce valid JSON, XML, or domain-specific schemas is one of the most common fine-tuning use cases. Base models produce inconsistent structure; a fine-tuned model can achieve near-perfect schema compliance.
 
 ## The Reliability Problem

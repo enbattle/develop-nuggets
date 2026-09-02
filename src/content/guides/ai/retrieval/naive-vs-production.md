@@ -1,5 +1,3 @@
-## Naive RAG vs Production RAG
-
 A naive pipeline that demos well tends to break on the first ambiguous query or messy document. Most of that gap is a handful of additions, covered in depth in [Advanced RAG Techniques](/guides/improvements-and-advanced).
 
 ## What Changes at Scale

@@ -1,5 +1,3 @@
-## Speculative Decoding
-
 LLM decode is [memory-bandwidth-bound](/guides/inference): the GPU loads model weights from HBM for every single token generated, one at a time. Even on an H100, the GPU is underutilized between token generations because the memory system is the bottleneck, not the compute cores.
 
 Speculative decoding exploits this idle compute. A small "draft" model proposes N tokens in N serial passes, then a large "target" model verifies all N in a single parallel forward pass — the same latency as generating 1 token normally.

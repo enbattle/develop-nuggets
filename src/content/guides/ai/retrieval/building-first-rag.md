@@ -1,5 +1,3 @@
-## Building Your First RAG System
-
 A minimal implementation that runs as-is. It follows the [standard RAG pipeline](/interactive/standard) — embed, retrieve, stuff into the prompt, generate — with nothing added for scale yet.
 
 ## Installation

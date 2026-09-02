@@ -1,5 +1,3 @@
-## Extended Thinking in Claude
-
 Anthropic's extended thinking feature gives Claude a configurable scratchpad to reason through problems before producing a final response. It's controlled via the API with two parameters: enabling the `thinking` block and setting a `budget_tokens` limit.
 
 ## How It Works in the API

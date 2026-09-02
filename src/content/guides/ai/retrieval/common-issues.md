@@ -1,5 +1,3 @@
-## Common RAG Issues and Solutions
-
 The five most frequent failure modes and how to fix them.
 
 ## 1. Hallucinations Despite Context

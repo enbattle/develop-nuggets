@@ -1,5 +1,3 @@
-## Building Your First Agent
-
 A complete ReAct (Reason + Act) agent from scratch. To watch the loop run step by step, see the [agentic RAG walkthrough](/interactive/agentic); [Planning & Reasoning](/guides/planning-reasoning) covers the pattern variants.
 
 ## Installation

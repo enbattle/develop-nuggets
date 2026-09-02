@@ -1,5 +1,3 @@
-## Process vs. Outcome Reward Models
-
 When training reasoning models, a central problem is how to provide a training signal. Standard RLHF scores the final output. But for complex reasoning tasks, scoring the answer alone misses whether the model reasoned correctly — it might get lucky, or reason correctly but produce a wrong answer.
 
 Reward models are the core mechanism for providing that training signal.

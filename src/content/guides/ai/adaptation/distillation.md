@@ -1,5 +1,3 @@
-## Knowledge Distillation
-
 Distillation trains a small "student" model to mimic a large "teacher" model. The goal: a 7B student that matches a 70B teacher on a specific task, running at 10× lower cost and latency.
 
 ## Teacher-Student Training

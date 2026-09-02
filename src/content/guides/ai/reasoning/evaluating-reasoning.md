@@ -1,5 +1,3 @@
-## Evaluating Reasoning Quality
-
 Evaluating reasoning models requires going beyond standard benchmarks. A model can produce the right answer for the wrong reason — and on the next slightly different problem, it will fail. Genuine reasoning quality requires evaluating the **process**, not just the **outcome** — the same distinction that separates [process and outcome reward models](/guides/reward-models).
 
 ## Why Standard Benchmarks Are Insufficient

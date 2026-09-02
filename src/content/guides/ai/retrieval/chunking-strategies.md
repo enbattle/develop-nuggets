@@ -1,5 +1,3 @@
-## Chunking Strategies
-
 How you chunk your documents is one of the most impactful decisions in a RAG system. Chunking determines what the model can retrieve — too small and you lose context, too large and you dilute relevance.
 
 ## The Five Strategies
