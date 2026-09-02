@@ -1,8 +1,21 @@
+import { type ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom';
 import { CodeBlock } from './CodeBlock';
 import { MermaidDiagram } from './MermaidDiagram';
+import { dedupe, slugify } from '@/lib/slug';
+
+/** Flatten a React children tree to its plain-text content, for slugging. */
+function textContent(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textContent).join('');
+  if (typeof node === 'object' && 'props' in node) {
+    return textContent((node as { props: { children?: ReactNode } }).props.children);
+  }
+  return '';
+}
 
 const components: Components = {
   // CodeBlock and MermaidDiagram each render their own complete markup
@@ -69,9 +82,35 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  // Fresh per render: stamps `id`s on `##`/`###` headings so the table of
+  // contents can link to them. Deduping matches `extractHeadings` in
+  // `@/lib/slug` so a TOC entry always points at a real anchor. `scroll-mt`
+  // keeps an anchored heading clear of the sticky header.
+  const seen = new Map<string, number>();
+  const headingId = (children: ReactNode) =>
+    dedupe(slugify(textContent(children)), seen);
+
+  const withHeadings: Components = {
+    ...components,
+    h2({ children, ...props }) {
+      return (
+        <h2 id={headingId(children)} className="scroll-mt-20" {...props}>
+          {children}
+        </h2>
+      );
+    },
+    h3({ children, ...props }) {
+      return (
+        <h3 id={headingId(children)} className="scroll-mt-20" {...props}>
+          {children}
+        </h3>
+      );
+    },
+  };
+
   return (
     <div className="prose prose-slate max-w-none dark:prose-invert">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={withHeadings}>
         {content}
       </ReactMarkdown>
     </div>
