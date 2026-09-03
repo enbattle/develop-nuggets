@@ -36,7 +36,7 @@ function AppShell() {
       />
 
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8">
-        <aside className="hidden shrink-0 self-start md:sticky md:top-16 md:block md:max-h-[calc(100vh-4rem)] md:w-56 md:overflow-y-auto">
+        <aside className="hidden shrink-0 self-start md:sticky md:top-16 md:block md:max-h-[calc(100vh-4rem)] md:w-64 md:overflow-y-auto">
           <Sidebar />
         </aside>
 
