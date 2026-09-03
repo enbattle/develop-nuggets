@@ -86,6 +86,27 @@ export const trackProgress = {
     };
   },
 
+  /**
+   * The first item in the track's reading order the reader hasn't ticked
+   * off yet, or `undefined` when the whole track is complete. Pure — it
+   * doesn't check whether the id resolves to real content.
+   */
+  nextIncomplete(track: Track): string | undefined {
+    const map = getSnapshot();
+    return track.items.find((id) => map[id] !== true);
+  },
+
+  /**
+   * True when `id` is the *only* item in `track` still outstanding — i.e.
+   * marking it complete finishes the track. False if `id` is already
+   * complete, or if any other item is also outstanding.
+   */
+  isLastIncomplete(track: Track, id: string): boolean {
+    const map = getSnapshot();
+    if (map[id] === true) return false;
+    return track.items.every((itemId) => itemId === id || map[itemId] === true);
+  },
+
   getLastTrackId(): string | undefined {
     return safeStorage.get<string | undefined>(LAST_TRACK_KEY, undefined);
   },
@@ -101,6 +122,8 @@ interface TrackProgressApi {
   markComplete: (contentId: string) => void;
   clearComplete: (contentId: string) => void;
   trackCompletion: (track: Track) => { done: number; total: number };
+  nextIncomplete: (track: Track) => string | undefined;
+  isLastIncomplete: (track: Track, id: string) => boolean;
 }
 
 /** Reactive view of {@link trackProgress} — re-renders on any completion change. */
@@ -118,6 +141,16 @@ export function useTrackProgress(): TrackProgressApi {
     }),
     [map],
   );
+  const nextIncomplete = useCallback(
+    (track: Track) => track.items.find((id) => map[id] !== true),
+    [map],
+  );
+  const isLastIncomplete = useCallback(
+    (track: Track, id: string) =>
+      map[id] !== true &&
+      track.items.every((itemId) => itemId === id || map[itemId] === true),
+    [map],
+  );
   const markComplete = useCallback(
     (contentId: string) => trackProgress.markComplete(contentId),
     [],
@@ -127,5 +160,12 @@ export function useTrackProgress(): TrackProgressApi {
     [],
   );
 
-  return { isComplete, markComplete, clearComplete, trackCompletion };
+  return {
+    isComplete,
+    markComplete,
+    clearComplete,
+    trackCompletion,
+    nextIncomplete,
+    isLastIncomplete,
+  };
 }

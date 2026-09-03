@@ -41,6 +41,26 @@ describe('trackProgress', () => {
     expect(trackProgress.trackCompletion(track)).toEqual({ done: 2, total: 3 });
   });
 
+  it('nextIncomplete walks the reading order and returns undefined when done', () => {
+    expect(trackProgress.nextIncomplete(track)).toBe('a');
+    trackProgress.markComplete('a');
+    expect(trackProgress.nextIncomplete(track)).toBe('b');
+    trackProgress.markComplete('b');
+    trackProgress.markComplete('c');
+    expect(trackProgress.nextIncomplete(track)).toBeUndefined();
+  });
+
+  it('isLastIncomplete is true only for the sole remaining item', () => {
+    expect(trackProgress.isLastIncomplete(track, 'a')).toBe(false);
+    trackProgress.markComplete('a');
+    trackProgress.markComplete('b');
+    expect(trackProgress.isLastIncomplete(track, 'c')).toBe(true);
+    // an already-complete item is never "the last incomplete one"
+    expect(trackProgress.isLastIncomplete(track, 'a')).toBe(false);
+    trackProgress.markComplete('c');
+    expect(trackProgress.isLastIncomplete(track, 'c')).toBe(false);
+  });
+
   it('remembers the last track id independently of completion', () => {
     expect(trackProgress.getLastTrackId()).toBeUndefined();
     trackProgress.setLastTrackId('rag');
@@ -79,5 +99,17 @@ describe('useTrackProgress', () => {
 
     act(() => result.current.clearComplete('a'));
     expect(result.current.isComplete('a')).toBe(false);
+  });
+
+  it('exposes nextIncomplete / isLastIncomplete reactively', () => {
+    const { result } = renderHook(() => useTrackProgress());
+
+    expect(result.current.nextIncomplete(track)).toBe('a');
+    expect(result.current.isLastIncomplete(track, 'c')).toBe(false);
+
+    act(() => result.current.markComplete('a'));
+    act(() => result.current.markComplete('b'));
+    expect(result.current.nextIncomplete(track)).toBe('c');
+    expect(result.current.isLastIncomplete(track, 'c')).toBe(true);
   });
 });

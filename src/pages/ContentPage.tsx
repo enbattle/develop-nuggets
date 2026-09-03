@@ -19,7 +19,13 @@ export function ContentPage() {
   const { id } = useParams<{ id: string }>();
   const item = id ? getContent(id) : undefined;
   useRecordReadingProgress(item?.id);
-  const { isComplete, markComplete, clearComplete } = useTrackProgress();
+  const {
+    isComplete,
+    markComplete,
+    clearComplete,
+    trackCompletion,
+    isLastIncomplete,
+  } = useTrackProgress();
 
   if (!item) {
     return (
@@ -38,6 +44,17 @@ export function ContentPage() {
     : `More in ${sectionLabel}`;
   const headings = extractHeadings(item.body);
   const done = track ? isComplete(item.id) : false;
+
+  const completion = track ? trackCompletion(track) : null;
+  const position = track ? track.items.indexOf(item.id) + 1 : 0;
+  const remaining = completion ? completion.total - completion.done : 0;
+  const trackFinished =
+    !!completion && completion.total > 0 && completion.done === completion.total;
+  const percent =
+    completion && completion.total > 0
+      ? Math.round((completion.done / completion.total) * 100)
+      : 0;
+  const lastOne = track ? isLastIncomplete(track, item.id) : false;
 
   return (
     <article className="relative flex flex-col gap-6">
@@ -82,46 +99,102 @@ export function ContentPage() {
 
       <LazyMarkdownRenderer content={item.body} />
 
-      {track && (
-        <button
-          type="button"
-          onClick={() =>
-            done ? clearComplete(item.id) : markComplete(item.id)
-          }
-          aria-pressed={done}
-          className={`self-start rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-            done
-              ? 'border-accent bg-accent/10 text-accent'
-              : 'border-border text-text-secondary hover:border-accent'
-          }`}
+      {track && completion && (
+        <section
+          aria-label={`Track progress: ${track.title}`}
+          className="flex flex-col gap-3 border-t border-border pt-6"
         >
-          {done ? 'Completed ✓' : 'Mark complete'}
-        </button>
+          {trackFinished ? (
+            <div className="flex flex-col gap-2 rounded-lg border border-accent bg-accent/10 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-accent">
+                <span aria-hidden>✓</span> Track complete
+              </p>
+              <p className="text-sm text-text-secondary">
+                You’ve finished{' '}
+                <Link
+                  to={`/tracks/${track.id}`}
+                  className="font-medium text-accent hover:underline"
+                >
+                  {track.title}
+                </Link>
+                .
+              </p>
+              <Link
+                to={`/tracks/${track.id}`}
+                className="text-xs font-medium text-accent hover:underline"
+              >
+                Back to track overview →
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <Link
+                  to={`/tracks/${track.id}`}
+                  className="font-medium text-text-secondary hover:text-accent hover:underline"
+                >
+                  {track.title}
+                </Link>
+                <span className="shrink-0 text-text-tertiary">
+                  {position} of {completion.total}
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-valuenow={completion.done}
+                aria-valuemin={0}
+                aria-valuemax={completion.total}
+                aria-label={`${track.title} progress`}
+                className="h-1.5 overflow-hidden rounded-full bg-bg-tertiary"
+              >
+                <div
+                  className="h-full rounded-full bg-accent transition-all"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+              <p
+                className={
+                  remaining <= 2
+                    ? 'text-sm font-semibold text-accent'
+                    : 'text-xs text-text-tertiary'
+                }
+              >
+                {remaining === 1 ? '1 left — last one' : `${remaining} left`}
+              </p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() =>
+              done ? clearComplete(item.id) : markComplete(item.id)
+            }
+            aria-pressed={done}
+            className={`self-start rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+              done
+                ? 'border-accent bg-accent/10 text-accent'
+                : 'border-border text-text-secondary hover:border-accent'
+            }`}
+          >
+            {done ? 'Completed ✓' : lastOne ? 'Finish track ✓' : 'Mark complete'}
+          </button>
+        </section>
       )}
 
-      {(prev || next) && (
+      {(prev || next || track) && (
         <nav
           aria-label={pagerLabel}
           className="flex flex-col gap-3 border-t border-border pt-6 text-sm"
         >
-          {track && (
-            <p className="text-xs text-text-tertiary">
-              Track:{' '}
-              <Link
-                to={`/tracks/${track.id}`}
-                className="font-medium text-accent hover:underline"
-              >
-                {track.title}
-              </Link>
-            </p>
-          )}
           <div className="grid grid-cols-2 gap-3">
             {prev ? (
               <Link
                 to={contentPath(prev)}
-                className="flex flex-col gap-1 rounded-md border border-border px-3 py-2 transition-colors hover:border-accent"
+                className="flex min-h-[4rem] flex-col justify-center gap-1 rounded-md border border-border px-4 py-3 transition-colors hover:border-accent"
               >
-                <span className="text-xs text-text-tertiary">← Previous</span>
+                <span className="text-xs text-text-tertiary">
+                  ← {track ? 'Previous in track' : 'Previous'}
+                </span>
                 <span className="font-medium text-text-primary">
                   {prev.title}
                 </span>
@@ -132,11 +205,25 @@ export function ContentPage() {
             {next ? (
               <Link
                 to={contentPath(next)}
-                className="flex flex-col gap-1 rounded-md border border-border px-3 py-2 text-right transition-colors hover:border-accent"
+                className="flex min-h-[4rem] flex-col justify-center gap-1 rounded-md border border-border px-4 py-3 text-right transition-colors hover:border-accent"
               >
-                <span className="text-xs text-text-tertiary">Next →</span>
+                <span className="text-xs text-text-tertiary">
+                  {track ? 'Next in track' : 'Next'} →
+                </span>
                 <span className="font-medium text-text-primary">
                   {next.title}
+                </span>
+              </Link>
+            ) : track ? (
+              <Link
+                to={`/tracks/${track.id}`}
+                className="flex min-h-[4rem] flex-col justify-center gap-1 rounded-md border border-border px-4 py-3 text-right transition-colors hover:border-accent"
+              >
+                <span className="text-xs text-text-tertiary">
+                  Track overview →
+                </span>
+                <span className="font-medium text-text-primary">
+                  Back to {track.title}
                 </span>
               </Link>
             ) : (

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { contentPath, getContent } from '@/content';
-import { getTrack } from '@/content/tracks';
+import { getTrack, TRACKS } from '@/content/tracks';
 import { trackProgress, useTrackProgress } from '@/lib/trackProgress';
 
 export function TrackPage() {
@@ -23,6 +23,8 @@ export function TrackPage() {
 
   const { done, total } = trackCompletion(track);
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+  const remaining = total - done;
+  const finished = total > 0 && done === total;
 
   const rows = track.items.map((itemId) => ({
     itemId,
@@ -33,9 +35,33 @@ export function TrackPage() {
     resolvable.find((row) => !isComplete(row.itemId))?.item ??
     resolvable[0]?.item ??
     null;
+  const startLabel = done === 0 ? 'Start' : finished ? 'Review' : 'Resume';
+
+  const trackIndex = TRACKS.findIndex((t) => t.id === track.id);
+  const siblingTrack = TRACKS[(trackIndex + 1) % TRACKS.length];
 
   return (
     <article className="flex flex-col gap-6">
+      {finished && (
+        <div className="flex flex-col gap-2 rounded-lg border border-accent bg-accent/10 p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-accent">
+            <span aria-hidden>✓</span> You’ve finished {track.title}
+          </p>
+          {siblingTrack && siblingTrack.id !== track.id && (
+            <p className="text-sm text-text-secondary">
+              Keep the momentum:{' '}
+              <Link
+                to={`/tracks/${siblingTrack.id}`}
+                className="font-medium text-accent hover:underline"
+              >
+                {siblingTrack.title}
+              </Link>
+              .
+            </p>
+          )}
+        </div>
+      )}
+
       <header className="flex flex-col gap-3">
         <p className="text-xs font-medium uppercase tracking-wide text-text-tertiary">
           Track
@@ -45,12 +71,6 @@ export function TrackPage() {
       </header>
 
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between text-xs text-text-tertiary">
-          <span>
-            {done} of {total} complete
-          </span>
-          <span>{percent}%</span>
-        </div>
         <div
           role="progressbar"
           aria-valuenow={done}
@@ -64,6 +84,21 @@ export function TrackPage() {
             style={{ width: `${percent}%` }}
           />
         </div>
+        <p className="text-xs text-text-tertiary">
+          {done} of {total} complete
+          {remaining > 0 && (
+            <>
+              {' · '}
+              <span
+                className={
+                  remaining <= 2 ? 'font-semibold text-accent' : undefined
+                }
+              >
+                {remaining} left
+              </span>
+            </>
+          )}
+        </p>
       </div>
 
       {startTarget && (
@@ -71,7 +106,7 @@ export function TrackPage() {
           to={contentPath(startTarget)}
           className="self-start rounded-md border border-border px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:border-accent"
         >
-          {done > 0 ? 'Resume' : 'Start'} →
+          {startLabel} →
         </Link>
       )}
 
