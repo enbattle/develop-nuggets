@@ -27,3 +27,6 @@ npm-debug.log*
 
 # Background-agent git worktrees
 .claude/worktrees/
+
+# Vite transient config-load artifact
+vite.config.ts.timestamp-*
