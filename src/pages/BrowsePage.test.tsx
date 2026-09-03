@@ -181,4 +181,28 @@ describe('BrowsePage', () => {
       screen.queryByRole('heading', { name: 'Foundations' }),
     ).not.toBeInTheDocument();
   });
+
+  it('offers a jump-to-section nav matching the visible sections', () => {
+    renderAt();
+    const jump = screen.getByRole('navigation', { name: /jump to section/i });
+    // One button per rendered section heading, with its item count.
+    const headings = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((h) => h.textContent);
+    for (const label of headings) {
+      expect(
+        within(jump).getByRole('button', {
+          name: new RegExp(`^${label}\\s+\\d+$`),
+        }),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it('drops the jump nav when a single section survives the filter', () => {
+    // Only one item carries the `git` tag, so one section renders.
+    renderAt('/browse?tag=git');
+    expect(
+      screen.queryByRole('navigation', { name: /jump to section/i }),
+    ).not.toBeInTheDocument();
+  });
 });

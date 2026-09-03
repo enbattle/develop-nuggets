@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Nugget, Tag } from '@/types';
-import { CONTENT } from '@/content';
+import { CONTENT, contentBySection } from '@/content';
 import { FORMAT_LABELS } from '@/lib/format';
-import { DOMAIN_LABELS, DOMAIN_ORDER, sectionDomain } from '@/lib/sections';
+import {
+  DOMAIN_LABELS,
+  DOMAIN_ORDER,
+  SECTION_LABELS,
+  sectionAnchorId,
+  sectionDomain,
+} from '@/lib/sections';
 import { useDomain } from '@/hooks/useDomain';
 import { SectionedContentList } from '@/components/SectionedContentList';
 import { TagFilterMenu } from '@/components/TagFilterMenu';
@@ -60,6 +66,8 @@ export function BrowsePage() {
       ),
     [domainScoped, format, tags],
   );
+
+  const groups = useMemo(() => contentBySection(filtered), [filtered]);
 
   if (CONTENT.length === 0) {
     return (
@@ -141,6 +149,29 @@ export function BrowsePage() {
             {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
           </p>
         </div>
+
+        {groups.length > 1 && (
+          <nav
+            aria-label="Jump to section"
+            className="flex flex-wrap gap-1 border-t border-border pt-2"
+          >
+            {groups.map(({ section, items }) => (
+              <button
+                key={section}
+                type="button"
+                onClick={() =>
+                  document
+                    .getElementById(sectionAnchorId(section))
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+                className="rounded px-2 py-1 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              >
+                {SECTION_LABELS[section]}{' '}
+                <span className="text-text-tertiary">{items.length}</span>
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
 
       {tags.length > 0 && (

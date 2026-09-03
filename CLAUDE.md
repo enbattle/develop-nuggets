@@ -462,10 +462,11 @@ Routes (`src/App.tsx`):
   (keeps the RAG-viz weight out of the main chunk). See "Interactive
   algorithm pages".
 
-`Header` (search, theme toggle) is rendered once in `AppShell`, above the
-routed content, so it's present on every page. There is no top-level
-Browse/Tracks/Interactive nav yet — those are reached from the hub, inline
-links, and ⌘K.
+`Header` (logo, primary nav, search, theme toggle) is rendered once in
+`AppShell`, above the routed content. The primary nav — `PRIMARY_NAV` in
+`src/lib/nav.ts` (Browse / Tracks / Interactive) — shows inline on `sm+`
+and moves into the top of the mobile drawer below `sm`. Search lives only
+here now (the hub's hero search was removed — one search box, Jakob's Law).
 
 ### Tracks
 
@@ -617,6 +618,11 @@ wall), a live result count, and a **compact/comfortable density toggle**
 (`density` prop threaded to `SectionedContentList` → `ContentListItem`).
 Active tag filters render as dismissible chips **only when set**.
 `?domain=` / `?tag=` in the URL seed the filters (hub cards, shared links).
+When more than one section survives the filter, the toolbar carries a
+second row: a **jump-to-section nav** — `sectionAnchorId(section)` (in
+`@/lib/sections`) matches the `id` `SectionedContentList` stamps on each
+`<section>`; the buttons `scrollIntoView`, and `scroll-mt-40` clears the
+sticky toolbar.
 
 **No pagination** — grouped into topic sections the largest is ~17, so the
 whole scope renders at once. `PaginatedContentList` / "Load more" was

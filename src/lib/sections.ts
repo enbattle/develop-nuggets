@@ -121,3 +121,9 @@ export const DOMAIN_LABELS: Record<Domain, string> = {
 
 /** Order the domains are shown in — systems first, then AI. */
 export const DOMAIN_ORDER: Domain[] = ['systems', 'ai'];
+
+/**
+ * The DOM id of a section's block on `/browse`, so the toolbar's
+ * "jump to section" nav can `scrollIntoView` it.
+ */
+export const sectionAnchorId = (section: Section) => `section-${section}`;

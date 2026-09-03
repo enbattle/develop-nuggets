@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { PRIMARY_NAV } from '@/lib/nav';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { HubPage } from '@/pages/HubPage';
@@ -86,7 +87,25 @@ function AppShell() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-64 overflow-y-auto bg-bg-primary p-4 shadow-xl">
+          <div className="absolute inset-y-0 left-0 flex w-64 flex-col gap-4 overflow-y-auto bg-bg-primary p-4 shadow-xl">
+            <nav aria-label="Primary" className="flex flex-col border-b border-border pb-3 sm:hidden">
+              {PRIMARY_NAV.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setSidebarOpen(false)}
+                  className={({ isActive }) =>
+                    `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-accent/10 text-accent'
+                        : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
             <Sidebar onNavigate={() => setSidebarOpen(false)} />
           </div>
         </div>

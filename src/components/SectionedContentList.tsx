@@ -1,6 +1,10 @@
 import type { Nugget } from '@/types';
 import { contentBySection } from '@/content';
-import { SECTION_LABELS, SECTION_DESCRIPTIONS } from '@/lib/sections';
+import {
+  SECTION_LABELS,
+  SECTION_DESCRIPTIONS,
+  sectionAnchorId,
+} from '@/lib/sections';
 import { ContentListItem, type Density } from './ContentListItem';
 
 interface SectionedContentListProps {
@@ -31,7 +35,11 @@ export function SectionedContentList({
   return (
     <div className="flex flex-col gap-10">
       {groups.map(({ section, items }) => (
-        <section key={section} className="flex flex-col gap-3">
+        <section
+          key={section}
+          id={sectionAnchorId(section)}
+          className="flex scroll-mt-40 flex-col gap-3"
+        >
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold text-text-primary">
               {SECTION_LABELS[section]}

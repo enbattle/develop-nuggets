@@ -18,14 +18,18 @@ beforeEach(() => {
 });
 
 describe('App', () => {
-  it('renders the hub at / — hero search, domain cards, tracks, and Start here', () => {
+  it('renders the hub at / — header search, domain cards, tracks, and Start here', () => {
     renderApp('/');
 
-    // Hero heading + a search box beyond the one in the header.
     expect(
       screen.getByRole('heading', { level: 1, name: 'Dev Nuggets' }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole('searchbox').length).toBeGreaterThanOrEqual(2);
+    // One search box, in the header — the hub no longer has its own.
+    expect(screen.getAllByRole('searchbox')).toHaveLength(1);
+    // Primary nav is present on every page.
+    expect(
+      screen.getByRole('link', { name: 'Browse' }),
+    ).toHaveAttribute('href', '/browse');
 
     // Two domain cards, inside the "Browse by domain" region.
     const domainRegion = screen.getByRole('region', {

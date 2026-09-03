@@ -14,7 +14,6 @@ import { useDomain } from '@/hooks/useDomain';
 import { useLastViewedNugget, useResumeTrack } from '@/hooks/useContinueReading';
 import { trackProgress, useTrackProgress } from '@/lib/trackProgress';
 import { TrackCard } from '@/components/TrackCard';
-import { SearchBar } from '@/components/SearchBar';
 
 interface DomainCard {
   domain: Domain;
@@ -122,14 +121,24 @@ export function HubPage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <section className="flex flex-col items-center gap-4 pt-4 text-center">
+      <section className="flex flex-col items-center gap-3 pt-4 text-center">
         <h1 className="text-3xl font-bold text-text-primary">Dev Nuggets</h1>
         <p className="max-w-xl text-sm text-text-secondary">
           A searchable reference of short write-ups on backend systems and AI
           engineering — patterns and gotchas as nuggets, primers and
-          checklists as guides.
+          checklists as guides. Search from the bar above, or press{' '}
+          <kbd className="rounded border border-border bg-bg-secondary px-1 text-xs">
+            Ctrl
+          </kbd>
+          /
+          <kbd className="rounded border border-border bg-bg-secondary px-1 text-xs">
+            ⌘
+          </kbd>
+          <kbd className="rounded border border-border bg-bg-secondary px-1 text-xs">
+            K
+          </kbd>
+          .
         </p>
-        <SearchBar className="max-w-xl" />
       </section>
 
       {showResumeCard && (

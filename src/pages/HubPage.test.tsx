@@ -40,12 +40,16 @@ beforeEach(() => {
 });
 
 describe('HubPage', () => {
-  it('renders a hero with the app name and a search box', () => {
+  it('renders a hero with the app name and tagline (search lives in the header)', () => {
     renderHub();
     expect(
       screen.getByRole('heading', { level: 1, name: 'Dev Nuggets' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+    expect(
+      screen.getByText(/a searchable reference of short write-ups/i),
+    ).toBeInTheDocument();
+    // The hub no longer has its own search box — the header's is the one.
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 
   it('shows two domain cards with counts and top section names', () => {

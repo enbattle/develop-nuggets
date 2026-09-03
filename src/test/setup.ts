@@ -36,3 +36,6 @@ window.IntersectionObserver =
   MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
 window.scrollTo = () => {};
+// jsdom implements neither — the "jump to section" nav and any smooth-scroll
+// call one of them.
+Element.prototype.scrollIntoView = () => {};
