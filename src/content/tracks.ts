@@ -6,9 +6,9 @@
  * yet, in which case the UI shows a "Coming soon" row and skips it for
  * neighbour and progress math.
  *
- * Each track's `items` is the ordered id list of that ai-cauldron module's
- * migrated guides (see MERGE_PLAN.md). An id that doesn't resolve renders as
- * a "Coming soon" row and is skipped for neighbour/progress math.
+ * Each track's `items` is the ordered id list of the guides in its section,
+ * in reading order. An id that doesn't resolve renders as a "Coming soon"
+ * row and is skipped for neighbour/progress math.
  */
 
 import type { Section } from '@/types';

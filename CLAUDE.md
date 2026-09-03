@@ -150,9 +150,11 @@ Vitest + React Testing Library, jsdom environment.
   imports, tests exercise the actual shipped content (`Expand-Contract
   Pattern`, `Idempotency`) rather than seeding fake data into storage. If
   you rename or remove a nugget or guide referenced in a test
-  (`HomePage.test.tsx`, `ContentPage.test.tsx`, `App.test.tsx`), update the
-  test alongside it — and `src/content/links.test.ts` fails if a renamed
-  slug leaves a dangling `](/nuggets/…)` link in any body.
+  (`BrowsePage.test.tsx`, `HubPage.test.tsx`, `ContentPage.test.tsx`,
+  `App.test.tsx`, `Sidebar.test.tsx`), update the test alongside it — and
+  `src/content/links.test.ts` fails if a renamed slug leaves a dangling
+  `](/nuggets/…)`, `](/guides/…)`, `](/tracks/…)`, or `](/interactive/…)`
+  link in any body.
 - Prefer `screen.getByRole()` over test IDs. Test user-visible behavior.
 
 ## Architecture
@@ -374,7 +376,7 @@ things:
   section in order" affordance, derived purely from `section` + title.
 
 The header also shows the section label as a plain eyebrow (not a link —
-there's no per-section page; the home page is where sections are browsed).
+there's no per-section page; `/browse` is where sections are browsed).
 
 ### Reading state
 
@@ -385,9 +387,14 @@ disabled). It backs two independent, unrelated concerns:
 - `ThemeContext.tsx` — the dark/light preference
 - `src/lib/readingProgress.ts` — last-viewed item id + a per-item
   scroll offset, consumed by `useRecordReadingProgress` (restores/persists
-  scroll from `ContentPage`) and `useLastViewedNugget` (feeds the "Continue
-  reading" banner on `HomePage`), both in
-  `src/hooks/useContinueReading.ts`.
+  scroll from `ContentPage`) and `useLastViewedNugget` (feeds the resume
+  card on `HubPage`), both in `src/hooks/useContinueReading.ts`.
+- `src/lib/trackProgress.ts` — per-item track completion (`dn:track-progress`)
+  + the last-engaged track id (`dn:track-progress:last`), driving the
+  content-page progress strip, `TrackPage`, and `useResumeTrack`.
+- `src/hooks/useDomain.ts` — the active domain (`dn:domain`), a module-level
+  `useSyncExternalStore` store (no provider) shared by the sidebar switcher,
+  the browse filter, and the hub's domain cards.
 
 Neither of these stores content — only reading state. There is no
 repository/CRUD layer for nuggets or guides; components read
@@ -439,13 +446,16 @@ for the modal.
 
 Routes (`src/App.tsx`):
 
-- `/` — `HomePage`: continue-reading banner, a **domain filter** (Systems /
-  AI), a format filter (`All`/`Nuggets`/`Guides`), tag chips, then the
-  active domain's catalog as topic-section blocks (see "Home page" below).
+- `/` — `HubPage`: a landing, not the firehose — hero search, a resume
+  card, two domain cards, the tracks row, and the curated "Start here" set.
+  See "Home: hub + browse" below.
+- `/browse` — `BrowsePage`: the full filtered catalog as topic-section
+  blocks, under one toolbar (domain + format + tag menu + density).
 - `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, resolving
   `:id` through `getContent()` and rendering identically. Use
   `contentPath(item)` (from `@/content`) rather than hand-building the
   path — it picks the prefix from `item.format`.
+- `/tracks` — `TracksIndexPage`: the grid of all nine tracks with progress.
 - `/tracks/:id` — `TrackPage`: a track's syllabus + progress (see
   "Tracks").
 - `/interactive` and `/interactive/:id` — `InteractivePage`, **`React.lazy`**
@@ -453,7 +463,9 @@ Routes (`src/App.tsx`):
   algorithm pages".
 
 `Header` (search, theme toggle) is rendered once in `AppShell`, above the
-routed content, so it's present on every page.
+routed content, so it's present on every page. There is no top-level
+Browse/Tracks/Interactive nav yet — those are reached from the hub, inline
+links, and ⌘K.
 
 ### Tracks
 
@@ -518,21 +530,22 @@ those against the registry.
 ### Sidebar
 
 `Sidebar` (`src/components/Sidebar.tsx`) groups content by `section` — the
-topic sections in `SECTION_ORDER`, via `contentBySection()` — with
-guides before nuggets within each and a small "Guide" badge on the guides.
-It is *not* grouped by tag: tags are multi-valued (an item can be both
-`reliability` and `patterns`), so a tag-grouped sidebar would mean either
-duplicating entries or inventing a "primary tag" — `section` is the
-single-valued axis that already exists for exactly this. The sidebar's job
-is fast lookup and orientation by topic from any page; free-text lookup by
-name is what `Ctrl`/`Cmd`+`K` search is for.
+topic sections in `SECTION_ORDER`, via `contentBySection()` — guides and
+nuggets together within each, guides marked with a muted `· guide`. It is
+*not* grouped by tag: tags are multi-valued, so a tag-grouped sidebar would
+mean duplicate entries or a "primary tag". Its job is fast orientation by
+topic from any page; free-text lookup is `Ctrl`/`Cmd`+`K`.
 
-Sections are wrapped in **two domain groups** (`DOMAIN_ORDER` →
-`DOMAIN_LABELS` from `@/lib/sections`: Systems & Infrastructure, AI
-Engineering), each a collapsible `<h2><button aria-expanded>` that is
-**expanded by default** and force-opens (never auto-closes) when you
-navigate into one of its sections. `sectionDomain(section)` (`'ai'` iff the
-value is prefixed `ai-`) is the split.
+**One domain at a time.** A sticky 2-segment **domain switcher** at the top
+(a `role="group"`, not a heading) reads/writes `useDomain()` and scopes the
+tree to that domain's ~10 sections (not all 19) — Miller's Law; see
+`docs/DESIGN.md`. Navigating into a content page flips the switcher to that
+item's domain. `sectionDomain(section)` (`'ai'` iff prefixed `ai-`) is the
+split. Sections are the single heading tier: a collapsible
+`<h2><button aria-expanded>`, collapsed by default, the active one
+auto-expands and never force-closes. Nested item links hang off a
+`border-l` connector (`<ul>`); the active row notches an accent bar over
+it. A `Systems › Section` context crumb shows on content pages.
 
 Each section group is a `SidebarGroup` (a local component inside
 `Sidebar.tsx`, not its own file — not reused elsewhere) with its own
@@ -550,14 +563,15 @@ there's more than one non-empty group (`SECTIONS.length > 1`, where
 `SECTIONS = contentBySection()` already drops empty ones) — with this many
 sections that's always true in practice, but the guard stays generic.
 
-Topic links are indented further than their group heading (`pl-6` vs.
-the heading's `px-3`) so they read as nested under it, not flush with
-it — the link element itself still spans the full row width, so the
-hover/active background isn't affected, only the text's start position.
+Topic links sit in a `<ul>` with a `border-l` connector, inset `ml-3 pl-3`
+from the heading so they read as nested under it; the link element still
+spans the full row width (Fitts), so only the text starts inset, not the
+hover/active background.
 
-Desktop and the mobile drawer are two separate `Sidebar` instances (see
-below), so their collapsed states are independent — collapsing a section
-on desktop doesn't collapse it in the drawer.
+Desktop and the mobile drawer are two separate `Sidebar` instances, so
+their per-section collapsed states are independent. The **domain**
+selection is *not* — it's the shared `useDomain` store, so flipping the
+switcher in one instance flips it in the other.
 
 `AppShell` renders two copies of it: a static one in a `hidden md:block`
 `<aside>` for desktop, and a second one inside a fixed-overlay drawer
@@ -578,35 +592,41 @@ in the viewport while the article scrolls, and only scrolls internally
 once its own content (dozens of nuggets plus a growing set of guides)
 exceeds the viewport height.
 
-### Home page: sections + filters
+### Home: hub + browse
 
-`HomePage` stacks the active domain's catalog as topic-section blocks —
-heading + one-line charter (`SECTION_LABELS`/`SECTION_DESCRIPTIONS`) + the
-section's cards — rendered by `SectionedContentList`
-(`src/components/SectionedContentList.tsx`), which just groups an
-already-filtered `Nugget[]` through `contentBySection()` and shows an
-empty-state line if nothing survived. `HomePage` owns three filters above
-it: a **domain filter** (Systems & Infrastructure / AI Engineering,
-`role="group"` of `aria-pressed` buttons, **defaults to Systems**) that
-scopes which sections render via `sectionDomain`; a format filter
-(`All`/`Nuggets`/`Guides`); and tag chips (`All topics` + every tag in
-`CONTENT`, so the chip set stays fixed regardless of domain or format).
-All three compose; sections with no surviving items don't render.
+Two pages, since a single filtered scroll of 150+ items is a poor landing
+(see `docs/DESIGN.md` — Hick, Occam, Von Restorff).
 
-**There is no pagination.** The earlier design paginated two flat
-per-format lists at `PAGE_SIZE = 10` because each was 30-40 items long;
-grouped into topic sections the largest is under a dozen, so the whole
-catalog renders at once. `PaginatedContentList` and its `visibleCount`/"Load more"
-machinery were deleted with this change — don't reintroduce them for the
-home page. If a single section ever genuinely gets too long to scan, the
-fix is to split the section (add a `Section` value), not to paginate
-inside one.
+**`HubPage` (`/`)** — the landing. A hero `SearchBar`; a **resume card**
+(`useLastViewedNugget` + `useResumeTrack` — de-duped: one row when the last
+item read is in the resume track, two distinct cards when a standalone read
+and a mid-progress track diverge); two **domain cards** (counts + top
+sections; clicking one calls `setDomain` then routes to `/browse`); the
+**tracks row** (`TrackCard` × 9, with progress); and **"Start here"** —
+`curatedItems()` from `src/content/curated.ts` (a hand-picked `string[]` of
+ids spanning both domains; a test asserts each resolves).
 
-Adding a third content format (see `CASE_STUDIES_PLAN.md`) means adding
-`{ id: 'case-study', label: 'Case Studies' }` to `FORMAT_FILTERS` in
-`HomePage.tsx`; `SectionedContentList` and `contentBySection()` are
-already format-agnostic. A case study is still filed under a topic
-`section` like everything else.
+**`BrowsePage` (`/browse`)** — the full catalog as topic-section blocks via
+`SectionedContentList` (groups an already-filtered `Nugget[]` through
+`contentBySection()`; empty sections drop; empty-state line if nothing
+survives). One **sticky toolbar**, one visual style for every control:
+a domain segmented control (via `useDomain`), a format control
+(`All`/`Nuggets`/`Guides`), a **`TagFilterMenu`** (the ~22 tags collapse
+into one searchable multi-select popover, OR semantics — never a flat chip
+wall), a live result count, and a **compact/comfortable density toggle**
+(`density` prop threaded to `SectionedContentList` → `ContentListItem`).
+Active tag filters render as dismissible chips **only when set**.
+`?domain=` / `?tag=` in the URL seed the filters (hub cards, shared links).
+
+**No pagination** — grouped into topic sections the largest is ~17, so the
+whole scope renders at once. `PaginatedContentList` / "Load more" was
+deleted; don't reintroduce it. If a section gets too long to scan, split
+the section (add a `Section` value), don't paginate.
+
+Adding a third content format means adding it to `FORMAT_FILTERS` in
+`BrowsePage.tsx`; `SectionedContentList` and `contentBySection()` are
+already format-agnostic. (`CASE_STUDIES_PLAN.md` predates the hub/browse
+split and the ai-cauldron merge — treat its file paths as stale.)
 
 ### Path alias
 

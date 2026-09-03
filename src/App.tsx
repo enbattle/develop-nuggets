@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
@@ -67,6 +67,7 @@ function AppShell() {
                   </Suspense>
                 }
               />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
         </main>

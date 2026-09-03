@@ -15,10 +15,17 @@ project.
 
 ## Features
 
-- **Two domains** — a Systems / AI toggle on the home page and a matching
-  split in the sidebar; each item is filed under one topic section
-  (Foundations, Data Stores, Retrieval & RAG, Agents, …) with a one-line
-  charter.
+- **Hub landing** — the home page is a hub, not a wall of filters: a
+  search box, a "pick up where you left off" card, two domain cards
+  (Systems & Infrastructure / AI Engineering), the tracks row, and a
+  curated "Start here" set.
+- **Browse** — `/browse` is the full catalog grouped into topic sections
+  (Foundations, Data Stores, Retrieval & RAG, Agents, …), under one
+  toolbar: a domain switch, a format switch (All / Nuggets / Guides), a
+  tag filter menu, and a compact/comfortable density toggle.
+- **Two domains** — Systems / AI is a single switch shared by the hub, the
+  browse toolbar, and the sidebar (which shows one domain's sections at a
+  time).
 - **Tracks** — ordered reading paths through the AI guides (Retrieval,
   Agents, Evaluation, …). Each has a syllabus page with a progress bar;
   within a track the prev/next pager follows track order and you can mark
@@ -34,13 +41,14 @@ project.
   (via [Shiki](https://shiki.style)) with a copy button; ` ```mermaid `
   fences render as diagrams (via [Mermaid](https://mermaid.js.org)); long
   guides get an on-page table of contents.
-- **Tags & related content** — cross-cutting tags filter the home screen
-  and compute the "Related" list on each page.
+- **Tags & related content** — cross-cutting tags filter `/browse` and
+  compute the "Related" list on each page.
 - **Keyboard nav** — `Ctrl`/`Cmd`+`K` search, `?` for the shortcut list,
   `j` / `k` to move through a section or track.
-- **Continue reading** — the home screen resumes at your last item and
-  scroll position, and offers to resume the last track. Reading state is
-  the only thing stored in the browser.
+- **Continue reading** — the hub resumes at your last item and scroll
+  position, and offers to resume the last track. Reading state (last item,
+  scroll, track completion, theme, domain) is the only thing stored in the
+  browser — in `localStorage`, never sent anywhere.
 - **Dark / light mode** — follows your system preference by default,
   toggleable.
 
