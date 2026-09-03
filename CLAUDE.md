@@ -94,6 +94,34 @@ scroll offset, and per-item track completion — never the content itself.
 - Tailwind utilities for layout/spacing/typography; `style={{}}` only for
   truly dynamic values.
 
+### Design principles
+
+The catalog is large (150+ items, 2 domains, 9 tracks). **Navigation is the
+product**, so UI changes are held to the [Laws of UX](https://lawsofux.com).
+Full table + per-surface checklists in [`docs/DESIGN.md`](docs/DESIGN.md) —
+read the surface's checklist before changing it. The set that gates
+everyday work:
+
+- **Hick's Law** — don't render the full choice set (e.g. ~22 tags) flat;
+  collapse filters behind one control, reveal on request.
+- **Miller's Law** — the sidebar shows one domain (~10 sections) at a time,
+  not all 19; "Related" stays at 3.
+- **Law of Similarity** — the three nav tiers (domain / section / item)
+  must look distinct; controls doing the same job must look identical.
+- **Law of Uniform Connectedness** — nested sidebar items get a `border-l`
+  connector to their heading.
+- **Von Restorff** — exactly one emphasised element per view (Resume card,
+  primary CTA, active nav row).
+- **Zeigarnik / Goal-Gradient** — show track progress ("3 / 10", resume
+  affordance); the `trackProgress` mechanism exists to be used visibly.
+- **Occam's Razor** — one filter toolbar, not three stacked rows.
+- **Jakob's Law** — behave like Stripe/GitHub/Linear docs: visible search
+  box, conventional left tree, ⌘K, breadcrumbs, on-page TOC.
+- **Doherty Threshold** — keep lazy boundaries and skeletons; never block
+  first paint on Shiki/Mermaid; instant search.
+
+If a change trades against one of these, name it in the commit.
+
 ### Error handling
 
 - Don't swallow exceptions silently. `safeStorage` (see below) is the one

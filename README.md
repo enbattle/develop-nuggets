@@ -73,3 +73,9 @@ There's no in-app editor — nuggets, guides, and tracks are added as source
 files and shipped with the next `npm run build`. See [CLAUDE.md](CLAUDE.md)
 for the exact steps, the content architecture (including where AI-domain
 guides and tracks live), and when a topic should be a nugget vs. a guide.
+
+## Design
+
+The UI is held to the [Laws of UX](https://lawsofux.com) — navigation is
+the product at this catalog size. See [docs/DESIGN.md](docs/DESIGN.md) for
+the full rubric and per-surface checklists.
