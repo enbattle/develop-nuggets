@@ -43,6 +43,56 @@ const DOMAIN_CARDS: DomainCard[] = DOMAIN_ORDER.map((domain) => {
 
 const CURATED_ITEMS = curatedItems();
 
+// Each resume entry is its own bordered, hoverable target (Law of Common
+// Region + Fitts) — not two links sharing a divider — so it's unambiguous
+// which one you're clicking when both show.
+const resumeRowClass =
+  'flex items-start gap-3 rounded-md border border-border bg-bg-primary p-3 transition-colors hover:border-accent';
+const resumeEyebrowClass =
+  'block text-[0.7rem] font-medium uppercase tracking-wide text-text-tertiary';
+
+const iconClass = 'mt-0.5 h-4 w-4 shrink-0 text-text-tertiary';
+
+/** A page — "continue reading" a single item. */
+function ReadingIcon() {
+  return (
+    <svg
+      className={iconClass}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 4a2 2 0 0 1 2-2h8l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" />
+      <path d="M15 2v5h5" />
+      <path d="M9 12h7M9 16h7" />
+    </svg>
+  );
+}
+
+/** A path between stops — "resume" an ordered track. */
+function TrackIcon() {
+  return (
+    <svg
+      className={iconClass}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="6" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M6 8.5v4a3 3 0 0 0 3 3h6" strokeDasharray="0.1 3.4" />
+    </svg>
+  );
+}
+
 export function HubPage() {
   const navigate = useNavigate();
   const [, setDomain] = useDomain();
@@ -56,7 +106,14 @@ export function HubPage() {
     ? trackProgress.trackCompletion(resumeTrack)
     : null;
   const showResumeTrack = Boolean(resumeItem && resumeTrack && resumeProgress);
-  const showResumeCard = Boolean(lastViewed) || showResumeTrack;
+  // Don't also show a standalone "Continue reading" row when the last item
+  // read is part of the track we're already offering to resume — that's the
+  // same reading thread, and the track row is the richer view of it.
+  const lastViewedInResumeTrack = Boolean(
+    showResumeTrack && lastViewed && resumeTrack?.items.includes(lastViewed.id),
+  );
+  const showContinueReading = Boolean(lastViewed) && !lastViewedInResumeTrack;
+  const showResumeCard = showContinueReading || showResumeTrack;
 
   const openDomain = (domain: Domain) => {
     setDomain(domain);
@@ -78,62 +135,64 @@ export function HubPage() {
       {showResumeCard && (
         <section
           aria-label="Pick up where you left off"
-          className="flex flex-col gap-3 rounded-lg border border-accent bg-accent/5 p-4"
+          className="flex flex-col gap-2 rounded-lg border border-border bg-bg-secondary p-3"
         >
-          {lastViewed && (
-            <Link
-              to={contentPath(lastViewed)}
-              className="flex items-center justify-between gap-3 text-sm"
-            >
-              <span className="text-text-secondary">
-                Continue reading{' '}
-                <span className="font-semibold text-text-primary">
+          {showContinueReading && lastViewed && (
+            <Link to={contentPath(lastViewed)} className={resumeRowClass}>
+              <ReadingIcon />
+              <span className="min-w-0 flex-1">
+                <span className={resumeEyebrowClass}>Continue reading</span>
+                <span className="block truncate font-semibold text-text-primary">
                   {lastViewed.title}
                 </span>
+                <span className="block text-xs text-text-tertiary">
+                  {SECTION_LABELS[lastViewed.section]}
+                </span>
               </span>
-              <span aria-hidden className="text-accent">
+              <span aria-hidden className="self-center text-accent">
                 →
               </span>
             </Link>
           )}
 
           {showResumeTrack && resumeItem && resumeTrack && resumeProgress && (
-            <Link
-              to={contentPath(resumeItem)}
-              className="flex flex-col gap-2 border-t border-accent/20 pt-3 first:border-t-0 first:pt-0"
-            >
-              <span className="flex items-center justify-between gap-3 text-sm">
-                <span className="text-text-secondary">
-                  Resume{' '}
-                  <span className="font-semibold text-text-primary">
-                    {resumeTrack.title}
-                  </span>{' '}
-                  — {resumeProgress.done}/{resumeProgress.total}
+            <Link to={contentPath(resumeItem)} className={resumeRowClass}>
+              <TrackIcon />
+              <span className="min-w-0 flex-1">
+                <span className={resumeEyebrowClass}>Resume track</span>
+                <span className="block truncate font-semibold text-text-primary">
+                  {resumeTrack.title}
                 </span>
-                <span aria-hidden className="text-accent">
-                  →
+                <span className="mt-1.5 flex items-center gap-2">
+                  <span
+                    role="progressbar"
+                    aria-valuenow={resumeProgress.done}
+                    aria-valuemin={0}
+                    aria-valuemax={resumeProgress.total}
+                    aria-label={`${resumeTrack.title} progress`}
+                    className="block h-1.5 flex-1 overflow-hidden rounded-full bg-bg-tertiary"
+                  >
+                    <span
+                      className="block h-full rounded-full bg-accent transition-all"
+                      style={{
+                        width: `${
+                          resumeProgress.total > 0
+                            ? Math.round(
+                                (resumeProgress.done / resumeProgress.total) *
+                                  100,
+                              )
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </span>
+                  <span className="shrink-0 text-xs text-text-tertiary">
+                    {resumeProgress.done} of {resumeProgress.total}
+                  </span>
                 </span>
               </span>
-              <span
-                role="progressbar"
-                aria-valuenow={resumeProgress.done}
-                aria-valuemin={0}
-                aria-valuemax={resumeProgress.total}
-                aria-label={`${resumeTrack.title} progress`}
-                className="block h-1.5 overflow-hidden rounded-full bg-bg-tertiary"
-              >
-                <span
-                  className="block h-full rounded-full bg-accent transition-all"
-                  style={{
-                    width: `${
-                      resumeProgress.total > 0
-                        ? Math.round(
-                            (resumeProgress.done / resumeProgress.total) * 100,
-                          )
-                        : 0
-                    }%`,
-                  }}
-                />
+              <span aria-hidden className="self-center text-accent">
+                →
               </span>
             </Link>
           )}

@@ -111,11 +111,39 @@ describe('HubPage', () => {
     const card = screen.getByRole('region', {
       name: /pick up where you left off/i,
     });
-    expect(within(card).getByText(/resume/i)).toBeInTheDocument();
+    expect(within(card).getByText(/resume track/i)).toBeInTheDocument();
     expect(
       within(card).getByText('Retrieval-Augmented Generation'),
     ).toBeInTheDocument();
     expect(within(card).getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('collapses to a single row when the last item read is in the resume track', () => {
+    readingProgress.setLastViewedId('what-is-rag'); // first item of the rag track
+    trackProgress.setLastTrackId('rag');
+    renderHub();
+
+    const card = screen.getByRole('region', {
+      name: /pick up where you left off/i,
+    });
+    expect(within(card).getByText(/resume track/i)).toBeInTheDocument();
+    expect(
+      within(card).queryByText(/continue reading/i),
+    ).not.toBeInTheDocument();
+    expect(within(card).getAllByRole('link')).toHaveLength(1);
+  });
+
+  it('shows two distinct rows when a standalone read and a track diverge', () => {
+    readingProgress.setLastViewedId('idempotency'); // a nugget, in no track
+    trackProgress.setLastTrackId('rag');
+    renderHub();
+
+    const card = screen.getByRole('region', {
+      name: /pick up where you left off/i,
+    });
+    expect(within(card).getByText(/continue reading/i)).toBeInTheDocument();
+    expect(within(card).getByText(/resume track/i)).toBeInTheDocument();
+    expect(within(card).getAllByRole('link')).toHaveLength(2);
   });
 
   it('renders no resume card with a clean slate', () => {
