@@ -16,13 +16,14 @@ project.
 ## Features
 
 - **Hub landing** — the home page is a hub, not a wall of filters: a
-  search box, a "pick up where you left off" card, two domain cards
-  (Systems & Infrastructure / AI Engineering), the tracks row, and a
-  curated "Start here" set.
+  "pick up where you left off" card, two domain cards (Systems &
+  Infrastructure / AI Engineering), the tracks row, and a curated "Start
+  here" set. A header search box and `Browse · Tracks · Interactive` nav
+  are on every page.
 - **Browse** — `/browse` is the full catalog grouped into topic sections
   (Foundations, Data Stores, Retrieval & RAG, Agents, …), under one
-  toolbar: a domain switch, a format switch (All / Nuggets / Guides), a
-  tag filter menu, and a compact/comfortable density toggle.
+  toolbar split into filters (domain · format · tag menu) and view
+  (result count · compact/comfortable density).
 - **Two domains** — Systems / AI is a single switch shared by the hub, the
   browse toolbar, and the sidebar (which shows one domain's sections at a
   time).

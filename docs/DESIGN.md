@@ -70,10 +70,13 @@ change a surface, re-read its row.
 Similarity (three tiers must look different) · Uniform Connectedness (connector line) · Miller (one domain visible) · Proximity (whitespace groups) · Fitts (full-row targets) · Serial Position (key sections at the ends) · Jakob (conventional docs tree).
 
 **Home / hub** (`src/pages/HubPage.tsx`)
-Hick + Occam (no filter wall on landing) · Von Restorff (one emphasised card) · Serial Position (Resume first) · Zeigarnik + Goal-Gradient (track progress) · Jakob (visible search) · Pareto (curated set) · Chunking (domain cards, tracks row).
+Hick + Occam (no filter wall on landing) · Von Restorff (one emphasised card) · Serial Position (Resume first) · Zeigarnik + Goal-Gradient (track progress) · Jakob (search + nav in the header) · Pareto (curated set) · Chunking (domain cards, tracks row).
 
 **Browse** (`src/pages/BrowsePage.tsx`)
-Hick (tags behind one popover) · Common Region (one toolbar) · Tesler (compact mode) · Doherty (instant filtering) · Proximity (active-filter chips only when set) · Miller (jump-to-section nav in the toolbar's second row when >1 section shows).
+Hick (tags behind one popover) · Common Region (toolbar split into filters | status+view zones) · Similarity (every single-select toggle is a `SegmentedControl`; the tag trigger is deliberately a different, bordered control) · Tesler (compact mode) · Doherty (instant filtering) · Proximity (active-filter chips only when set) · Miller (jump-to-section nav in the toolbar's second row when >1 section shows).
+
+**Shared controls**
+`SegmentedControl` (`src/components/SegmentedControl.tsx`) is the one "pick one of N" control (domain, format, density, sidebar switcher). `Header` carries the primary nav (`src/lib/nav.ts`).
 
 **Content page** (`src/pages/ContentPage.tsx`)
 Peak-End (a rewarding end block) · Zeigarnik / Goal-Gradient (track progress + mark-complete) · Doherty (lazy render, skeleton) · Serial Position (TOC, prev/next) · Fitts (large pager targets).
