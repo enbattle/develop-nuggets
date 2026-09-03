@@ -39,9 +39,9 @@ describe('useGlobalShortcuts', () => {
     renderApp('/');
 
     await user.keyboard('j');
-    // Still on the home page (its format filter group is present).
+    // Still on the hub (its "Browse by domain" region is present).
     expect(
-      screen.getByRole('group', { name: /filter by format/i }),
+      screen.getByRole('region', { name: /browse by domain/i }),
     ).toBeInTheDocument();
   });
 

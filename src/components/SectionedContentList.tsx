@@ -1,11 +1,13 @@
 import type { Nugget } from '@/types';
 import { contentBySection } from '@/content';
 import { SECTION_LABELS, SECTION_DESCRIPTIONS } from '@/lib/sections';
-import { ContentListItem } from './ContentListItem';
+import { ContentListItem, type Density } from './ContentListItem';
 
 interface SectionedContentListProps {
   /** Already filtered by the caller — this component only groups and renders. */
   items: Nugget[];
+  /** Passed through to each card — `compact` tightens spacing (Tesler). */
+  density?: Density;
 }
 
 /**
@@ -14,7 +16,10 @@ interface SectionedContentListProps {
  * charter. Empty sections are dropped by `contentBySection`; if nothing is
  * left, an empty-state line is shown instead.
  */
-export function SectionedContentList({ items }: SectionedContentListProps) {
+export function SectionedContentList({
+  items,
+  density = 'comfortable',
+}: SectionedContentListProps) {
   const groups = contentBySection(items);
 
   if (groups.length === 0) {
@@ -35,10 +40,12 @@ export function SectionedContentList({ items }: SectionedContentListProps) {
               {SECTION_DESCRIPTIONS[section]}
             </p>
           </div>
-          <ul className="flex flex-col gap-3">
+          <ul
+            className={`flex flex-col ${density === 'compact' ? 'gap-1.5' : 'gap-3'}`}
+          >
             {items.map((item) => (
               <li key={item.id}>
-                <ContentListItem item={item} />
+                <ContentListItem item={item} density={density} />
               </li>
             ))}
           </ul>
