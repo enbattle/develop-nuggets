@@ -4,14 +4,15 @@ import type { Nugget, Tag } from '@/types';
 import { CONTENT, contentBySection } from '@/content';
 import { FORMAT_LABELS } from '@/lib/format';
 import {
-  DOMAIN_LABELS,
   DOMAIN_ORDER,
+  DOMAIN_SHORT_LABELS,
   SECTION_LABELS,
   sectionAnchorId,
   sectionDomain,
 } from '@/lib/sections';
 import { useDomain } from '@/hooks/useDomain';
 import { SectionedContentList } from '@/components/SectionedContentList';
+import { SegmentedControl } from '@/components/SegmentedControl';
 import { TagFilterMenu } from '@/components/TagFilterMenu';
 import type { Density } from '@/components/ContentListItem';
 
@@ -25,13 +26,18 @@ const FORMAT_FILTERS: { id: FormatFilter; label: string }[] = [
 
 const KNOWN_TAGS = new Set<Tag>(CONTENT.flatMap((item) => item.tags));
 
-function segClass(active: boolean): string {
-  const base =
-    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
-  return active
-    ? `${base} bg-accent/10 text-accent`
-    : `${base} text-text-secondary hover:bg-bg-tertiary hover:text-text-primary`;
-}
+const DOMAIN_OPTIONS = DOMAIN_ORDER.map((id) => ({
+  value: id,
+  label: DOMAIN_SHORT_LABELS[id],
+}));
+const FORMAT_OPTIONS = FORMAT_FILTERS.map((f) => ({
+  value: f.id,
+  label: f.label,
+}));
+const DENSITY_OPTIONS: { value: Density; label: string }[] = [
+  { value: 'comfortable', label: 'Comfortable' },
+  { value: 'compact', label: 'Compact' },
+];
 
 export function BrowsePage() {
   const [searchParams] = useSearchParams();
@@ -86,75 +92,57 @@ export function BrowsePage() {
     <div className="flex flex-col gap-6">
       <h1 className="sr-only">Browse the catalog</h1>
 
-      <div className="sticky top-16 z-30 flex flex-col gap-3 rounded-lg border border-border bg-bg-primary/95 p-3 backdrop-blur">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div role="group" aria-label="Filter by domain" className="flex gap-1">
-            {DOMAIN_ORDER.map((id) => (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={domain === id}
-                onClick={() => setDomain(id)}
-                className={segClass(domain === id)}
-              >
-                {DOMAIN_LABELS[id]}
-              </button>
-            ))}
+      <div className="sticky top-16 z-30 flex flex-col gap-2.5 rounded-lg border border-border bg-bg-primary/95 p-3 backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          {/* Filters — what's in the list */}
+          <div className="flex flex-wrap items-center gap-2">
+            <SegmentedControl
+              label="Filter by domain"
+              options={DOMAIN_OPTIONS}
+              value={domain}
+              onChange={setDomain}
+            />
+            <SegmentedControl
+              label="Filter by format"
+              options={FORMAT_OPTIONS}
+              value={format}
+              onChange={setFormat}
+            />
+            <TagFilterMenu
+              selected={tags}
+              onChange={setTags}
+              scope={domainScoped.filter(
+                (item) => format === 'all' || item.format === format,
+              )}
+            />
           </div>
 
-          <div role="group" aria-label="Filter by format" className="flex gap-1">
-            {FORMAT_FILTERS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                aria-pressed={format === option.id}
-                onClick={() => setFormat(option.id)}
-                className={segClass(format === option.id)}
-              >
-                {option.label}
-              </button>
-            ))}
+          {/* Status + view — how the list looks */}
+          <div className="flex items-center gap-3">
+            <p
+              aria-live="polite"
+              className="text-sm tabular-nums text-text-tertiary"
+            >
+              {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
+            </p>
+            <SegmentedControl
+              label="List density"
+              size="sm"
+              options={DENSITY_OPTIONS}
+              value={density}
+              onChange={setDensity}
+            />
           </div>
-
-          <TagFilterMenu
-            selected={tags}
-            onChange={setTags}
-            scope={domainScoped.filter(
-              (item) => format === 'all' || item.format === format,
-            )}
-          />
-
-          <div
-            role="group"
-            aria-label="List density"
-            className="flex gap-1"
-          >
-            {(['comfortable', 'compact'] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                aria-pressed={density === mode}
-                onClick={() => setDensity(mode)}
-                className={segClass(density === mode)}
-              >
-                {mode === 'comfortable' ? 'Comfortable' : 'Compact'}
-              </button>
-            ))}
-          </div>
-
-          <p
-            aria-live="polite"
-            className="ml-auto text-sm text-text-tertiary"
-          >
-            {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
-          </p>
         </div>
 
         {groups.length > 1 && (
           <nav
             aria-label="Jump to section"
-            className="flex flex-wrap gap-1 border-t border-border pt-2"
+            className="flex flex-wrap items-center gap-x-1 gap-y-0.5 border-t border-border pt-2 text-xs"
           >
+            <span className="pr-1 font-medium uppercase tracking-wide text-text-tertiary">
+              Jump to
+            </span>
             {groups.map(({ section, items }) => (
               <button
                 key={section}
@@ -164,7 +152,7 @@ export function BrowsePage() {
                     .getElementById(sectionAnchorId(section))
                     ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
-                className="rounded px-2 py-1 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+                className="rounded px-1.5 py-0.5 font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
               >
                 {SECTION_LABELS[section]}{' '}
                 <span className="text-text-tertiary">{items.length}</span>

@@ -4,7 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Sidebar } from './Sidebar';
 import { contentBySection } from '@/content';
-import { DOMAIN_LABELS, SECTION_LABELS, sectionDomain } from '@/lib/sections';
+import { DOMAIN_SHORT_LABELS, SECTION_LABELS, sectionDomain } from '@/lib/sections';
 import { resetDomain } from '@/hooks/useDomain';
 
 const SECTIONS = contentBySection();
@@ -33,14 +33,14 @@ describe('Sidebar', () => {
 
     const group = screen.getByRole('group', { name: 'Domain' });
     const systems = within(group).getByRole('button', {
-      name: DOMAIN_LABELS.systems,
+      name: DOMAIN_SHORT_LABELS.systems,
     });
-    const ai = within(group).getByRole('button', { name: DOMAIN_LABELS.ai });
+    const ai = within(group).getByRole('button', { name: DOMAIN_SHORT_LABELS.ai });
 
     expect(systems).toHaveAttribute('aria-pressed', 'true');
     expect(ai).toHaveAttribute('aria-pressed', 'false');
     expect(
-      screen.queryByRole('heading', { name: DOMAIN_LABELS.systems }),
+      screen.queryByRole('heading', { name: DOMAIN_SHORT_LABELS.systems }),
     ).not.toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('Sidebar', () => {
       ).not.toBeInTheDocument();
     }
 
-    await user.click(screen.getByRole('button', { name: DOMAIN_LABELS.ai }));
+    await user.click(screen.getByRole('button', { name: DOMAIN_SHORT_LABELS.ai }));
 
     for (const { section } of AI_SECTIONS) {
       expect(
@@ -151,7 +151,7 @@ describe('Sidebar', () => {
     renderAt('/guides/building-first-rag');
 
     expect(
-      screen.getByRole('button', { name: DOMAIN_LABELS.ai }),
+      screen.getByRole('button', { name: DOMAIN_SHORT_LABELS.ai }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(
       screen.getByRole('button', { name: 'Retrieval & RAG' }),

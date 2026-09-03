@@ -537,10 +537,10 @@ nuggets together within each, guides marked with a muted `· guide`. It is
 mean duplicate entries or a "primary tag". Its job is fast orientation by
 topic from any page; free-text lookup is `Ctrl`/`Cmd`+`K`.
 
-**One domain at a time.** A sticky 2-segment **domain switcher** at the top
-(a `role="group"`, not a heading) reads/writes `useDomain()` and scopes the
+**One domain at a time.** A `SegmentedControl` (`stretch`) at the top —
+`role="group"`, not a heading — reads/writes `useDomain()` and scopes the
 tree to that domain's ~10 sections (not all 19) — Miller's Law; see
-`docs/DESIGN.md`. Navigating into a content page flips the switcher to that
+`docs/DESIGN.md`. Same control and short labels as the browse toolbar. Navigating into a content page flips the switcher to that
 item's domain. `sectionDomain(section)` (`'ai'` iff prefixed `ai-`) is the
 split. Sections are the single heading tier: a collapsible
 `<h2><button aria-expanded>`, collapsed by default, the active one
@@ -610,12 +610,17 @@ ids spanning both domains; a test asserts each resolves).
 **`BrowsePage` (`/browse`)** — the full catalog as topic-section blocks via
 `SectionedContentList` (groups an already-filtered `Nugget[]` through
 `contentBySection()`; empty sections drop; empty-state line if nothing
-survives). One **sticky toolbar**, one visual style for every control:
-a domain segmented control (via `useDomain`), a format control
-(`All`/`Nuggets`/`Guides`), a **`TagFilterMenu`** (the ~22 tags collapse
-into one searchable multi-select popover, OR semantics — never a flat chip
-wall), a live result count, and a **compact/comfortable density toggle**
-(`density` prop threaded to `SectionedContentList` → `ContentListItem`).
+survives). One **sticky toolbar**, split into two zones (Common Region /
+Chunking): **filters** on the left — a domain `SegmentedControl` (via
+`useDomain`, short `DOMAIN_SHORT_LABELS`), a format `SegmentedControl`, and
+the **`TagFilterMenu`** (the ~22 tags behind one searchable multi-select
+popover, OR semantics — never a flat chip wall); **status + view** on the
+right — a live result count and a `size="sm"` density `SegmentedControl`
+(`density` threaded to `SectionedContentList` → `ContentListItem`). Every
+single-select toggle in the app goes through `SegmentedControl`
+(`src/components/SegmentedControl.tsx`) so they read as one kind of thing
+(Similarity) and match the pattern people know (Jakob); the `TagFilterMenu`
+trigger is a bordered menu button, deliberately *not* a segment.
 Active tag filters render as dismissible chips **only when set**.
 `?domain=` / `?tag=` in the URL seed the filters (hub cards, shared links).
 When more than one section survives the filter, the toolbar carries a

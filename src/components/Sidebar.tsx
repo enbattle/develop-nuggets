@@ -3,14 +3,20 @@ import { NavLink, useLocation } from 'react-router-dom';
 import type { Nugget, Section } from '@/types';
 import { contentBySection, contentPath, getContent } from '@/content';
 import {
-  DOMAIN_LABELS,
   DOMAIN_ORDER,
+  DOMAIN_SHORT_LABELS,
   SECTION_LABELS,
   sectionDomain,
   type Domain,
 } from '@/lib/sections';
 import { FORMAT_LABELS } from '@/lib/format';
 import { useDomain } from '@/hooks/useDomain';
+import { SegmentedControl } from './SegmentedControl';
+
+const DOMAIN_OPTIONS = DOMAIN_ORDER.map((id) => ({
+  value: id,
+  label: DOMAIN_SHORT_LABELS[id],
+}));
 
 interface SidebarProps {
   /** Called after a link is clicked — used to close the mobile drawer. */
@@ -35,13 +41,6 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? '-ml-px border-l-2 border-accent bg-accent/5 font-medium text-accent'
       : 'border-l-2 border-transparent text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
-  }`;
-
-const domainSegmentClass = (active: boolean) =>
-  `flex-1 rounded px-2 py-1.5 text-center text-[0.7rem] font-medium leading-tight transition-colors ${
-    active
-      ? 'bg-bg-tertiary font-semibold text-text-primary shadow-sm'
-      : 'text-text-secondary hover:text-text-primary'
   }`;
 
 function Chevron({ open }: { open: boolean }) {
@@ -148,23 +147,13 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
   return (
     <nav aria-label="All content" className="flex flex-col">
-      <div
-        role="group"
-        aria-label="Domain"
-        className="flex gap-0.5 rounded-md border border-border p-0.5"
-      >
-        {DOMAIN_ORDER.map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={domain === option}
-            onClick={() => setDomain(option)}
-            className={domainSegmentClass(domain === option)}
-          >
-            {DOMAIN_LABELS[option]}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        label="Domain"
+        options={DOMAIN_OPTIONS}
+        value={domain}
+        onChange={setDomain}
+        stretch
+      />
 
       {activeSection && (
         <p className="mt-3 px-3 text-[0.7rem] text-text-tertiary">

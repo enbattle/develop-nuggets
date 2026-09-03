@@ -74,7 +74,7 @@ describe('App', () => {
     // Browse page toolbar, scoped to the AI domain.
     const domainGroup = screen.getByRole('group', { name: /filter by domain/i });
     expect(
-      within(domainGroup).getByRole('button', { name: 'AI Engineering' }),
+      within(domainGroup).getByRole('button', { name: 'AI' }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(
       within(screen.getByRole('main')).getByRole('heading', {

@@ -119,6 +119,12 @@ export const DOMAIN_LABELS: Record<Domain, string> = {
   ai: 'AI Engineering',
 };
 
+/** Short label for tight spots — the sidebar switcher and the browse toolbar. */
+export const DOMAIN_SHORT_LABELS: Record<Domain, string> = {
+  systems: 'Systems',
+  ai: 'AI',
+};
+
 /** Order the domains are shown in — systems first, then AI. */
 export const DOMAIN_ORDER: Domain[] = ['systems', 'ai'];
 

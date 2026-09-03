@@ -61,7 +61,7 @@ describe('BrowsePage', () => {
     const domainGroup = screen.getByRole('group', { name: /filter by domain/i });
     expect(
       within(domainGroup).getByRole('button', {
-        name: 'Systems & Infrastructure',
+        name: 'Systems',
       }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(resultCount()).toBe(SYSTEMS.length);
@@ -70,7 +70,7 @@ describe('BrowsePage', () => {
     ).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole('button', { name: 'AI Engineering' }),
+      screen.getByRole('button', { name: 'AI' }),
     );
     expect(resultCount()).toBe(AI.length);
     expect(
