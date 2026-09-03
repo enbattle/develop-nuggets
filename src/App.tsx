@@ -3,9 +3,11 @@ import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { HomePage } from '@/pages/HomePage';
+import { HubPage } from '@/pages/HubPage';
+import { BrowsePage } from '@/pages/BrowsePage';
 import { ContentPage } from '@/pages/ContentPage';
 import { TrackPage } from '@/pages/TrackPage';
+import { TracksIndexPage } from '@/pages/TracksIndexPage';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
 
@@ -43,9 +45,11 @@ function AppShell() {
         <main className="min-w-0 flex-1">
           <div className="mx-auto max-w-3xl">
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<HubPage />} />
+              <Route path="/browse" element={<BrowsePage />} />
               <Route path="/nuggets/:id" element={<ContentPage />} />
               <Route path="/guides/:id" element={<ContentPage />} />
+              <Route path="/tracks" element={<TracksIndexPage />} />
               <Route path="/tracks/:id" element={<TrackPage />} />
               <Route
                 path="/interactive"

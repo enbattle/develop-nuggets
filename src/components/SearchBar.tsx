@@ -6,8 +6,13 @@ import { searchNuggets } from '@/lib/search';
 import { FORMAT_LABELS } from '@/lib/format';
 import { SECTION_LABELS } from '@/lib/sections';
 
-export const SearchBar = forwardRef<HTMLInputElement>(
-  function SearchBar(_props, ref) {
+interface SearchBarProps {
+  /** Overrides the default `max-w-sm` width cap on the wrapper. */
+  className?: string;
+}
+
+export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
+  function SearchBar({ className }, ref) {
     const [query, setQuery] = useState('');
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
@@ -24,7 +29,7 @@ export const SearchBar = forwardRef<HTMLInputElement>(
     };
 
     return (
-      <div className="relative w-full max-w-sm">
+      <div className={`relative w-full ${className ?? 'max-w-sm'}`}>
         <input
           ref={ref}
           type="search"
