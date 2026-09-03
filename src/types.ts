@@ -6,6 +6,7 @@
  * `src/lib/sections.ts` for labels, charters, and display order.
  */
 export type Section =
+  // Systems & Infrastructure
   | 'foundations'
   | 'apis-communication'
   | 'databases-modeling'
@@ -15,27 +16,54 @@ export type Section =
   | 'messaging'
   | 'networking'
   | 'security-auth'
-  | 'delivery';
+  | 'delivery'
+  // AI Engineering — every AI section is prefixed `ai-`; `sectionDomain` in
+  // `src/lib/sections.ts` keys the home-page / sidebar domain split off that.
+  | 'ai-llm-internals'
+  | 'ai-reasoning'
+  | 'ai-adaptation'
+  | 'ai-retrieval'
+  | 'ai-agents'
+  | 'ai-orchestration'
+  | 'ai-safety'
+  | 'ai-evaluation'
+  | 'ai-mlops';
 
 /**
  * Controlled tag vocabulary. Tags are the multi-valued, cross-cutting axis
  * (they drive the home-page filter chips and tag-derived "Related"); a
  * closed union keeps the vocabulary from fragmenting into near-duplicates
- * (`api`/`apis`, `auth`/`authentication`). Add a value here — deliberately —
+ * (`api`/`apis`, `rag`/`retrieval`). Add a value here — deliberately —
  * before using it on an item; don't widen this back to `string`.
+ *
+ * Current vocabulary: `agents`, `ai`, `apis`, `auth`, `databases`,
+ * `embeddings`, `evals`, `fine-tuning`, `git`, `guardrails`, `inference`,
+ * `messaging`, `migrations`, `mlops`, `networking`, `patterns`,
+ * `performance`, `process`, `prompting`, `rag`, `reliability`, `security`,
+ * `testing`, `tooling`, `web`. The `ai` tag stays the broad marker for
+ * AI-adjacent content; the finer AI tags below narrow it.
  */
 export type Tag =
+  | 'agents'
   | 'ai'
   | 'apis'
   | 'auth'
   | 'databases'
+  | 'embeddings'
+  | 'evals'
+  | 'fine-tuning'
   | 'git'
+  | 'guardrails'
+  | 'inference'
   | 'messaging'
   | 'migrations'
+  | 'mlops'
   | 'networking'
   | 'patterns'
   | 'performance'
   | 'process'
+  | 'prompting'
+  | 'rag'
   | 'reliability'
   | 'security'
   | 'testing'

@@ -20,17 +20,31 @@ Always run `npm run build`, `npm run lint`, and `npm run test:run` before finali
 
 ## What this app is
 
-A read-only, no-backend catalog of short programming write-ups
-("nuggets") — patterns, gotchas, concepts — searchable and taggable, plus a
-small set of longer-form "guides" (walkthroughs, best-practices
-references) for topics that don't compress into a single idea. It is
-**not** a note-taking app: there is no in-browser create/edit/delete flow.
-Content is authored as source files and ships with the build, the same way
-`ai-cauldron`'s lesson modules work. See [README.md](README.md) for the
-user-facing feature list.
+A read-only, no-backend engineering reference. It spans two **domains** —
+**Systems & Infrastructure** (the original catalog: backend, data, APIs,
+networking, reliability) and **AI Engineering** (LLM internals, retrieval,
+agents, evaluation, MLOps — migrated in from the former `ai-cauldron`
+project). Both are the same two content shapes:
 
-The only thing persisted in the browser is *reading state* — which item
-you last opened and how far you scrolled — not the content itself.
+- **nuggets** — short, single-concept write-ups (patterns, gotchas,
+  tradeoffs), searchable and taggable.
+- **guides** — longer walkthroughs / best-practices references for topics
+  that don't compress into one idea.
+
+On top of those sit two navigation layers:
+
+- **tracks** — ordered reading paths through a set of guides (one per AI
+  topic; see "Tracks" below). A curation layer, *not* a third `format`.
+- **interactive** — `/interactive/:id` step-through pages for the ten RAG
+  algorithms (4 stepped, 6 static summaries). Lazy-loaded; see
+  "Interactive algorithm pages".
+
+It is **not** a note-taking app: no in-browser create/edit/delete. Content
+is authored as source files and ships with the build. See
+[README.md](README.md) for the user-facing feature list.
+
+The only thing persisted in the browser is *reading state* — last item +
+scroll offset, and per-item track completion — never the content itself.
 
 ## Coding Standards
 
@@ -80,6 +94,34 @@ you last opened and how far you scrolled — not the content itself.
 - Tailwind utilities for layout/spacing/typography; `style={{}}` only for
   truly dynamic values.
 
+### Design principles
+
+The catalog is large (150+ items, 2 domains, 9 tracks). **Navigation is the
+product**, so UI changes are held to the [Laws of UX](https://lawsofux.com).
+Full table + per-surface checklists in [`docs/DESIGN.md`](docs/DESIGN.md) —
+read the surface's checklist before changing it. The set that gates
+everyday work:
+
+- **Hick's Law** — don't render the full choice set (e.g. ~22 tags) flat;
+  collapse filters behind one control, reveal on request.
+- **Miller's Law** — the sidebar shows one domain (~10 sections) at a time,
+  not all 19; "Related" stays at 3.
+- **Law of Similarity** — the three nav tiers (domain / section / item)
+  must look distinct; controls doing the same job must look identical.
+- **Law of Uniform Connectedness** — nested sidebar items get a `border-l`
+  connector to their heading.
+- **Von Restorff** — exactly one emphasised element per view (Resume card,
+  primary CTA, active nav row).
+- **Zeigarnik / Goal-Gradient** — show track progress ("3 / 10", resume
+  affordance); the `trackProgress` mechanism exists to be used visibly.
+- **Occam's Razor** — one filter toolbar, not three stacked rows.
+- **Jakob's Law** — behave like Stripe/GitHub/Linear docs: visible search
+  box, conventional left tree, ⌘K, breadcrumbs, on-page TOC.
+- **Doherty Threshold** — keep lazy boundaries and skeletons; never block
+  first paint on Shiki/Mermaid; instant search.
+
+If a change trades against one of these, name it in the commit.
+
 ### Error handling
 
 - Don't swallow exceptions silently. `safeStorage` (see below) is the one
@@ -108,9 +150,11 @@ Vitest + React Testing Library, jsdom environment.
   imports, tests exercise the actual shipped content (`Expand-Contract
   Pattern`, `Idempotency`) rather than seeding fake data into storage. If
   you rename or remove a nugget or guide referenced in a test
-  (`HomePage.test.tsx`, `ContentPage.test.tsx`, `App.test.tsx`), update the
-  test alongside it — and `src/content/links.test.ts` fails if a renamed
-  slug leaves a dangling `](/nuggets/…)` link in any body.
+  (`BrowsePage.test.tsx`, `HubPage.test.tsx`, `ContentPage.test.tsx`,
+  `App.test.tsx`, `Sidebar.test.tsx`), update the test alongside it — and
+  `src/content/links.test.ts` fails if a renamed slug leaves a dangling
+  `](/nuggets/…)`, `](/guides/…)`, `](/tracks/…)`, or `](/interactive/…)`
+  link in any body.
 - Prefer `screen.getByRole()` over test IDs. Test user-visible behavior.
 
 ## Architecture
@@ -205,15 +249,28 @@ src/content/
     ...                     # one .md + .ts pair per nugget, same shape
     index.ts               # NUGGETS: Nugget[]
   guides/
-    <slug>.md
+    <slug>.md              # Systems-domain guides: flat in guides/
     <slug>.ts                # metadata (format: 'guide'), same shape as a nugget's
-    index.ts               # GUIDES: Nugget[]
+    ai/                     # AI-domain guides, one subdir per AI section
+      retrieval/
+        <slug>.md
+        <slug>.ts
+        index.ts           # AI_RETRIEVAL: Nugget[]
+      agents/ …            # llm-internals, reasoning, adaptation, retrieval,
+      …                     #   agents, orchestration, safety, evaluation, mlops
+    index.ts               # GUIDES: Nugget[] = [...flat guides, ...AI_* arrays]
+  tracks.ts               # TRACKS: Track[] — ordered reading paths (see "Tracks")
   index.ts                 # CONTENT: Nugget[] = [...NUGGETS, ...GUIDES]
-                            # getContent(id), contentPath(item) — everything
-                            # that needs to look up or link to *either* format
-                            # (search, sidebar, related, reading progress)
-                            # reads through this file, not the per-format ones.
+                            # getContent(id), contentPath(item), sectionNeighbors,
+                            # trackNeighbors — everything that looks up or links to
+                            # *either* format reads through this file.
 ```
+
+Every content `id` is unique across nuggets **and** guides (they share the
+`getContent` namespace and the `/nuggets` vs `/guides` routing only differs
+by prefix). When migrating or adding AI guides, check the id doesn't
+collide with an existing systems item — `vector-databases` (systems nugget)
+vs `vector-search` (RAG guide) is the one case that was renamed to avoid it.
 
 **Guide titles: the `Topic: Subtopic` convention.** Some guides share a
 title prefix (`Networking: Protocols`, `Networking: Load Balancing`,
@@ -265,10 +322,10 @@ topic into parts — both conventions coexist and shouldn't be mixed
    Pick the one `section` (from the `Section` union in `src/types.ts`) a
    reader would *browse* for this under — see "the one topic shelf" above;
    if it's a toss-up, `tags` and "Related" cover the other angle. Tags come
-   from the `Tag` union in `src/types.ts` (`ai`, `apis`, `auth`,
-   `databases`, `git`, `messaging`, `migrations`, `networking`, `patterns`,
-   `performance`, `process`, `reliability`, `security`, `testing`,
-   `tooling`, `web`) — TypeScript rejects anything else. Reuse a fitting
+   from the `Tag` union in `src/types.ts` (the source is the authority —
+   currently the 16 systems tags plus `rag`, `agents`, `evals`, `prompting`,
+   `inference`, `fine-tuning`, `guardrails`, `mlops`, `embeddings`) —
+   TypeScript rejects anything else. Reuse a fitting
    existing tag rather than adding a near-duplicate to the union; the tag
    vocabulary drives both the home page's filter chips and the "Related"
    section (see below), so a fragmented vocabulary weakens both.
@@ -276,10 +333,24 @@ topic into parts — both conventions coexist and shouldn't be mixed
    `src/content/nuggets/index.ts`.
 
 **Adding a guide:** same three steps (including `summary` and `section`),
-but in `src/content/guides/`, with `format: 'guide'`, added to the `GUIDES`
-array in `src/content/guides/index.ts`. No other wiring is needed — the
-merged `CONTENT` registry, routing, search, sidebar, and related-content
-lookup are all format- and section-aware already.
+with `format: 'guide'`. A **Systems** guide goes flat in
+`src/content/guides/` and is added to the `GUIDES` array in
+`src/content/guides/index.ts`. An **AI** guide goes in
+`src/content/guides/ai/<section>/` and is added to that section's local
+array (`AI_RETRIEVAL`, `AI_AGENTS`, …), which is already spread into
+`GUIDES`; if it belongs in a track, also add its id to that track's
+`items` in `src/content/tracks.ts`. No other wiring is needed — `CONTENT`,
+routing, search, sidebar, related, and tracks are all format- and
+section-aware.
+
+The `Section` union (`src/types.ts`) has two families: 10 systems sections
+and 9 AI sections, each prefixed `ai-` (`ai-llm-internals`, `ai-reasoning`,
+`ai-adaptation`, `ai-retrieval`, `ai-agents`, `ai-orchestration`,
+`ai-safety`, `ai-evaluation`, `ai-mlops`). The `ai-` prefix is load-bearing
+— `sectionDomain()` keys the home-page domain filter and sidebar
+super-grouping off it. `Tag` gained `rag`, `agents`, `evals`, `prompting`,
+`inference`, `fine-tuning`, `guardrails`, `mlops`, `embeddings` for the AI
+content.
 
 Body content is kept in a separate `.md` file (imported via Vite's `?raw`
 suffix) rather than a JS template literal — a markdown body containing
@@ -305,7 +376,7 @@ things:
   section in order" affordance, derived purely from `section` + title.
 
 The header also shows the section label as a plain eyebrow (not a link —
-there's no per-section page; the home page is where sections are browsed).
+there's no per-section page; `/browse` is where sections are browsed).
 
 ### Reading state
 
@@ -316,9 +387,14 @@ disabled). It backs two independent, unrelated concerns:
 - `ThemeContext.tsx` — the dark/light preference
 - `src/lib/readingProgress.ts` — last-viewed item id + a per-item
   scroll offset, consumed by `useRecordReadingProgress` (restores/persists
-  scroll from `ContentPage`) and `useLastViewedNugget` (feeds the "Continue
-  reading" banner on `HomePage`), both in
-  `src/hooks/useContinueReading.ts`.
+  scroll from `ContentPage`) and `useLastViewedNugget` (feeds the resume
+  card on `HubPage`), both in `src/hooks/useContinueReading.ts`.
+- `src/lib/trackProgress.ts` — per-item track completion (`dn:track-progress`)
+  + the last-engaged track id (`dn:track-progress:last`), driving the
+  content-page progress strip, `TrackPage`, and `useResumeTrack`.
+- `src/hooks/useDomain.ts` — the active domain (`dn:domain`), a module-level
+  `useSyncExternalStore` store (no provider) shared by the sidebar switcher,
+  the browse filter, and the hub's domain cards.
 
 Neither of these stores content — only reading state. There is no
 repository/CRUD layer for nuggets or guides; components read
@@ -356,48 +432,128 @@ site.
 ### Keyboard shortcuts
 
 - `Ctrl`/`Cmd` + `K` — focus the header search bar
+- `?` — open the keyboard-shortcuts modal (`KeyboardShortcutsModal`)
+- `j` / `k` — on a content page, go to the next / previous item; follows
+  **track order** when the item is in a track (`trackNeighbors`), else
+  section order (`sectionNeighbors`). Ignored while a modal is open or
+  focus is in an input.
 
 Wired in `useGlobalShortcuts` (`src/hooks/useGlobalShortcuts.ts`), called
-from `AppShell` in `App.tsx`.
+from `AppShell` in `App.tsx`; it returns `{ shortcutsOpen, closeShortcuts }`
+for the modal.
 
 ### Routing
 
-Three routes (`src/App.tsx`), two of them pointing at the same page
-component:
+Routes (`src/App.tsx`):
 
-- `/` — `HomePage`: continue-reading banner, then a format filter
-  (`All`/`Nuggets`/`Guides`) and tag chips, then the catalog rendered as
-  topic-section blocks (see "Home page: sections + filters" below)
-- `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, which
-  resolves the `:id` param through `getContent()` (the merged registry) and
-  renders identically either way. There's no separate `GuidePage` — a guide
-  is still just markdown; the only thing distinguishing routes is which URL
-  segment reads naturally for a link. Use `contentPath(item)` (from
-  `@/content`) rather than hand-building `/nuggets/${id}` or
-  `/guides/${id}` — it picks the right prefix from `item.format` so call
-  sites never need an `if` on format just to build a link.
+- `/` — `HubPage`: a landing, not the firehose — hero search, a resume
+  card, two domain cards, the tracks row, and the curated "Start here" set.
+  See "Home: hub + browse" below.
+- `/browse` — `BrowsePage`: the full filtered catalog as topic-section
+  blocks, under one toolbar (domain + format + tag menu + density).
+- `/nuggets/:id` and `/guides/:id` — both render `ContentPage`, resolving
+  `:id` through `getContent()` and rendering identically. Use
+  `contentPath(item)` (from `@/content`) rather than hand-building the
+  path — it picks the prefix from `item.format`.
+- `/tracks` — `TracksIndexPage`: the grid of all nine tracks with progress.
+- `/tracks/:id` — `TrackPage`: a track's syllabus + progress (see
+  "Tracks").
+- `/interactive` and `/interactive/:id` — `InteractivePage`, **`React.lazy`**
+  (keeps the RAG-viz weight out of the main chunk). See "Interactive
+  algorithm pages".
 
-`Header` (search, theme toggle) is rendered once in `AppShell`, above the
-routed content, so it's present on every page.
+`Header` (logo, primary nav, search, theme toggle) is rendered once in
+`AppShell`, above the routed content. The primary nav — `PRIMARY_NAV` in
+`src/lib/nav.ts` (Browse / Tracks / Interactive) — shows inline on `sm+`
+and moves into the top of the mobile drawer below `sm`. Search lives only
+here now (the hub's hero search was removed — one search box, Jakob's Law).
+
+### Tracks
+
+A **track** (`src/content/tracks.ts`) is an ordered reading path through a
+set of existing guides — one per AI topic, 1:1 with the old ai-cauldron
+modules. It is a *curation layer*, deliberately **not** a third `format`:
+`Nugget`/`format` are unchanged, guides stay guides, and a guide can exist
+without being in any track.
+
+```ts
+interface Track { id; title; summary; section: Section; items: string[]; }
+export const TRACKS: Track[];
+export function getTrack(id): Track | undefined;
+export function trackForItem(contentId): Track | undefined; // first track listing it
+```
+
+- `items` is an ordered list of content ids. An id that doesn't resolve
+  renders as a disabled "Coming soon" row and is skipped for
+  neighbour/progress math (so a track can reference content before it lands).
+- `trackNeighbors(item)` in `src/content/index.ts` mirrors
+  `sectionNeighbors` but walks the item's track order; `ContentPage`'s
+  prev/next pager uses it when `trackForItem(item.id)` is set, and shows a
+  `Track: <title>` eyebrow linking to `/tracks/:id`.
+- **Progress** is `src/lib/trackProgress.ts` — a `safeStorage`-backed
+  per-item completion map (`dn:track-progress`) plus a last-engaged track
+  id (`dn:track-progress:last`). `useTrackProgress()` exposes it
+  reactively; `ContentPage` shows a "Mark complete" toggle for tracked
+  items; `TrackPage` shows a progress bar; `useResumeTrack()`
+  (`useContinueReading.ts`) feeds a "Resume" affordance.
+
+**Adding / editing a track:** edit `TRACKS` in `src/content/tracks.ts` —
+`id` (URL slug), `title`, one-sentence `summary`, `section` (the AI
+`Section` its guides live under), and `items` in reading order.
+`src/content/tracks.test.ts` checks ids are unique and sections are real.
+
+### Interactive algorithm pages
+
+`/interactive/:id` renders one of the ten RAG algorithms via
+`src/components/interactive/`. Everything here is behind `React.lazy` and
+split into its own chunks — the Systems side of the app never loads it.
+
+- `registry.ts` — `INTERACTIVE: InteractiveEntry[]` (id, name, `kind:
+  'stepper' | 'summary'`, blurb, lazy `load`) + `getInteractive(id)`. The
+  four loop-structured algorithms (`agentic`, `self-rag`, `corrective`,
+  `graph`) are `stepper`; the other six are `summary`.
+- `StepThrough.tsx` — the reusable walkthrough: prev/next + `←`/`→`/`R`
+  keys, a step counter, and per-step highlighting of a static SVG/Mermaid
+  diagram. **No `framer-motion`, no SMIL** — the ai-cauldron animation
+  engine was deliberately dropped; progression is conveyed by
+  `.is-active`/`.is-visited` class toggles.
+- `pipeline.ts` / `PipelineFigure.tsx` — static SVG pipeline diagrams
+  (ported geometry, no traveling packets). `figures/` holds the static
+  `EmbeddingSpace` / `KnowledgeGraph` / `ReActTrace` reductions.
+- Per-algorithm dirs (`standard/`, `agentic/`, …) each export a `default`
+  component; Python from ai-cauldron's `code-snippet.ts` is carried into
+  `CodeTabs` (via the existing `CodeBlock`).
+
+Guides link to these with a normal internal link, e.g.
+`[step through it](/interactive/standard)`; `links.test.ts` validates
+those against the registry.
 
 ### Sidebar
 
 `Sidebar` (`src/components/Sidebar.tsx`) groups content by `section` — the
-topic sections in `SECTION_ORDER`, via `contentBySection()` — with
-guides before nuggets within each and a small "Guide" badge on the guides.
-It is *not* grouped by tag: tags are multi-valued (an item can be both
-`reliability` and `patterns`), so a tag-grouped sidebar would mean either
-duplicating entries or inventing a "primary tag" — `section` is the
-single-valued axis that already exists for exactly this. The sidebar's job
-is fast lookup and orientation by topic from any page; free-text lookup by
-name is what `Ctrl`/`Cmd`+`K` search is for.
+topic sections in `SECTION_ORDER`, via `contentBySection()` — guides and
+nuggets together within each, guides marked with a muted `· guide`. It is
+*not* grouped by tag: tags are multi-valued, so a tag-grouped sidebar would
+mean duplicate entries or a "primary tag". Its job is fast orientation by
+topic from any page; free-text lookup is `Ctrl`/`Cmd`+`K`.
 
-Each group is a `SidebarGroup` (a local component inside `Sidebar.tsx`,
-not its own file — not reused elsewhere) with its own collapsed/expanded
-`useState`. **Collapsed by default**, so the sidebar opens as a scannable
-list of section names; the section holding the current route's item
-starts expanded (`useActiveSection()` parses the id out of the pathname
-and looks up its section). A small `useEffect` re-opens a section when you
+**One domain at a time.** A `SegmentedControl` (`stretch`) at the top —
+`role="group"`, not a heading — reads/writes `useDomain()` and scopes the
+tree to that domain's ~10 sections (not all 19) — Miller's Law; see
+`docs/DESIGN.md`. Same control and short labels as the browse toolbar. Navigating into a content page flips the switcher to that
+item's domain. `sectionDomain(section)` (`'ai'` iff prefixed `ai-`) is the
+split. Sections are the single heading tier: a collapsible
+`<h2><button aria-expanded>`, collapsed by default, the active one
+auto-expands and never force-closes. Nested item links hang off a
+`border-l` connector (`<ul>`); the active row notches an accent bar over
+it. A `Systems › Section` context crumb shows on content pages.
+
+Each section group is a `SidebarGroup` (a local component inside
+`Sidebar.tsx`, not its own file — not reused elsewhere) with its own
+collapsed/expanded `useState`. **Collapsed by default**, so the sidebar
+opens as a scannable list of section names; the section holding the current
+route's item starts expanded (`useActiveSection()` parses the id out of the
+pathname and looks up its section). A small `useEffect` re-opens a section when you
 navigate into it (e.g. via a "Related" link) but never auto-*closes* one
 the reader opened — it only ever sets `open` true. The heading is a
 `<button aria-expanded>` wrapped in an `<h2>` (the WAI-ARIA accordion
@@ -408,14 +564,15 @@ there's more than one non-empty group (`SECTIONS.length > 1`, where
 `SECTIONS = contentBySection()` already drops empty ones) — with this many
 sections that's always true in practice, but the guard stays generic.
 
-Topic links are indented further than their group heading (`pl-6` vs.
-the heading's `px-3`) so they read as nested under it, not flush with
-it — the link element itself still spans the full row width, so the
-hover/active background isn't affected, only the text's start position.
+Topic links sit in a `<ul>` with a `border-l` connector, inset `ml-3 pl-3`
+from the heading so they read as nested under it; the link element still
+spans the full row width (Fitts), so only the text starts inset, not the
+hover/active background.
 
-Desktop and the mobile drawer are two separate `Sidebar` instances (see
-below), so their collapsed states are independent — collapsing a section
-on desktop doesn't collapse it in the drawer.
+Desktop and the mobile drawer are two separate `Sidebar` instances, so
+their per-section collapsed states are independent. The **domain**
+selection is *not* — it's the shared `useDomain` store, so flipping the
+switcher in one instance flips it in the other.
 
 `AppShell` renders two copies of it: a static one in a `hidden md:block`
 `<aside>` for desktop, and a second one inside a fixed-overlay drawer
@@ -436,33 +593,51 @@ in the viewport while the article scrolls, and only scrolls internally
 once its own content (dozens of nuggets plus a growing set of guides)
 exceeds the viewport height.
 
-### Home page: sections + filters
+### Home: hub + browse
 
-`HomePage` stacks the whole catalog as topic-section blocks — heading +
-one-line charter (`SECTION_LABELS`/`SECTION_DESCRIPTIONS`) + the section's
-cards — rendered by `SectionedContentList`
-(`src/components/SectionedContentList.tsx`), which just groups an
-already-filtered `Nugget[]` through `contentBySection()` and shows an
-empty-state line if nothing survived. `HomePage` owns the two filters
-above it: a format filter (`All`/`Nuggets`/`Guides`, a `role="group"` of
-`aria-pressed` buttons) and tag chips (`All topics` + every tag in
-`CONTENT`, so the chip set doesn't shift when the format changes). The two
-compose; sections with no surviving items just don't render.
+Two pages, since a single filtered scroll of 150+ items is a poor landing
+(see `docs/DESIGN.md` — Hick, Occam, Von Restorff).
 
-**There is no pagination.** The earlier design paginated two flat
-per-format lists at `PAGE_SIZE = 10` because each was 30-40 items long;
-grouped into topic sections the largest is under a dozen, so the whole
-catalog renders at once. `PaginatedContentList` and its `visibleCount`/"Load more"
-machinery were deleted with this change — don't reintroduce them for the
-home page. If a single section ever genuinely gets too long to scan, the
-fix is to split the section (add a `Section` value), not to paginate
-inside one.
+**`HubPage` (`/`)** — the landing. A hero `SearchBar`; a **resume card**
+(`useLastViewedNugget` + `useResumeTrack` — de-duped: one row when the last
+item read is in the resume track, two distinct cards when a standalone read
+and a mid-progress track diverge); two **domain cards** (counts + top
+sections; clicking one calls `setDomain` then routes to `/browse`); the
+**tracks row** (`TrackCard` × 9, with progress); and **"Start here"** —
+`curatedItems()` from `src/content/curated.ts` (a hand-picked `string[]` of
+ids spanning both domains; a test asserts each resolves).
 
-Adding a third content format (see `CASE_STUDIES_PLAN.md`) means adding
-`{ id: 'case-study', label: 'Case Studies' }` to `FORMAT_FILTERS` in
-`HomePage.tsx`; `SectionedContentList` and `contentBySection()` are
-already format-agnostic. A case study is still filed under a topic
-`section` like everything else.
+**`BrowsePage` (`/browse`)** — the full catalog as topic-section blocks via
+`SectionedContentList` (groups an already-filtered `Nugget[]` through
+`contentBySection()`; empty sections drop; empty-state line if nothing
+survives). One **sticky toolbar**, split into two zones (Common Region /
+Chunking): **filters** on the left — a domain `SegmentedControl` (via
+`useDomain`, short `DOMAIN_SHORT_LABELS`), a format `SegmentedControl`, and
+the **`TagFilterMenu`** (the ~22 tags behind one searchable multi-select
+popover, OR semantics — never a flat chip wall); **status + view** on the
+right — a live result count and a `size="sm"` density `SegmentedControl`
+(`density` threaded to `SectionedContentList` → `ContentListItem`). Every
+single-select toggle in the app goes through `SegmentedControl`
+(`src/components/SegmentedControl.tsx`) so they read as one kind of thing
+(Similarity) and match the pattern people know (Jakob); the `TagFilterMenu`
+trigger is a bordered menu button, deliberately *not* a segment.
+Active tag filters render as dismissible chips **only when set**.
+`?domain=` / `?tag=` in the URL seed the filters (hub cards, shared links).
+When more than one section survives the filter, the toolbar carries a
+second row: a **jump-to-section nav** — `sectionAnchorId(section)` (in
+`@/lib/sections`) matches the `id` `SectionedContentList` stamps on each
+`<section>`; the buttons `scrollIntoView`, and `scroll-mt-40` clears the
+sticky toolbar.
+
+**No pagination** — grouped into topic sections the largest is ~17, so the
+whole scope renders at once. `PaginatedContentList` / "Load more" was
+deleted; don't reintroduce it. If a section gets too long to scan, split
+the section (add a `Section` value), don't paginate.
+
+Adding a third content format means adding it to `FORMAT_FILTERS` in
+`BrowsePage.tsx`; `SectionedContentList` and `contentBySection()` are
+already format-agnostic. (`CASE_STUDIES_PLAN.md` predates the hub/browse
+split and the ai-cauldron merge — treat its file paths as stale.)
 
 ### Path alias
 

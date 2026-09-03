@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { CONTENT, getContent, contentPath } from './index';
 import { NUGGETS } from './nuggets';
 import { GUIDES } from './guides';
-import { SECTION_ORDER, SECTION_LABELS } from '@/lib/sections';
+import { SECTION_ORDER } from '@/lib/sections';
 import type { Nugget } from '@/types';
 
 function nugget(overrides: Partial<Nugget>): Nugget {
@@ -33,10 +33,10 @@ describe('section assignments', () => {
     expect(orphans.map((item) => `${item.id} → ${item.section}`)).toEqual([]);
   });
 
-  it('leaves no section empty', () => {
+  it('leaves no section in SECTION_ORDER empty', () => {
     const used = new Set(CONTENT.map((item) => item.section));
     const empty = SECTION_ORDER.filter((section) => !used.has(section));
-    expect(empty.map((section) => SECTION_LABELS[section])).toEqual([]);
+    expect(empty).toEqual([]);
   });
 
   it('gives every item a non-empty one-line summary', () => {

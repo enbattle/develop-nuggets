@@ -2,6 +2,7 @@ import type { Nugget, Section } from '@/types';
 import { SECTION_ORDER } from '@/lib/sections';
 import { NUGGETS } from './nuggets';
 import { GUIDES } from './guides';
+import { trackForItem } from './tracks';
 
 /** Every nugget and guide, in one list — for search, the sidebar, and lookup by id. */
 export const CONTENT: Nugget[] = [...NUGGETS, ...GUIDES];
@@ -44,6 +45,29 @@ export function sectionNeighbors(item: Nugget): {
   return {
     prev: i > 0 ? list[i - 1] : null,
     next: i >= 0 && i < list.length - 1 ? list[i + 1] : null,
+  };
+}
+
+/**
+ * The items immediately before and after `item` within its track, in the
+ * track's `items` order, skipping ids that don't resolve yet. `null` at
+ * either end, and `{ prev: null, next: null }` if the item isn't in a track.
+ * Mirrors `sectionNeighbors`; `ContentPage`'s pager uses this instead when
+ * the item belongs to a track.
+ */
+export function trackNeighbors(item: Nugget): {
+  prev: Nugget | null;
+  next: Nugget | null;
+} {
+  const track = trackForItem(item.id);
+  if (!track) return { prev: null, next: null };
+  const resolved = track.items
+    .map((id) => getContent(id))
+    .filter((entry): entry is Nugget => entry !== undefined);
+  const i = resolved.findIndex((entry) => entry.id === item.id);
+  return {
+    prev: i > 0 ? resolved[i - 1] : null,
+    next: i >= 0 && i < resolved.length - 1 ? resolved[i + 1] : null,
   };
 }
 

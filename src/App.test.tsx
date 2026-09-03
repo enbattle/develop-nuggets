@@ -1,67 +1,91 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
-import { NUGGETS } from '@/content/nuggets';
-import { GUIDES } from '@/content/guides';
+import { resetDomain } from '@/hooks/useDomain';
 
-const alphabeticalNuggets = [...NUGGETS].sort((a, b) =>
-  a.title.localeCompare(b.title),
-);
-const firstNuggetTitle = alphabeticalNuggets[0].title;
+function renderApp(path = '/') {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <App />
+    </MemoryRouter>,
+  );
+}
 
-const firstGuideTitle = [...GUIDES].sort((a, b) =>
-  a.title.localeCompare(b.title),
-)[0].title;
+beforeEach(() => {
+  resetDomain();
+});
 
 describe('App', () => {
-  it('renders the header, the section sidebar, and the full home catalog', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>,
-    );
+  it('renders the hub at / — header search, domain cards, tracks, and Start here', () => {
+    renderApp('/');
 
-    expect(screen.getByText('Dev Nuggets')).toBeInTheDocument();
-    // Sidebar groups content into collapsible topic sections.
     expect(
-      screen.getByRole('button', { name: 'Foundations' }),
+      screen.getByRole('heading', { level: 1, name: 'Dev Nuggets' }),
     ).toBeInTheDocument();
-    // Home page lists both formats, unfiltered, by default.
+    // One search box, in the header — the hub no longer has its own.
+    expect(screen.getAllByRole('searchbox')).toHaveLength(1);
+    // Primary nav is present on every page.
     expect(
-      screen.getByRole('heading', { name: firstGuideTitle }),
+      screen.getByRole('link', { name: 'Browse' }),
+    ).toHaveAttribute('href', '/browse');
+
+    // Two domain cards, inside the "Browse by domain" region.
+    const domainRegion = screen.getByRole('region', {
+      name: /browse by domain/i,
+    });
+    expect(
+      within(domainRegion).getByRole('button', {
+        name: /systems & infrastructure/i,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: firstNuggetTitle }),
+      within(domainRegion).getByRole('button', { name: /ai engineering/i }),
     ).toBeInTheDocument();
+
+    // Tracks section and the curated "Start here" list.
+    expect(
+      screen.getByRole('heading', { name: 'Tracks' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Start here' }),
+    ).toBeInTheDocument();
+
+    // The hub is a landing, not the firehose — the routed content has no
+    // section charter blocks (the sidebar's section list is a separate <aside>).
+    const main = screen.getByRole('main');
+    expect(
+      within(main).queryByRole('heading', { name: 'Reliability & Resilience' }),
+    ).not.toBeInTheDocument();
   });
 
-  it('filters the home catalog to nuggets only', async () => {
+  it('navigates from a hub domain card to the pre-filtered browse page', async () => {
     const user = userEvent.setup();
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>,
+    renderApp('/');
+
+    const domainRegion = screen.getByRole('region', {
+      name: /browse by domain/i,
+    });
+    await user.click(
+      within(domainRegion).getByRole('button', { name: /ai engineering/i }),
     );
 
-    await user.click(screen.getByRole('button', { name: 'Nuggets' }));
-
+    // Browse page toolbar, scoped to the AI domain.
+    const domainGroup = screen.getByRole('group', { name: /filter by domain/i });
     expect(
-      screen.getByRole('heading', { name: firstNuggetTitle }),
+      within(domainGroup).getByRole('button', { name: 'AI' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      within(screen.getByRole('main')).getByRole('heading', {
+        name: 'Retrieval & RAG',
+      }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: firstGuideTitle }),
-    ).not.toBeInTheDocument();
   });
 
   it('toggles the mobile navigation drawer open and closed', async () => {
     const user = userEvent.setup();
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>,
-    );
+    renderApp('/');
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 

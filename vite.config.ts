@@ -16,5 +16,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: true,
+    // Only our own suite — not test files inside `.claude/worktrees/` copies
+    // that background agents create while working on this branch.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

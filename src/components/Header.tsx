@@ -1,7 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import type { RefObject } from 'react';
+import { PRIMARY_NAV } from '@/lib/nav';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `rounded-md px-2 py-1 text-sm font-medium transition-colors ${
+    isActive
+      ? 'text-accent'
+      : 'text-text-secondary hover:text-text-primary'
+  }`;
 
 interface HeaderProps {
   searchRef: RefObject<HTMLInputElement>;
@@ -53,7 +61,18 @@ export function Header({ searchRef, onToggleSidebar }: HeaderProps) {
           Dev Nuggets
         </Link>
 
-        <div className="flex-1">
+        <nav
+          aria-label="Primary"
+          className="hidden shrink-0 items-center gap-0.5 sm:flex"
+        >
+          {PRIMARY_NAV.map((item) => (
+            <NavLink key={item.to} to={item.to} className={navLinkClass}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="flex flex-1 justify-end">
           <SearchBar ref={searchRef} />
         </div>
 

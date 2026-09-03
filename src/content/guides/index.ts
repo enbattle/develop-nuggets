@@ -17,6 +17,19 @@ import { blobStorage } from './blob-storage';
 import { serverlessAwsLambda } from './serverless-aws-lambda';
 import { oauth } from './oauth';
 
+// AI Engineering guides (migrated from ai-cauldron). Each section keeps its
+// own ordered array under ./ai/<section>/index.ts; they're spread into
+// GUIDES below and grouped for display by `section` like everything else.
+import { AI_LLM_INTERNALS } from './ai/llm-internals';
+import { AI_REASONING } from './ai/reasoning';
+import { AI_ADAPTATION } from './ai/adaptation';
+import { AI_RETRIEVAL } from './ai/retrieval';
+import { AI_AGENTS } from './ai/agents';
+import { AI_ORCHESTRATION } from './ai/orchestration';
+import { AI_SAFETY } from './ai/safety';
+import { AI_EVALUATION } from './ai/evaluation';
+import { AI_MLOPS } from './ai/mlops';
+
 /** Add a new guide's import here — see CLAUDE.md "Adding a guide". */
 export const GUIDES: Nugget[] = [
   apiBestPractices,
@@ -36,4 +49,13 @@ export const GUIDES: Nugget[] = [
   blobStorage,
   serverlessAwsLambda,
   oauth,
+  ...AI_LLM_INTERNALS,
+  ...AI_REASONING,
+  ...AI_ADAPTATION,
+  ...AI_RETRIEVAL,
+  ...AI_AGENTS,
+  ...AI_ORCHESTRATION,
+  ...AI_SAFETY,
+  ...AI_EVALUATION,
+  ...AI_MLOPS,
 ];
