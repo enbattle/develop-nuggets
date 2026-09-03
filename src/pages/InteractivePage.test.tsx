@@ -5,6 +5,10 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import InteractivePage from './InteractivePage';
 import { INTERACTIVE } from '@/components/interactive/registry';
 
+// Each demo is a separate React.lazy() chunk; resolving Suspense can exceed
+// the 1s findBy default on a loaded machine. Give the async lookups room.
+const LAZY = { timeout: 5000 };
+
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -47,9 +51,9 @@ describe('InteractivePage', () => {
       screen.getByRole('heading', { name: 'Standard RAG' }),
     ).toBeInTheDocument();
     // Lazy-loaded demo body.
-    expect(await screen.findByText('Key insight')).toBeInTheDocument();
+    expect(await screen.findByText('Key insight', undefined, LAZY)).toBeInTheDocument();
     expect(
-      await screen.findByRole('heading', { name: 'Worked trace' }),
+      await screen.findByRole('heading', { name: 'Worked trace' }, LAZY),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /back to all pipelines/i }),
@@ -62,8 +66,8 @@ describe('InteractivePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Agentic RAG' }),
     ).toBeInTheDocument();
-    expect(await screen.findByText(/step 1 of 9/i)).toBeInTheDocument();
-    expect(await screen.findByText('ReAct trace')).toBeInTheDocument();
+    expect(await screen.findByText(/step 1 of 9/i, undefined, LAZY)).toBeInTheDocument();
+    expect(await screen.findByText('ReAct trace', undefined, LAZY)).toBeInTheDocument();
   });
 
   it('shows a not-found card for an unknown id', () => {
